@@ -67,6 +67,64 @@ executor（ak-engineer agents / sub-agents）產生；Commander 不親手產出�
 「記」的邊界：共識文件（ADR／名詞表）與裁示紀錄屬 Commander 職權；超出此邊界即違規。
 此規則為 Pocock 沉默處的本地增設（原版無此條），不構成與至上條款衝突。
 
+## ADR-NP-009 · timeline 歸因延至 CI 階段啟用
+
+彥揚 2026-08-05 裁示，依 T-02 實測報告（翻盤點條款觸發）：
+Cowork 手動階段無法取得「≠ 使用者」的 gate 執行身分。兩件**不同**的事，勿混：
+① **【量測】Cowork 現在完全寫不了 GitHub**——MCP `push_files` 回 403
+   `Resource not accessible by integration`（2026-08-05 實測 3 次，讀取同時正常）；
+   Bash 對 api.github.com 被 session proxy 攔截。此為 §4.6 待寫佇列的存在理由。
+② **【推論】即使 ① 日後修好**，官方 MCP 走 user-to-server token，架構上
+   actor＝使用者本人 ⇒ 機器歸因仍不成立。此為本條延後歸因的理由。
+① 修好則 §4.6 廢止，② 仍須等 CI。
+⇒ **手動階段**：timeline 機器歸因不啟用，降級為規範層（SKILL.md 禁令）＋人工複查；
+   §6.1⑤ 身分驗證改為「檢查並具名回報當前身分」，不作 fail 條件。
+⇒ **CI 階段**（§9a 既定第二階段）：以 `github-actions[bot]`（原生滿足身分要求）啟用
+   完整 timeline 歸因，§3.4 全套防線屆時生效。
+凍結票（T-08 起）依此解凍。否決：混合架構（本機 machine-user PAT 代寫——非同步
+交接、養第二帳號、actor 無 [bot] 徽章，成本高體驗差）。
+
+## ADR-NP-010 · 站 4／5 自主派工循環（補站 1 漏採之需求）
+
+彥揚 2026-08-05 裁示。**成因（誠實記錄）**：使用者原版 S4/S5 明寫「gives high
+autonomy to Ai」，站 1 grill 五問未問到自主權；舊 fleet 的心跳／喚醒綁在
+fleet_state.json 上，ADR-NP-002 廢掉狀態檔時，T-04 把整組心跳判作廢（SK-08、
+PR-08），但**無人重新安置「S4/S5 要自主」這條需求**。本條補回。
+
+**① 兩層喚醒**
+- session 內：`/station-run` 進入 loop，持續派工至停止條件成立。
+- 跨 session：Cowork 排程（cron）定時開新 session，讀 GitHub 現況後續派。
+- 兩層共用同一套停止條件；狀態一律從 GitHub 現算，**不引入任何狀態檔**
+  （這正是本設計優於舊心跳之處——舊心跳的 sync 陷阱源於 fleet_state.json）。
+
+**② 停止條件（窮舉，其餘一律自動續跑）**
+1. 不可逆動作前：deploy／刪資料／對外寄送／付費／開權限
+2. gate 連續失敗：rework 2 次仍 fail
+3. 站 1／2／3 的人類 gate：共識確認、spec 確認、拆票 quiz
+4. scope 需變更
+5. frontier 空（無可動作項）
+⇒ **站 4／5 內部的 dispatch、驗收、雙審、merge 一律不問**（承接舊 v0.28.3
+「merge 五條判準全過即合」常設授權，本條不推翻）。
+
+**③ 寫入斷點：累積待寫佇列**
+Cowork 現階段寫不了 GitHub（T-02、ADR-NP-009）。loop 照跑（讀狀態、派工、
+收件、判 gate），把所有寫入動作（推站、發票、關票）累積成待寫清單＋一支本機
+套用腳本，使用者有空跑一次全部落地。⇒ **自主權不因寫入斷點歸零**：實作、
+審查、判定都真的在跑，只有「蓋章」延後。升 CI 後本條自然消失。
+
+**④ 喚醒頻率**：平日 09:00–22:00（Asia/Taipei）每小時一次；有活就做、無活
+安靜退出（不發通知）。夜間不跑。
+
+**⑤ 修訂（同日，v1.7 缺口審 FAIL 11 HARD 後）**：**第二層（跨 session 排程
+喚醒）延至 CI 階段啟用**，手動階段只啟用第一層（session 內 loop）。
+成因：loop 賴以運作的三個訊號——在跑標記（assignee）、失敗計數
+（`sc:gate-fail`）、稽核痕跡（留言）——全部需要寫 GitHub，手動階段寫不進去
+⇒ 新 session 讀到的必然是過期視圖 ⇒ **同一票每小時被重派、多 executor 併行
+改同一檔案且全程無聲**。session 內 loop 不受影響（Commander 自身即記憶）。
+同時修正 ③ 的過度宣稱：**程式碼產出**同樣推不上 GitHub 且隨 ephemeral
+container 蒸發，「只有蓋章延後」僅適用於 issue metadata，不適用 code；
+手動階段 code 產出的留存另定（本機 patch 落地）。
+
 ## 承接不變（非本次裁示，列出供對照）
 
 站序不可跳｜站 2 出口第三方審｜站 4 先紅後綠｜站 5 兩軸平行、報告不合併（兩廠條款已由 NP-007 supersede）｜

@@ -15,6 +15,8 @@ Owner: 彥揚 | Status: 站 1 共識草案 | Created: 2026-08-05
 | Decision Log / Change Log | 各專案 repo 內 DECISIONS.md / CHANGELOG.md；protocol 層跨專案正典照舊 Drive | ADR-4，ART-DEC-001 |
 | AgentKit 追蹤 | ak-project-management 的 plans/ 檔案（durable source）＋鏡射到 Cowork task 面板；ak 自帶 kanban 為 localhost-only，不作面板 | 站 1 事實查核 |
 | legacy | 非本流程產出的既有專案。收編＝auditor 定站退回站 x＋關鍵補件＋具名豁免；字卡帶 legacy badge 至通過第一個 native gate | ADR-6 |
+| 自主派工循環 | 站 4／5 的高自主權機制：session 內 loop ＋ 跨 session 排程喚醒，共用五條停止條件（不可逆／連續 fail／人類 gate／scope 變更／frontier 空）；狀態從 GitHub 現算，無狀態檔 | ADR-10（補使用者原版 S4/S5「high autonomy」） |
+| 待寫佇列 | Cowork 寫不了 GitHub 期間，loop 累積的寫入動作清單＋本機套用腳本。實作與判定照跑，只有蓋章延後 | ADR-10 ③，升 CI 後消失 |
 
 ## 未決項（站 2 議）
 
