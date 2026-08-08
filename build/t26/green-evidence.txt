@@ -1,4 +1,8 @@
 COMMAND=./build/t26/check_completeness.py
+RERUN_STARTED_AT_UTC=2026-08-08T18:56:39.008531867+00:00
+RERUN_FINISHED_AT_UTC=2026-08-08T18:56:39.094267494+00:00
+CHANGELOG_MTIME_UTC=2026-08-08T18:50:32.043380840+00:00
+DECISIONS_ADDITIONS_MTIME_UTC=2026-08-08T18:49:38.554848254+00:00
 EXIT_CODE=0
 SOURCE_FIXTURE_ROWS=36
 SOURCE_COUNT=30
@@ -7,4 +11,6 @@ COVERED_COUNT=30
 [PASS] 來源對照表每一條皆有且只有一個對應章節
 RESULT=GREEN
 
-證據性質：第三方缺口審 FAIL 後的本輪 rework 重跑（腳本未改動，同 red-evidence.txt 第二段所用版本）；檢查器逐筆回查獨立來源 fixture 的路徑、行號與片段（36 筆 occurrence，含新增 SRC-030→DTC-030、SRC-031→DTC-025），雙向比對 v1.8 字面標記，核對 24 個指定 build 目錄（含新增 t29／t30／t31）的 README 狀態／分類計數，並確認 30 個 DTC 各有且只有一個含五項必要欄位的 spec 章節。
+證據性質：第五輪站 2 獨立第三方缺口審 H-4 rework 重跑。本次重跑的開始與完成時間均晚於 `CHANGELOG.md` 與 `build/t05/decisions-additions.md` 的最後編輯時間，因此 GREEN 反映的是當前正典狀態。這是為了滿足 SC-DEC-ANCHOR-001「green 證據的重跑時間必須晚於最後一次正典編輯」的常設紀律，不是一次性補件。
+
+檢查器共核對 36 筆 occurrence（30 個 DTC），雙向比對 v1.8 字面標記，核對 24 個指定 build 目錄的 README 狀態／分類計數，並確認 30 個 DTC 各有且只有一個含五項必要欄位的 spec 章節。`red-evidence.txt` 原文未覆蓋、未追加。

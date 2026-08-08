@@ -396,7 +396,7 @@ Commander 已裁示：`tickets-loop-draft.md:63` 的 What-it-delivers 本身恰�
 
 ### P-06 可達性二層政策（已裁示 `SC-DEC-REACH-001`）
 
-Commander 已裁示（`CHANGELOG.md:31`、`build/t28/README.md:70-73`、`reachability-policy.ps1`）：可達性採**兩層判準**。第一層「可達性」＝有無收到 provider 的任何 HTTP 回應——只有網路層失敗（DNS、連線被拒、逾時）與 421 proxy 攔截判不可達；第二層「探測品質」＝狀態碼是否落在 200／401／403／429，落區間外判 **WARN 而非 FAIL**。實測結果 REACHABILITY 12/12、PROBE 11/12：Perplexity `GET /models` 回 404 判 WARN，該家無此端點，屬具名預期非缺陷。原「Spec #26 四碼 vs T-28 rework 二層」的判準衝突以此結案；CI 階段驗收依 DTC-025 執行。
+Commander 已裁示（`CHANGELOG.md:33`、`build/t28/README.md:70-73`、`reachability-policy.ps1`）：可達性採**兩層判準**。第一層「可達性」＝有無收到 provider 的任何 HTTP 回應——只有網路層失敗（DNS、連線被拒、逾時）與 421 proxy 攔截判不可達；第二層「探測品質」＝狀態碼是否落在 200／401／403／429，落區間外判 **WARN 而非 FAIL**。實測結果 REACHABILITY 12/12、PROBE 11/12：Perplexity `GET /models` 回 404 判 WARN，該家無此端點，屬具名預期非缺陷。原「Spec #26 四碼 vs T-28 rework 二層」的判準衝突以此結案；CI 階段驗收依 DTC-025 執行。
 
 **具名遺留（歸屬未定，非本票修改權）**：`Spec_station-command_v1.11.md:400` 的驗收 #26 字面仍是舊的單層四碼判準，與本裁示不一致。Spec v1.11 已定稿、不在 T-26 修改權內；該條文由誰、在哪一版重新安置**目前無主**。此落差在此具名以免重演 ADR-NP-010「需求無人重新安置」的成因；在被安置前，執行端一律以 `SC-DEC-REACH-001` 為準。
 

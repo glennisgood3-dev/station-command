@@ -32,6 +32,9 @@ Keep a Changelog 形式；spec 與 ADR 不寫沿革，一律外移到此（依 S
 - CI 階段 spec（`build/t26/ci-stage-spec.md`）新增 `DTC-030`（29 條→30 條）：收攏站 2 第三方缺口審 H-2 指出的 `SC-DEC-ROUTE-001` 未收攏缺口——站 4 CI 階段實作 executor 改沙盒內 Codex CLI 的三項 runtime 前提（CLI 安裝、憑證供應——手動階段實錄以 ChatGPT 登入憑證共用 refresh token 會發生 `refresh_token_invalidated` 輪替衝突、成本併入 T-29 記帳）
 - 可達性判準改兩層（SC-DEC-REACH-001）：第一層可達性＝有無收到任何 HTTP 回應（僅網路層失敗與 421 proxy 攔截算不可達）；第二層探測品質＝狀態碼落 200／401／403／429 之外判 WARN 非 FAIL。原單層判準會把「伺服器有回應但路徑或方法不對」誤判成連不到。實測 REACHABILITY 12/12、PROBE 11/12（Perplexity WARN 為具名預期）
 - executor 路由變更（SC-DEC-ROUTE-001，部分推翻 ADR-NP-011④）：站 4 實作 executor 改由 Codex CLI（gpt-5.6-sol，reasoning effort high）承接；Plan 與 Review 維持 Claude（fable）；Commander 職責不變。同日 ADR-NP-011① 否決範圍縮限為「跑在使用者本機的 CLI」（SC-DEC-CLI-001），兩處修正皆以後加具名段記於 ADR.md，原文照留
+- Codex CLI 憑證供應方式定案（SC-DEC-CLI-002）：延續 `SC-DEC-ROUTE-001` 之後的憑證前提，實錄以 ChatGPT 登入憑證（`auth.json`）快照供應時發生 refresh token 一次性輪替衝突（同一把 token 本機／沙盒兩處使用，任一方刷新即令另一方作廢，本輪實際命中 `refresh_token_invalidated`）。裁示：維持 ChatGPT 登入憑證，改採「後登入者贏」操作紀律（沙盒使用期間使用者不得執行本機 codex，含背景常駐 `codex app-server`／`codex remote-control`；收工後使用者重新 `codex login` 取回本機憑證）。⚠️ 本裁示取代本輪稍早未落檔的「改用 API key」暫定方向；OpenAI API key 為長期根治方案，本輪因剩餘工作量不足支撐額度儲值而未採用，日後長期沿用沙盒 CLI executor 應改採 API key
+- T-26 完備性 fixture 錨定方式改判（SC-DEC-ANCHOR-001）：`build/t26/deferred-sources.tsv` 原以行號錨定活的正典檔（`CHANGELOG.md:31`），Commander 交件後編輯 CHANGELOG 插入兩行導致行號漂移、第四輪站 2 gate 誤判 FAIL；裁示改為以 needle 字串為主、行號為輔錨定，另定 gate 紀律：green 證據重跑時間須晚於最後一次正典編輯，否則綠燈只反映歷史狀態
+- 「靜默 no-op」升為 Spec 層級常設檢查項（SC-DEC-NOOP-002）：本輪累計四例同型缺陷（登記見 SC-DEC-NOOP-001）促成此裁示；具體條文歸屬待安置，本次不逕行寫入已定稿之 `Spec_station-command_v1.11.md`
 
 ### Fixed
 - T-12 與 T-13 的 CLI 參數作用域污染導致的靜默 no-op：dot-source cascade 下游同名變數覆蓋 CLI 參數，`run-select.ps1`／`run-dispatch.ps1` 帶齊參數執行卻 exit 0 零輸出、`run-apply.ps1` 的 `-PatPath` 被靜默換成下游預設值。修法＝**動態 AST 快照防火牆**（由各 CLI 自己的 `param()` AST 動態取全部宣告參數快照、dot-source 後還原，不硬寫變數名）＋**真子行程 smoke test**（`t12-scope-smoke.ps1`，以 `/opt/pwsh/pwsh` 子行程執行而非 dot-source，斷言失敗型紅燈）；T-13 `gate-station3.ps1` 套用同一修法
@@ -42,6 +45,8 @@ Keep a Changelog 形式；spec 與 ADR 不寫沿革，一律外移到此（依 S
 
 ### Known Issues
 - **尚未修復**：T-21 `queue-common.ps1:83`（`Write-QueueFile` 內 `[System.IO.File]::WriteAllText`）以相對路徑寫回佇列檔；PowerShell 的 `Push-Location`／`Set-Location` 不會同步 .NET 的 `Environment.CurrentDirectory`，呼叫端若先 `Push-Location` 切目錄再以相對路徑呼叫，寫入會依行程啟動時的工作目錄解析。`publish10/publish-all.ps1` 實跑即命中此陷阱，解析目標落在 `C:\WINDOWS\system32\close-queue.json` 而遭拒（`publish10/publish-phase3.ps1` 檔頭已具名記錄此次事故）。`apply-queue.ps1` 對 33 筆佇列項逐筆的 GitHub 套用與回驗（:195-216）皆先於最終寫回步驟（:219）完成，故該次故障只影響「已出列項目未能寫回本機空佇列檔」，GitHub 側狀態無損失。T-21 已關票；此缺陷本身尚未提修復票，目前僅由呼叫端規避（後續 `publish-phase3.ps1` 改用絕對路徑並顯式同步 `[Environment]::CurrentDirectory`），`queue-common.ps1` 本體未改
+- T-30 一次 Codex CLI 派工因憑證於本輪使用期間失效（`refresh_token_invalidated`，見 Changed 段 SC-DEC-CLI-002）而中斷；工作隨即改派 Claude executor（`fullstack-developer`）承接並完成（key 字面值修正使全樹 `FAKE-KEY-DO-NOT-USE` 由 67/1 轉 68/0 零命中；其後獨立 verifier 判 REWORK 之 M-1 禁語守門 PS 5.1 逸出問題亦已修復並驗證，離線測試 46/46）；T-30 已驗收關票（GitHub issue #35，`sc:red-proven`），無未完成交付物。憑證失效造成的唯一實際損失是該次 Codex 派工中斷；供應紀律已定案，見 SC-DEC-CLI-002
+- 四例「靜默 no-op」家族缺陷已登記（SC-DEC-NOOP-001，見 `build/t05/decisions-additions.md` Part D）：T-12／T-13、T-28、T-30 三例已修（見上方 Fixed 段），T-21（見本段上一則）尚未修；已裁示升為 Spec 層級常設檢查項（SC-DEC-NOOP-002），條文位置待安置
 
 ### Deprecated
 - SK-07／AM-10／AM-11（A-9 派工令獨立審核官族，含 R3 取證權）：不搬入 station-command，SP-11 不採納（SC-DEC-RETIRE-038；Spec §9.1——Pocock 原文派工前覆核零命中，角色分離已由 verifier ≠ executor 吸收）

@@ -25,6 +25,7 @@ REQUIRED_FIELDS = (
     "**與手動階段差異**",
     "**差什麼才能驗完**",
 )
+NEEDLE_PRIMARY_CLASS_SUFFIX = "-needle-primary"
 
 
 def duplicates(values: list[str]) -> list[str]:
@@ -85,10 +86,20 @@ def main() -> int:
         try:
             lines = source_path.read_text(encoding="utf-8-sig").splitlines()
             line_no = int(row["line"])
-            actual_line = lines[line_no - 1]
-            if row["needle"] not in actual_line:
+            if line_no < 1:
+                raise ValueError("line 必須是正整數")
+            needle = row["needle"]
+            if not needle:
+                raise ValueError("needle 不得為空")
+            if row["class"].endswith(NEEDLE_PRIMARY_CLASS_SUFFIX):
+                if not any(needle in line for line in lines):
+                    bad_source_refs.append(
+                        f"{row['occurrence_id']} {row['path']} 全檔不含 {needle!r}"
+                        f"（行號提示：{line_no}）"
+                    )
+            elif needle not in lines[line_no - 1]:
                 bad_source_refs.append(
-                    f"{row['occurrence_id']} {row['path']}:{line_no} 不含 {row['needle']!r}"
+                    f"{row['occurrence_id']} {row['path']}:{line_no} 不含 {needle!r}"
                 )
         except (OSError, ValueError, IndexError) as error:
             bad_source_refs.append(f"{row['occurrence_id']} 無法驗證：{error}")

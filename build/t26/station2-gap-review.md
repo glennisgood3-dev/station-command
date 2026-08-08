@@ -4,7 +4,7 @@ FAIL
 
 審查者：第一～三輪為 executor 側 fresh-context 自審紀錄；末節為獨立第三方（≠ executor）審查  
 輸入：T-26 票面、Spec v1.11、ADR、T-26 spec／checker／fixture 與來源抽查  
-狀態：獨立第三方審查結論 FAIL（兩條 HARD 均因定稿後當日新裁示未收攏）；本輪 rework 處置已完成，出口待第三方重審
+狀態：第四輪獨立第三方審查結論 FAIL；H-3 行號漂移已完成 rework，出口待第五輪複審
 
 ## 第一輪
 
@@ -91,3 +91,19 @@ FAIL
 ### 處置後驗證
 
 `check_completeness.py` 重跑 GREEN（36 筆來源 occurrence／30 個 DTC／30 個章節／30 個覆蓋，exit 0）；紅燈另於 fixture 先行、spec 未加列狀態下如實取得，記於 `red-evidence.txt` 第二段。本輪 rework 之出口仍待第三方重審，重審前本檔首行維持 FAIL。
+
+## 第四輪獨立第三方缺口審
+
+FAIL
+
+第三方確認第三輪出口審的 H-1（`SC-DEC-REACH-001`）與 H-2（`SC-DEC-ROUTE-001`）在內容面均已結案；本輪 FAIL 的唯一原因是交件後活正典 `CHANGELOG.md` 新增兩行 Changed 條目，使 `SC-DEC-REACH-001` 由原第 31 行移至第 33 行，而 SRC-031 與 P-06 引用仍停在第 31 行，導致交付物自身驗收轉紅。其餘 6 條待裁示（P-01／P-02／P-03／P-05／P-07／P-08）維持未選邊。
+
+### HARD findings 與處置
+
+| # | HARD finding | 處置 |
+|---:|---|---|
+| H-3 | SRC-031 對活正典 `CHANGELOG.md` 使用易漂移的精確行號錨定；條目仍存在，但插入兩行即誤判為來源缺漏 | 依正典現況把 SRC-031 與 P-06 引用重釘至第 33 行；SRC-031 class 改為 `resolved-conflict-needle-primary`，檢查器對此 class 以 needle 全檔存在為通過條件、行號只作診斷提示，其他 fixture 列仍維持精確行號驗證。隔離 mutation 副本實際移除 `SC-DEC-REACH-001` 條目後，完整檢查器實跑 exit 1／`RESULT=RED`，確保真缺漏仍會被抓到。 |
+
+### 處置後狀態
+
+H-3 已完成窄範圍 rework；`red-evidence.txt` 原文保留不動，最新正常態綠燈更新於 `green-evidence.txt`。站 2 出口仍不得放行，待第五輪獨立第三方複審。
