@@ -1,0 +1,35 @@
+occurrence_id	section_id	path	line	needle	class
+SRC-001	DTC-001	Spec_station-command_v1.11.md	18	CI 階段**＝`github-actions[bot]`	canonical
+SRC-002	DTC-002	Spec_station-command_v1.11.md	87	本節機器歸因判準與復位模式為 **CI 階段規格**	canonical
+SRC-003	DTC-003	Spec_station-command_v1.11.md	146	待寫佇列（手動階段；升 CI 後本節廢止）	canonical
+SRC-004	DTC-004	Spec_station-command_v1.11.md	195	升 CI 後回到**站 5 的 manifest 重放**	canonical
+SRC-005	DTC-005	Spec_station-command_v1.11.md	260	deferred-to-CI｜本段手動階段整段不生效	canonical
+SRC-006	DTC-006	Spec_station-command_v1.11.md	328	deferred-to-CI｜整節手動階段不生效	canonical
+SRC-007	DTC-007	Spec_station-command_v1.11.md	381	站別歸因與復位**〔**deferred-to-CI	canonical
+SRC-008	DTC-008	Spec_station-command_v1.11.md	391	執行身分驗證**〔**deferred-to-CI	canonical
+SRC-009	DTC-009	Spec_station-command_v1.11.md	403	排程接續不靠記憶**〔**deferred-to-CI	canonical
+SRC-010	DTC-010	Spec_station-command_v1.11.md	410	手動階段無機器歸因	canonical
+SRC-011	DTC-011	Spec_station-command_v1.11.md	418	排程層延至 CI	canonical
+SRC-012	DTC-012	Spec_station-command_v1.11.md	27	外部廠 AI 接入路徑、`sc:dual-vendor` label	canonical-conflict
+SRC-013	DTC-013	build/t10/README.md	47	動態驗收（真實 CI bot 身分）延後	readme-deferred
+SRC-014	DTC-014	build/t10/README.md	48	動態驗收（真實 timeline）延後	readme-deferred
+SRC-015	DTC-015	build/t12/README.md	63	deferred-to-CI	readme-deferred
+SRC-016	DTC-016	build/t14/README.md	59	deferred-to-CI	readme-deferred
+SRC-017	DTC-017	build/t15a/README.md	71	deferred-to-CI	readme-deferred
+SRC-018	DTC-018	build/t15b/README.md	141	deferred-to-CI：真實 actor 歸因	readme-deferred
+SRC-019	DTC-019	build/t15b/README.md	142	deferred-to-CI：跨 repo 真實落地	readme-deferred
+SRC-020	DTC-020	build/t19/README.md	120	整合契約（deferred	pre-ci-debt
+SRC-021	DTC-021	build/t19/README.md	185	deferred / best-effort 聲明	pre-ci-debt
+SRC-022	DTC-022	build/t25/README.md	134	**deferred-to-CI**	readme-deferred
+SRC-023	DTC-023	build/t15a/station5-check.ps1	457	GateIdentityLogins).Count -eq 0	resolved-conflict
+SRC-024	DTC-024	build/t24/README.md	122	未來 CI 自動化	readme-ci-hook
+SRC-025	DTC-025	build/t28/README.md	70	取得 provider 的任何 HTTP 回應	canonical-conflict
+SRC-026	DTC-026	build/t16/README.md	183	尚未接入 `station-board/SKILL.md`	pre-ci-debt
+SRC-027	DTC-027	build/t17/README.md	290	尚未接入 `../t09/station-board/SKILL.md`	pre-ci-debt
+SRC-028	DTC-028	build/t17/README.md	295	`project-manager` sub-agent 的實際 dispatch 未在本票實作	pre-ci-debt
+SRC-029	DTC-029	build/t13/README.md	158	CLI 整合層	pre-ci-debt
+V18-001	DTC-005	Spec_station-command_v1.8.md	197	deferred-to-CI	v1.8-literal
+V18-002	DTC-006	Spec_station-command_v1.8.md	241	deferred-to-CI	v1.8-literal
+V18-003	DTC-007	Spec_station-command_v1.8.md	276	deferred-to-CI	v1.8-literal
+V18-004	DTC-008	Spec_station-command_v1.8.md	286	deferred-to-CI	v1.8-literal
+V18-005	DTC-009	Spec_station-command_v1.8.md	295	deferred-to-CI	v1.8-literal

@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>station-command 面板</title>
+<!--
+  T-09 · board-template.html — 自包 HTML 樣板（ADR-NP-003）。
+  依 Spec_station-command_v1.8.md §4.1／§4.4／§4.6 設計。
+
+  本檔是「外殼樣板」：render-board.ps1 在產生時讀入本檔，把下列佔位字串（雙大括號包住的四個
+  TOKEN 名稱，實際字面見本檔 body 內對應位置，此處刻意不重複打出雙大括號寫法，因為
+  render-board.ps1 對整檔做「純字面（非正規表達式）、無範圍限制」的字串取代，若這段說明文字裡也
+  出現一模一樣的雙大括號字面，會被取代邏輯連文件說明一起誤換掉——這正是 T-09 出貨前用
+  smoke test 抓到並修正過的一個真實 bug，特此留痕避免日後回歸）做純字面取代後寫出最終自包
+  HTML artifact。取代後的輸出檔不再依賴本檔或任何外部檔案（CSS/JS 皆已內嵌於本檔，取代後仍
+  全部內嵌，符合「自包」定義）。
+
+  四個佔位 TOKEN（名稱如下，實際字面請直接看本檔 body 內的四處出現位置），皆由
+  render-board.ps1 的 Build-StationBoardReport 計算後代入：
+    GENERATED_AT              純文字，本次 render 的產生時間（本機時區＋時區代碼）
+    BANNERS_HTML               零或多個 banner 區塊（§4.4 四種異常狀態）
+    MAIN_CONTENT_HTML          單一 work 字卡（或空狀態卡）的完整 HTML 片段
+    CACHE_DATA_JSON_ESCAPED    §4.2 顯示快取（JSON，已做 HTML 屬性跳脫），供下次 render
+                               讀回作為「有無基線」判斷依據；非真相源、不參與任何 gate 判定
+
+  卡片本身（含逐 repo 進度迴圈、legacy badge、灰標等條件式內容）由 PowerShell 端組字串產生，
+  不在本樣板內用樣板語法迴圈——樣板只負責提供「外殼＋CSS 類別命名正典」，卡片產生邏輯與
+  樣板共用同一組 class 名稱（見下方 <style>），避免兩邊對不上。
+-->
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1b1f23;
+    --muted: #57606a;
+    --card-bg: #f6f8fa;
+    --card-border: #d0d7de;
+    --red: #cf222e;
+    --red-bg: #ffebe9;
+    --red-border: #ffb2ab;
+    --yellow: #9a6700;
+    --yellow-bg: #fff8c5;
+    --yellow-border: #eac54f;
+    --green: #1a7f37;
+    --green-bg: #dafbe1;
+    --green-border: #6fcf87;
+    --badge-bg: #ddf4ff;
+    --badge-fg: #0969da;
+    --badge-border: #54aeff;
+    --stale-bg: #eaeef2;
+    --stale-fg: #57606a;
+    --legacy-bg: #f3e8ff;
+    --legacy-fg: #6639ba;
+    --step-off-bg: #eaeef2;
+    --step-off-fg: #8c959f;
+    --step-on-bg: #0969da;
+    --step-on-fg: #ffffff;
+    --step-done-bg: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --fg: #c9d1d9;
+      --muted: #8b949e;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --red: #ff7b72;
+      --red-bg: #3c1618;
+      --red-border: #6e2429;
+      --yellow: #e3b341;
+      --yellow-bg: #3b2f00;
+      --yellow-border: #6e5400;
+      --green: #3fb950;
+      --green-bg: #0f2a17;
+      --green-border: #24522f;
+      --badge-bg: #132433;
+      --badge-fg: #79c0ff;
+      --badge-border: #1f6feb;
+      --stale-bg: #21262d;
+      --stale-fg: #8b949e;
+      --legacy-bg: #271052;
+      --legacy-fg: #c297ff;
+      --step-off-bg: #21262d;
+      --step-off-fg: #8b949e;
+      --step-on-bg: #1f6feb;
+      --step-on-fg: #ffffff;
+      --step-done-bg: #3fb950;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+  }
+  .meta-line {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  .banner {
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .banner strong { margin-right: 4px; }
+  .banner--stale {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+    color: var(--red);
+  }
+  .banner--incomplete {
+    background: var(--yellow-bg);
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+  }
+  .banner--empty {
+    background: var(--stale-bg);
+    border-color: var(--card-border);
+    color: var(--fg);
+  }
+  .banner--no-baseline {
+    background: var(--stale-bg);
+    border-color: var(--card-border);
+    color: var(--muted);
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    max-width: 720px;
+  }
+  .card--stale {
+    opacity: 0.72;
+    filter: grayscale(35%);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex: none;
+  }
+  .dot--red { background: var(--red); }
+  .dot--yellow { background: var(--yellow); }
+  .dot--green { background: var(--green); }
+  .dot--unknown { background: var(--muted); }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .work-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--badge-border);
+    background: var(--badge-bg);
+    color: var(--badge-fg);
+    white-space: nowrap;
+  }
+  .badge--legacy {
+    background: var(--legacy-bg);
+    color: var(--legacy-fg);
+    border-color: var(--legacy-fg);
+  }
+  .badge--stale {
+    background: var(--stale-bg);
+    color: var(--stale-fg);
+    border-color: var(--card-border);
+  }
+  .badge--queue {
+    background: var(--yellow-bg);
+    color: var(--yellow);
+    border-color: var(--yellow-border);
+  }
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 12px 0;
+  }
+  .step {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--step-off-bg);
+    color: var(--step-off-fg);
+    flex: none;
+  }
+  .step--done { background: var(--step-done-bg); color: #fff; }
+  .step--current { background: var(--step-on-bg); color: var(--step-on-fg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--step-on-bg) 30%, transparent); }
+  .step-connector {
+    flex: 1 1 auto;
+    height: 3px;
+    background: var(--step-off-bg);
+    min-width: 8px;
+  }
+  .step-connector--done { background: var(--step-done-bg); }
+  .stepper-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  dl.fields {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 6px 10px;
+    margin: 10px 0 0 0;
+  }
+  dl.fields dt {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  dl.fields dd {
+    margin: 0;
+    font-size: 13px;
+  }
+  ul.repo-progress {
+    margin: 0;
+    padding-left: 18px;
+  }
+  ul.repo-progress li {
+    margin-bottom: 2px;
+  }
+  .repo-progress .err { color: var(--red); }
+  .progress-bar {
+    height: 6px;
+    background: var(--step-off-bg);
+    border-radius: 999px;
+    margin: 3px 0 0 0;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--step-on-bg);
+    border-radius: 999px;
+  }
+  /* stat tile／KPI row：一眼看出「幾個在跑、幾個停滯、待寫幾筆」，數字大、標籤小，符合
+     dataviz 慣例（大數字用等寬字體避免抖動，色彩只在數值本身有異常語意時才上色，其餘中性）。 */
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .stat-tile {
+    flex: 1 1 90px;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 84px;
+  }
+  .stat-tile-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-tile-value--warn { color: var(--yellow); }
+  .stat-tile-value--alert { color: var(--red); }
+  .stat-tile-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .card-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--card-border);
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .card-footer div { margin-bottom: 2px; }
+  .empty-card {
+    background: var(--card-bg);
+    border: 1px dashed var(--card-border);
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 720px;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1>station-command 面板</h1>
+  <div class="meta-line">產生時間：2026-08-08 06:02 UTC+8（單 work 檢視，T-09 範圍；跨 repo 多 work 聚合屬 T-16）</div>
+
+  <div id="banners">
+
+  </div>
+
+  <div id="content">
+<div class="card">
+  <div class="card-header">
+    <span class="dot dot--red" title="狀態燈：red"></span>
+    <h2 class="card-title">W-station-command</h2>
+    <span class="work-id">W-station-command</span>
+    <span class="badge badge--queue">待寫 2 筆</span> 
+  </div>
+  <div class="stepper" role="img" aria-label="站別進度"><div class="step step--done" title="1 grill">1</div><div class="step-connector step-connector--done"></div><div class="step step--done" title="2 spec">2</div><div class="step-connector step-connector--done"></div><div class="step step--done" title="3 tickets">3</div><div class="step-connector step-connector--done"></div><div class="step step--current" title="4 implement">4</div><div class="step-connector"></div><div class="step" title="5 雙審">5</div></div><div class="stepper-label">目前：4 implement</div>
+  <div class="stat-row">
+  <div class="stat-tile"><div class="stat-tile-value">3</div><div class="stat-tile-label">在跑數量</div></div>
+  <div class="stat-tile"><div class="stat-tile-value stat-tile-value--warn">2</div><div class="stat-tile-label">停滯票數（24h）</div></div>
+  <div class="stat-tile"><div class="stat-tile-value stat-tile-value--warn">2</div><div class="stat-tile-label">待寫筆數</div></div>
+</div>
+  <div class="meta-line">燈號理由：<ul style="margin:4px 0 0 18px;padding:0"><li>station-command-plugin/station-command#102 帶 sc:gate-fail</li><li>station-command-plugin/station-command#103 帶 sc:gate-fail</li></ul></div>
+  <div class="meta-line" style="color:var(--yellow)">⚠️ 待寫佇列非空，寫入斷點期間不可信（在跑數量／停滯票數依據的 assignee 與事件尚未落地）</div>
+  <dl class="fields">
+    <dt>primary／參與 repo</dt><dd>station-command-plugin/station-command（primary）</dd>
+    <dt>逐 repo 進度</dt><dd><ul class="repo-progress"><li><strong>station-command-plugin/station-command</strong>：42%（closed 11 / open 15）<div class="progress-bar"><div class="progress-bar-fill" style="width:42%"></div></div></li></ul></dd>
+    <dt>當前 executor</dt><dd>researcher、fullstack-developer</dd>
+    <dt>在跑數量</dt><dd>3（寫入斷點期間不可信）</dd>
+    <dt>停滯票數（24h）</dt><dd>2（寫入斷點期間不可信）</dd>
+    <dt>待寫佇列</dt><dd>待寫 2 筆</dd>
+    <dt>對帳資料時間</dt><dd>對帳：尚未實作（T-17 範圍），本欄位僅保留位置</dd>
+    <dt>最後成功完整同步</dt><dd>2026-08-08 06:02 UTC+8</dd>
+  </dl>
+  <div class="card-footer">
+    <div>work ID：W-station-command　primary anchor：station-command-plugin/station-command#1</div>
+  </div>
+</div>
+  </div>
+
+  <!--
+    §4.2 顯示快取：非真相源、不參與任何 gate 判定，僅供「無基線」偵測降級判斷（本票）與
+    未來 T-16 跨 repo 消失偵測比對基線。屬性值為 JSON，已做 HTML 屬性跳脫（&quot;／&amp;）。
+  -->
+  <div id="station-board-cache" data-station-board-cache='{&quot;lastTicketCount&quot;:15,&quot;workId&quot;:&quot;W-station-command&quot;,&quot;lastReconcileTimeUtc&quot;:null,&quot;anchorFound&quot;:true,&quot;lastFullSyncTimeUtc&quot;:&quot;2026-08-08T06:02:43.4018022Z&quot;}' style="display:none"></div>
+</body>
+</html>

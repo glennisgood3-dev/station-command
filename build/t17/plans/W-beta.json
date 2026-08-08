@@ -1,0 +1,7 @@
+﻿{
+  "workId": "W-beta",
+  "tickets": [
+    { "ticketRef": "acme/repo-b#201", "status": "open" },
+    { "ticketRef": "acme/repo-b#202", "status": "open" }
+  ]
+}

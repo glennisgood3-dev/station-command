@@ -1,0 +1,60 @@
+﻿t14-offline-test.ps1 執行報告 — 2026-08-08 10:35:27 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 pytest AssertionError ⇒ Kind=assertion-failure, Satisfied=true 紅燈輸出命中斷言失敗特徵（樣式："AssertionError"），符合 Spec §6 站4紅燈型態要求
+[PASS] A2 ModuleNotFoundError ⇒ Kind=load-failure, Satisfied=false【核心：載入失敗須被擋】 紅燈輸出命中載入／collection 失敗特徵（樣式："ModuleNotFoundError"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] A3 SyntaxError ⇒ Kind=load-failure, Satisfied=false 紅燈輸出命中載入／collection 失敗特徵（樣式："SyntaxError"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] A4 未命中任何特徵 ⇒ Kind=unknown, Satisfied=false（fail-closed） 紅燈輸出未命中任何已知斷言失敗特徵，亦未命中已知載入失敗特徵；無法確認為斷言失敗的紅，fail-closed 拒絕
+[PASS] A5 Jasmine 風格 Expected/But ⇒ Kind=assertion-failure 紅燈輸出命中斷言失敗特徵（樣式："(?m)^\s*Expected:\s"），符合 Spec §6 站4紅燈型態要求
+[PASS] A6 PowerShell 找不到指令 ⇒ Kind=load-failure（此為 Pester 場景下的載入失敗類比） 紅燈輸出命中載入／collection 失敗特徵（樣式："CommandNotFoundException"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] A7 collection 中斷 ⇒ Kind=load-failure 紅燈輸出命中載入／collection 失敗特徵（樣式："Interrupted: \d+ error during collection"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] B1 不同身分 ⇒ Satisfied=true verifier（'tester'）≠ executor（'fullstack-developer'）
+[PASS] B2 相同身分（執行者自陳） ⇒ Satisfied=false【核心：驗收③】 verifier 與 executor 相同（'fullstack-developer'），違反 verifier≠executor 硬規則（Spec §5.2／§6 站4）——執行者自陳不能當驗收
+[PASS] B3 大小寫與前後空白正規化後視為相同 ⇒ Satisfied=false verifier 與 executor 相同（'fullstack-developer'），違反 verifier≠executor 硬規則（Spec §5.2／§6 站4）——執行者自陳不能當驗收
+[PASS] B4 verifier 為空 ⇒ Satisfied=false（fail-closed） verifier 欄位為空，無法確認 verifier≠executor（fail-closed）
+[PASS] C1 結構性自證偵測：expected/actual 呼叫式完全相同 ⇒ Satisfied=false, Self=true【核心：驗收④拒絕】 expected（"Get-Sum 2 3"）與 actual/result（"Get-Sum 2 3"）的運算式完全相同，疑似直接呼叫被測函式（或其等價運算）的回傳值當作預期值——即 Pocock 	dd 原文 Anti-patterns · Tautological 所指的自證式斷言（Spec §3.5 註 C：預期值不得由被測程式自身產生）
+[PASS] C2 無 expected/actual 賦值樣式，且來源標記為空 ⇒ Satisfied=false, Self=false（退回標記檢查，fail-closed） 斷言缺獨立預期值來源標記（expectedSourceNote 為空），依 Spec §3.5 註 C fail-closed：不得默認為獨立真相源
+[PASS] C3 來源標記存在但未提及三種獨立來源關鍵詞之一 ⇒ Satisfied=false 來源標記未指明三種獨立真相源之一（known-good literal／worked example／spec）："這是隨便寫的說明，沒有指明來源類型"
+[PASS] C4 來源標記提及 known-good literal／spec／worked example ⇒ Satisfied=true【核心：驗收④通過】 獨立預期值來源：known-good literal 5，依 spec worked example
+[PASS] C5 expected 為字面值（非呼叫式）即使巧合與 actual 不同也不誤判 ⇒ Satisfied=true 獨立預期值來源：known-good literal 5
+[PASS] C6 -SkipProvenanceCheck 開啟 ⇒ 一律 Satisfied=true（僅供紅燈驗證用途本身的正確性） ⚠️⚠️⚠️ -SkipProvenanceCheck 已開啟：略過預期值出處查核，一律視為獨立來源（僅供紅燈驗證使用，正式流程與一般手動執行絕對不得使用，見 README）
+[RED-CONFIRMED] C-RED：-SkipProvenanceCheck 開啟後自證式交件被誤判為 PASS
+[PASS] C-GREEN 斷言「自證式交件必須被拒絕」通過（正常模式，④查核生效） 未過，缺項：[④ 預期值出處，斷言 A1] expected（"Get-Sum 2 3"）與 actual/result（"Get-Sum 2 3"）的運算式完全相同，疑似直接呼叫被測函式（或其等價運算）的回傳值當作預期值——即 Pocock 	dd 原文 Anti-patterns · Tautological 所指的自證式斷言（Spec §3.5 註 C：預期值不得由被測程式自身產生）
+[PASS] C-GREEN NamedGaps 具名指出斷言 A1 且提及自證/Tautological [④ 預期值出處，斷言 A1] expected（"Get-Sum 2 3"）與 actual/result（"Get-Sum 2 3"）的運算式完全相同，疑似直接呼叫被測函式（或其等價運算）的回傳值當作預期值——即 Pocock 	dd 原文 Anti-patterns · Tautological 所指的自證式斷言（Spec §3.5 註 C：預期值不得由被測程式自身產生）
+[PASS] D1 load-failure-red.json 可讀取，ticket 欄位正確 
+[PASS] D2 valid-submission.json 可讀取，assertions 恰 1 筆 
+[PASS] D3 executor-is-verifier.json 可讀取，executor=verifier 
+[PASS] D4 self-referential-assertion.json 可讀取，assertions[0].id=A1 
+[PASS] D5 缺 redOutput/greenOutput/assertions 欄位 ⇒ 擲例外（fail-closed） 
+[PASS] D6 assertions 為空陣列 ⇒ 擲例外（至少須有一條斷言可查） 
+[PASS] E1【驗收①】load-failure-red.json ⇒ OverallPass=false 未過，缺項：[① 紅燈型態] 紅燈輸出命中載入／collection 失敗特徵（樣式："ModuleNotFoundError"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] E1b 具名原因為紅燈型態（① 紅燈型態），非 verifier 或預期值出處問題 [① 紅燈型態] 紅燈輸出命中載入／collection 失敗特徵（樣式："ModuleNotFoundError"），非斷言失敗——依 Spec §6／註A：紅須為斷言失敗的紅（依據＝使用者 S3 原話『Always design Red light to prevent Ai cheating』，非 Pocock 原文），連斷言都沒跑到就宣稱紅過，正是要防的作弊型態
+[PASS] E2【驗收②＋④通過案例】valid-submission.json ⇒ OverallPass=true 全過：紅燈為斷言失敗型、verifier≠executor、全部 1 條斷言預期值皆來自獨立真相源 ⇒ 可落 sc:red-proven
+[PASS] E2b NamedGaps 為空（全過） 
+[PASS] E3【驗收③】executor-is-verifier.json ⇒ OverallPass=false 未過，缺項：[③ verifier≠executor] verifier 與 executor 相同（'fullstack-developer'），違反 verifier≠executor 硬規則（Spec §5.2／§6 站4）——執行者自陳不能當驗收
+[PASS] E3b 具名原因僅為 verifier≠executor，紅燈型態與預期值出處皆合格（變因隔離） [③ verifier≠executor] verifier 與 executor 相同（'fullstack-developer'），違反 verifier≠executor 硬規則（Spec §5.2／§6 站4）——執行者自陳不能當驗收
+[PASS] E4【驗收④拒絕案例】self-referential-assertion.json ⇒ OverallPass=false 未過，缺項：[④ 預期值出處，斷言 A1] expected（"Get-Sum 2 3"）與 actual/result（"Get-Sum 2 3"）的運算式完全相同，疑似直接呼叫被測函式（或其等價運算）的回傳值當作預期值——即 Pocock 	dd 原文 Anti-patterns · Tautological 所指的自證式斷言（Spec §3.5 註 C：預期值不得由被測程式自身產生）
+[PASS] E4b 具名原因僅為預期值出處（斷言 A1），紅燈型態與 verifier 皆合格（變因隔離） [④ 預期值出處，斷言 A1] expected（"Get-Sum 2 3"）與 actual/result（"Get-Sum 2 3"）的運算式完全相同，疑似直接呼叫被測函式（或其等價運算）的回傳值當作預期值——即 Pocock 	dd 原文 Anti-patterns · Tautological 所指的自證式斷言（Spec §3.5 註 C：預期值不得由被測程式自身產生）
+[PASS] F1 尚無 sc:red-proven ⇒ 加項後含 sc:ticket 與 sc:red-proven（保留既有 label） [sc:ticket, sc:red-proven]
+[PASS] F1b 恰 2 筆（無重複） 
+[PASS] F2 已有 sc:red-proven ⇒ 冪等，不重複加入 [sc:ticket, sc:red-proven]
+[PASS] F3 佇列項 schema：action=set-labels（重用 T-21 原五型，不新增動作型別） 
+[PASS] F3b target/payload/source 四欄正確 
+[PASS] G1 首次加入 ⇒ Added=true 已加入佇列
+[PASS] G1b 加入後檔內恰 1 筆 
+[PASS] G2 重複加入（同 action+target+source） ⇒ Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] G2b 去重後仍恰 1 筆 
+[PASS] H1 票上已有 sc:red-proven ⇒ Satisfied=true 票上已出現 sc:red-proven（現有 label 集合：[sc:ticket, sc:red-proven]）
+[PASS] H2 票上尚無 sc:red-proven ⇒ Satisfied=false 票上尚無 sc:red-proven（現有 label 集合：[sc:ticket]）
+[PASS] H3 空 timeline ⇒ Found=false timeline 中無 sc:red-proven 的 labeled 事件
+[PASS] H4 多筆事件 ⇒ Found=true 且取最後一筆 actor（時間序取尾端） 最後一次 sc:red-proven labeled 事件：actor='glennisgood3-dev'，時間='2026-08-08T01:00:00Z'
+[PASS] H5 手動階段（未提供 -GateIdentityLogins） ⇒ Blocking=false（deferred-to-CI，具名回報 actor） 手動階段：無機器歸因判準，依 ADR-NP-009 降為規範層＋人工複查，不算入 AND；deferred-to-CI（提供 -GateIdentityLogins 後生效，見 ../t10/gate-reset.md 同型先例）。具名回報 actor='glennisgood3-dev'
+[PASS] H6 CI 階段，合法 bot actor ⇒ Blocking=true 且 Satisfied=true【驗收② actor=bot】 CI 階段：actor='github-actions[bot]'，gate 身分集合=[github-actions[bot]]，legal=True
+[PASS] H7 CI 階段，人手 actor ⇒ Blocking=true 且 Satisfied=false CI 階段：actor='glennisgood3-dev'，gate 身分集合=[github-actions[bot]]，legal=False
+[PASS] H8 找不到任何 sc:red-proven labeled 事件 ⇒ Blocking=true 且 Satisfied=false（不得默認通過） timeline 中無 sc:red-proven 的 labeled 事件
+[PASS] I1 恰 1 筆 assertions（PS5.1 陷阱①：單一物件無 .Count） ⇒ ProvenanceItems.Count 可正確存取且=1 Count=1
+[PASS] I2 3 筆 assertions，其中 1 筆缺來源標記 ⇒ ProvenanceItems.Count=3，僅 M3 落入 NamedGaps [④ 預期值出處，斷言 M3] 斷言缺獨立預期值來源標記（expectedSourceNote 為空），依 Spec §3.5 註 C fail-closed：不得默認為獨立真相源
+[PASS] I3 陷阱②③：單一既有 label 恰為 sc:red-proven ⇒ 回傳陣列 Count=1（非被解卷成純量、亦非被誤包成巢狀陣列） Count=1 內容=[sc:red-proven]
+[PASS] I4 陷阱①：issue.labels 為 $null（無任何既有 label） ⇒ 不拋錯，回傳恰含 sc:red-proven 的單元素陣列 Count=1
+
+共 55 項，FAIL=0

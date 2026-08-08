@@ -1,0 +1,45 @@
+T-29 最終驗證實錄（2026-08-08 UTC）
+
+PowerShell：/opt/pwsh/pwsh 7.4.6
+目標相容：#requires -Version 5.1；Set-StrictMode -Version Latest
+
+1. UTF-8 BOM
+   cost-boundary.ps1              EF BB BF
+   invoke-metered-vendor.ps1      EF BB BF
+   t29-offline-test.ps1           EF BB BF
+   結果：3/3 PASS
+
+2. ParseFile
+   cost-boundary.ps1              errors=0
+   invoke-metered-vendor.ps1      errors=0
+   t29-offline-test.ps1           errors=0
+   結果：3/3 PASS
+
+3. 紅燈
+   指令：/opt/pwsh/pwsh -NoProfile -File ./build/t29/t29-offline-test.ps1 -SkipLimitEnforcement -SkipCompletedResultOutput -ReportPath ./build/t29/evidence/red-assertion-failures.txt
+   結果：exit 1；PASS=17；FAIL=2
+   型態：只有兩條 [ASSERTION FAILED]；測試完整執行到群組 E 與總結，非載入／語法／import 失敗。
+
+4. 正式綠燈
+   指令：/opt/pwsh/pwsh -NoProfile -File ./build/t29/t29-offline-test.ps1 -ReportPath ./build/t29/evidence/green-offline.txt
+   結果：exit 0；PASS=19；FAIL=0
+
+5. CLI smoke
+   指令：/opt/pwsh/pwsh -NoProfile -File ./build/t29/cost-boundary.ps1
+   結果：exit 0；三行 usage banner；非零輸出。
+
+   指令：/opt/pwsh/pwsh -NoProfile -File ./build/t29/invoke-metered-vendor.ps1 -DemoMode
+   結果：exit 0
+   輸出：CLI DEMO：Success=True；Blocked=False；輸入完整=True；輸出完整=True
+         CLI DEMO：token=15；cost=0.00002；percent=2；未送網路
+
+6. 地基回歸
+   T-24：exit 0；58/58 PASS。
+   T-25：exit 0；16/16 PASS。
+   T-28：exit 1；67 PASS／1 FAIL；唯一失敗為 repo 全域假 key 掃描命中既有 build/t30/README.md 與 build/t30/t30-offline-test.ps1。build/t29 無完整測試 key 字串。
+
+7. 禁令與範圍
+   未連外；未呼叫真實 GitHub API；未讀取真 key／token／個資。
+   假 key 只在 OS 暫存目錄執行期組合，完成後刪除。
+   git status 無法使用：工作區 .git 是空唯讀目錄，不構成 git repository。
+   已知範圍副作用：執行既有 T-24／T-25 測試時，測試本身重寫各自的 offline report；詳見 README 誠實聲明。

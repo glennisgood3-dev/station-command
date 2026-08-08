@@ -1,0 +1,5 @@
+{
+  "name": "station-command",
+  "version": "0.1.0",
+  "description": "五站生產線的薄編排層 Cowork plugin：狀態機 gate、GitHub 真相源、常駐面板、兩層 executor 路由。"
+}

@@ -1,0 +1,54 @@
+﻿【A】DECISIONS.md 裁示與三路 dispatch 計畫
+[PASS] 票級裁示指定 A 軸外廠 Gemini
+[PASS] 票級裁示保留指定 model
+[PASS] 裁示只覆寫 A 軸
+[PASS] A 軸保留 Claude 審查
+[PASS] A 軸另一路由至外廠
+[PASS] B 軸維持 Claude
+【B】A 軸兩份實際 prompt 與輸入清單隔離
+[PASS] Claude A 軸輸入恰為 diff／規範清單／12 條 smell 基線
+[PASS] 外廠 A 軸輸入恰為 diff／規範清單／12 條 smell 基線
+[PASS] Claude A 軸 prompt 不含 spec 原文 canary
+[PASS] 外廠 A 軸 prompt 不含 spec 原文 canary
+[PASS] 同一份 spec 只送入 Claude B 軸 prompt
+[PASS] 兩家 A 軸取得同一份未加評語的 prompt
+【C】T-28 實際呼叫 seam：只呼叫外廠 A 軸一次
+[PASS] 外廠 provider transport 實際執行恰一次
+[PASS] transport 收到完整 A 軸 prompt，smell 基線未被改寫
+[PASS] A 軸外廠執行結果具名為已執行
+[PASS] 外廠呼叫未改動 B 軸 provider
+[PASS] 外廠原始 review 具名保存 provider
+【D】兩份廠別 finding 清單原樣並列、重疊與分歧
+[PASS] A 軸輸出含恰兩份廠別報告
+[PASS] Claude finding 清單完整且原順序未變
+[PASS] Gemini finding 清單完整且原順序未變
+[PASS] Claude finding 物件全文逐欄完整留存
+[PASS] Gemini finding 物件全文逐欄完整留存
+[PASS] 輸出沒有廠別合併清單
+[PASS] 輸出沒有跨廠排序欄位
+[PASS] 兩廠共同 finding 標為 strongest-overlap
+[PASS] 重疊處使用最強訊號標記
+[PASS] 單廠 finding 逐筆具名列為分歧且不改廠內順序
+[PASS] 有分歧時明確要求使用者裁示
+[PASS] 未裁示的分歧不由 gate 自行選邊放行
+[PASS] 正式分歧輸出不含票面禁止的兩種裁決字樣
+【E】各廠各自軸內 worst 與跨廠界線
+[PASS] Claude A 軸清單自報一個軸內 worst
+[PASS] Gemini A 軸清單自報一個軸內 worst
+[PASS] B 軸亦報自身軸內 worst
+[PASS] 不存在跨廠合選的單一 worst 欄位
+[PASS] 收尾一行逐一報兩家 A 軸及 B 軸數量與 worst
+【F】分歧佇列四欄契約
+[PASS] 佇列項恰四欄 action／target／payload／source
+[PASS] 分歧裁示使用 T-21 白名單 comment 動作
+[PASS] target 恰含 repo 與 issue
+[PASS] payload 只含完整留言 body 並要求裁示
+[PASS] source 為來源票號
+【G】外廠不可用時具名降級且 gate 不阻塞
+[PASS] 缺 key 時不冒稱外廠已執行
+[PASS] 降級模式為單廠雙軸
+[PASS] 降級記錄具名失敗 provider
+[PASS] 降級記錄具名失敗原因
+[PASS] 降級記錄具名承接者 Claude
+[PASS] 外廠不可用時 gate 不阻塞
+GREEN SUMMARY：PASS=46；FAIL=0

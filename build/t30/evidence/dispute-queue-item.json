@@ -1,0 +1,13 @@
+﻿[
+  {
+    "action": "comment",
+    "target": {
+      "repo": "fixture/station",
+      "issue": 30
+    },
+    "payload": {
+      "body": "站 5 A 軸分歧，請使用者裁示：provider=Claude, finding=C-A2, matchKey=claude-only-name；provider=Claude, finding=C-A3, matchKey=claude-only-chain；provider=Gemini, finding=G-A1, matchKey=gemini-only-duplication"
+    },
+    "source": "T-30-FIXTURE"
+  }
+]

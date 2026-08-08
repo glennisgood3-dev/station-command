@@ -1,0 +1,65 @@
+{
+  "workId": "W-t15b-green",
+  "primaryAnchor": {
+    "repo": "acme/app",
+    "issue": 100,
+    "labels": ["sc:work", "sc:station-5", "custom:keep"]
+  },
+  "participatingRepos": [
+    {
+      "repo": "acme/app",
+      "milestone": {
+        "number": 7,
+        "title": "W-t15b-green",
+        "description": "work-id: W-t15b-green | primary-anchor: acme/app#100",
+        "state": "open"
+      }
+    },
+    {
+      "repo": "acme/lib",
+      "milestone": {
+        "number": 9,
+        "title": "W-t15b-green",
+        "description": "work-id: W-t15b-green | primary-anchor: acme/app#100",
+        "state": "open"
+      }
+    }
+  ],
+  "gateIdentityLogins": ["station-gate-bot"],
+  "tickets": [
+    {
+      "repo": "acme/app",
+      "issue": 101,
+      "state": "closed",
+      "timeline": [
+        {"event": "closed", "actor": {"login": "station-gate-bot"}, "created_at": "2026-08-08T10:00:00Z"}
+      ]
+    },
+    {
+      "repo": "acme/lib",
+      "issue": 201,
+      "state": "closed",
+      "timeline": [
+        {"event": "closed", "actor": {"login": "station-gate-bot"}, "created_at": "2026-08-08T10:05:00Z"}
+      ]
+    },
+    {
+      "repo": "acme/lib",
+      "issue": 202,
+      "state": "closed",
+      "timeline": [
+        {"event": "reopened", "actor": {"login": "human-user"}, "created_at": "2026-08-08T10:06:00Z"},
+        {"event": "closed", "actor": {"login": "station-gate-bot"}, "created_at": "2026-08-08T10:07:00Z"}
+      ]
+    }
+  ],
+  "expected": {
+    "decision": "complete",
+    "ticketCount": 3,
+    "openCount": 0,
+    "minimumStationApplicable": false,
+    "queueCount": 4,
+    "actionCounts": {"set-labels": 1, "close-issue": 1, "close-milestone": 2},
+    "anchorLabels": ["sc:work", "custom:keep", "sc:station-done"]
+  }
+}

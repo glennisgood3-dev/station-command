@@ -1,0 +1,14 @@
+﻿{
+  "mode": "single-vendor-dual-axis",
+  "externalExecuted": false,
+  "axisAProvider": "Claude",
+  "axisBProvider": "Claude",
+  "gateMayProceed": true,
+  "degradation": {
+    "provider": "Gemini",
+    "失敗原因": "缺少 key",
+    "承接者": "Claude",
+    "生產線繼續": true
+  },
+  "vendorReport": null
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "action": "apply-patch",
+    "target": { "repo": "owner/repo", "worktree": "<WORKTREE>" },
+    "payload": {
+      "patchFile": "T-15-0001.patch",
+      "sha256": "1c9d1b402e6db9d0b36ed77b8f80784abe565f372008e2feda6dc13e1043bb9c",
+      "files": ["greeting.txt"]
+    },
+    "source": "T-15"
+  }
+]

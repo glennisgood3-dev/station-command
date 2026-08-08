@@ -1,0 +1,14 @@
+T-31 綠燈實錄（完整離線 mock）
+執行環境：/opt/pwsh/pwsh；Set-StrictMode -Version Latest
+指令：& .\build\t31\t31-offline-test.ps1
+exit code：0
+
+[PASS] 紅燈斷言 (a)：適配層須判定解析失敗，不得把 Gemini error JSON 當成沒有 finding。
+[PASS] 紅燈斷言 (b)：解析失敗須產生同時含 provider／失敗原因／承接者三項的具名降級記錄。
+[PASS] 紅燈斷言 (c)：錯誤體該次不得產生 usage 記帳。
+[PASS] finding 可逐條列舉且 ID 順序符合獨立 expected fixture
+[PASS] 成功 gate 紀錄含 token 與免費層成本
+[PASS] 佇列四欄逐欄為 action／target／payload／source
+T31 OFFLINE RESULT：PASS=60 FAIL=0
+
+本實錄只證明離線 fixture 路徑；沒有真實 Gemini 呼叫，不是端到端通過證據。

@@ -1,0 +1,11 @@
+[
+  {
+    "action": "create-milestone",
+    "target": { "repo": "glennisgood3-dev/station-command", "issue": null },
+    "payload": {
+      "title": "T-21-fixture-description-guard",
+      "description": "這是一段刻意超過一百個字元上限的 milestone description 測試文字，用來驗證 apply-queue.ps1 在送出 API 呼叫之前，是否會先檢查 description 欄位的長度並具名擋下，避免重蹈今日實測遇到的一百一十四字元回四百二十二錯誤那次教訓再次發生於此。"
+    },
+    "source": "T-21-fixture-guard"
+  }
+]

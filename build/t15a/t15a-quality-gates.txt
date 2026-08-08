@@ -1,0 +1,99 @@
+T-15a 三道品質關卡通過證據 — 2026-08-08（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+station5-dispatch-prep.ps1: BOM-OK
+station5-check.ps1: BOM-OK
+t15a-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+station5-dispatch-prep.ps1: PARSE-OK
+station5-check.ps1: PARSE-OK
+t15a-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t15a-offline-test.ps1，91 項斷言，全在沙盒實跑，不連 GitHub、不執行任何被測系統）
+====================================================================
+群組 A：Test-AxisInputSeparation（軸A/軸B 合格輸入、spec 洩漏、smell 洩漏、未知 kind、軸B出現standards）
+  — 6 項全綠。含【驗收①核心】軸A出現 kind=spec、軸B出現 kind=smell-baseline 皆被結構性白名單擋下。
+群組 B：Test-AxisAStandardsNamed（檔案+版本／無落檔規範聲明／兩者皆缺）— 3 項全綠。
+群組 C：Test-ReportsNotMerged（無禁止欄位／出現 mergedFindings）— 2 項全綠。
+群組 D：Test-FindingsRemediated（hard有/無證據、judgement有/無裁決、非法severity、0筆陣列陷阱）
+  — 5 項全綠。
+群組 E：Test-Station5VerifierIndependent（不同/相同/Commander/主session/空值）— 5 項全綠。
+  含【驗收③核心】verifier=executor 與 verifier=Commander 兩種違規皆被擋下。
+群組 F：Test-RemediationVerified — 6 項全綠 ＋ 【紅燈】RED-PROOF 段落：
+  [RED-CONFIRMED] -SkipRemediationCheck 開啟後，斷言「未經復驗即結案必須被拒絕
+  （OverallPass=false）」真的失敗（對 fixtures/not-reverified.json 執行 Invoke-Station5Check 後
+  OverallPass 真的變成 true）——證明沒有②查核時，未復驗的結案報告真的會被誤判為合格，不是紙上
+  談兵。[PASS] 關閉 -SkipRemediationCheck（正常模式）後，同一斷言通過（OverallPass=false，
+  NamedGaps 恰含 1 條「② 修復復驗」，變因隔離）— 2 項全綠。
+群組 G：Test-IsolationDisclaimer（已落檔解除／未落檔有字串／未落檔缺字串）— 3 項全綠。
+  含【驗收⑤核心】未落檔（預設狀態，不需 T-03 完成）且缺固定字串 ⇒ 拒絕。
+群組 H：Test-ClosingSummary（3/1配置通過、跨軸贏家、缺worst、筆數不符、0/0陣列陷阱）— 5 項全綠。
+  含【驗收⑥核心】逐字比照驗收條文「軸A 3條、軸B 1條」範例：兩軸各自具名 worst 時通過；
+  出現跨軸單一贏家樣式時（同一 3/1 配置）被擋下。
+群組 I：Read-Station5Submission（十四份 fixture 皆可讀取；缺欄位擲例外）— 16 項全綠。
+群組 J：Invoke-Station5Check 整合——十四份 fixture 逐一對應驗收，並驗證「變因隔離」
+  （除基準案例與正面案例外，每份 fixture 的 NamedGaps 恰含 1 條，且是該 fixture 唯一刻意留下
+  的缺項）— 14 項全綠。
+群組 K：New-CloseTicketQueueItem／Add-QueueItemIfAbsent（close-issue schema 正確、冪等去重，
+  重用 T-21 原五型不新增動作型別）— 6 項全綠。
+群組 L：Test-TicketClosed／Find-LastCloseEvent／Test-CloseActorLegit（驗收④後段 actor=bot，
+  deferred-to-CI 結構驗證，比照 T-10/T-14 既有先例）— 8 項全綠。
+群組 M：PS 5.1 / StrictMode 陣列陷阱（單一物件無.Count、單元素佇列陣列）— 2 項全綠。
+群組 N：station5-dispatch-prep——結構性簽章保證（New-AxisAPrompt/New-AxisBPrompt 參數清單物理上
+  不含禁止欄位）＋ 用真實 T-11 smell 基線 asset／真實 Spec §5.2 摘錄組出的真實 prompt 跑第二道
+  文字掃描防線（門檻計數法，避免合法零星引用誤判）＋ 正面偵測力驗證＋證據檔寫入 — 7 項全綠。
+
+====================================================================
+總結：共 91 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t15a/t15a-offline-test-report.txt
+
+====================================================================
+過程中發現並修正的 2 個 bug（實跑抓到，非憑空聲稱）
+====================================================================
+1. 【CLI 層級的真實 bug，離線測試測不出，靠 CLI smoke test 抓到】station5-check.ps1 dot-source
+   ../t10/gate-reset.ps1 -FunctionsOnly 與本目錄 station5-dispatch-prep.ps1 -FunctionsOnly 時，
+   兩個被 dot-source 的腳本各自也宣告了同名參數 `$FunctionsOnly`；dot-source 與呼叫端共用同一層
+   作用域，被 dot-source 腳本自己的 param 綁定會覆蓋呼叫端已綁定好的同名變數。結果：直接執行
+   `.\station5-check.ps1 -SubmissionPath ... -Repo ... -Issue ...`（不帶 -FunctionsOnly）時，
+   本檔自己的 $FunctionsOnly 在兩次 dot-source 後被覆蓋成 $true，導致 CLI 主流程被跳過——
+   無輸出、exit 0，看起來像「什麼都沒做但也沒報錯」，比顯式報錯更危險。修法：在任何 dot-source
+   之前，先把呼叫端原始意圖存進獨有變數名 `$T15aRequestedFunctionsOnly = $FunctionsOnly.IsPresent`，
+   底部一律讀這個變數。修正後以 `.\station5-check.ps1 -SubmissionPath fixtures\executor-is-
+   verifier.json -Repo o/r -Issue 1`（FAIL 案例）與 `...\valid-submission.json`（PASS 案例，
+   正確推進到讀 PAT 檔那一步才因沙盒無真實 PAT 而報錯，證明前面的十項查核邏輯確實跑過）兩種
+   情境重跑，行為皆恢復正常。
+2. Test-PromptTextMarkers 初版採「命中任一樣式即拒絕」，用真實內容（T-11 smell 基線 asset 頁尾
+   引用「Spec_station-command_v1.5.md」作為出處註記；Spec §5.2 條文本身談到「12 條 Fowler smell
+   基線」時提及一次 "Fowler"）實跑後發現兩處合理誤傷——單一字樣命中不足以區分「合法提及」與
+   「真的整段夾帶」。修法：改採門檻計數（須命中 ≥2 個不同樣式才判定為疑似洩漏），並同步調整
+   station5-dispatch-prep.ps1 CLI 模式的預設 spec 摘錄邏輯（不再預設灌入整份 spec 檔，改截取
+   anchor 段落附近固定字數，貼近實際 dispatch 用法）。修正後 N3／N4（真實內容）與 N5／N6
+   （人為污染，正面偵測力驗證）四項皆綠，CLI 預設呼叫（不帶任何摘錄參數）亦轉為 PASS。
+
+====================================================================
+誠實聲明：deferred-to-CI／best-effort 項目
+====================================================================
+- 驗收④「actor 為 bot」：actor 歸因判準依 ADR-NP-009 手動階段不生效；Test-CloseActorLegit／
+  Find-LastCloseEvent 程式路徑已完整實作並由群組 L 離線 mock 涵蓋兩模式；動態驗收（真實 CI bot
+  身分寫入 timeline）待 CI 階段以 -GateIdentityLogins 'github-actions[bot]' 生效，本沙盒無法
+  連線真實 GitHub 實跑（比照 T-10/T-14 既有先例）。
+- 輸入分離的第二道防線（Test-PromptTextMarkers）與軸A①b規範版本具名查核皆為 best-effort 的
+  正則／門檻比對，非完整語意分析——第一道結構性保證（kind 白名單、函式簽章無禁止參數）才是
+  真正的硬保證；第二道防線的角色是「抓得到就多一層防線，抓不到不代表乾淨」，此為明確的已知限制。
+- SC-DEC-ISO-001 是否已落檔（isolationDecisionRecorded）本票以交件欄位表示，非本檔直接讀取
+  plugin repo DECISIONS.md 判定——理由：本票 scope 是站5票級審查編排，讀 DECISIONS.md 屬 gate
+  既有職責（../t10/），Commander 在呼叫本檔前應先查過 DECISIONS.md 並把結論填入交件欄位，
+  避免重複實作同一份讀取邏輯（DRY，同 T-10 對 all.decisions-exemption 的既有處理方式）。
+- 實際 dispatch（Task 呼叫兩個平行 fresh-context general-purpose sub-agent）是 Commander 的
+  動作，本票不代為呼叫（同 T-12 run-dispatch.ps1 的既有先例）；station5-dispatch-prep.ps1 只
+  負責組 prompt 文字與寫證據檔，station5-check.ps1 只負責驗證 Commander 取回的兩份報告。
+- Test-PromptTextMarkers／Test-AxisInputSeparation 的樣式庫涵蓋已知常見洩漏型態，無法涵蓋所有
+  可能的夾帶手法（例如刻意拆散關鍵詞、以圖片或編碼規避）；未命中已知樣式時，結構性 kind 白名單
+  仍是第一道且更可靠的防線。

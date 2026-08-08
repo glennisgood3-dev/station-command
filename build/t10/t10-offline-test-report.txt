@@ -1,0 +1,65 @@
+﻿t10-offline-test.ps1 執行報告 — 2026-08-08 06:04:44 +00:00
+PSVersion: 7.4.6
+
+[PASS] A0 Get-CurrentStation(0 個站別 label) Valid=false anchor 無任何 sc:station-* label（尚未初始化，或髒資料）
+[PASS] A1 Get-CurrentStation(單一站別 label) Valid=true 且 Station 正確 現有站別：sc:station-2
+[PASS] A2 Get-CurrentStation(雙站別 label，髒資料) Valid=false anchor 同時帶多個站別 label：[sc:station-2, sc:station-3]（違反 §3.3 互斥不變式，髒資料，拒絕判定）
+[PASS] A3 Get-NextStation('sc:station-1')='sc:station-2' 
+[PASS] A4 Get-NextStation('sc:station-5')='sc:station-done' 
+[PASS] A5 Get-NextStation('sc:station-done')=$null（終態無下一站） 
+[PASS] A6 Test-StationOrderValid(1→2，緊鄰) Valid=true 
+[PASS] A7 Test-StationOrderValid(1→3，跳站) Valid=false【核心：站序不可跳①】 
+[PASS] A8 Test-StationOrderValid(2→4，跳站) Valid=false【核心：站序不可跳②】 
+[PASS] A9 Test-StationOrderValid(3→5，跳站) Valid=false【核心：站序不可跳③】 
+[PASS] A10 Test-StationOrderValid(3→2，倒退) Valid=false 
+[PASS] A11 Test-StationOrderValid(2→2，原地) Valid=false 
+[PASS] A12 Test-StationOrderValid(5→done，緊鄰終態) Valid=true 
+[PASS] B1 Test-TicketFieldsPresence(八項全齊) Satisfied=true Missing=[]
+[PASS] B2 Test-TicketFieldsPresence(缺多項) Satisfied=false Missing=[depends_on, basis, scope, 測試先行, 不可逆動作]
+[PASS] B2b 缺項具名含 basis／scope／depends_on 
+[PASS] B3 Test-Station3FieldsChecklistItem(零票) Satisfied=false 該 work 尚無任何 sc:ticket，站 3 出口條件不成立（無票可判）
+[PASS] B4 Test-Station3FieldsChecklistItem(單票全齊) Satisfied=true 共 1 張票，§3.5 八項欄位關鍵字皆存在（結構性檢查，非內容品質判斷；深度邏輯屬 T-13）
+[PASS] B5 Test-Station3FieldsChecklistItem(一好一壞) Satisfied=false 且具名 #2 1 張票缺欄位（結構性檢查）：#2 缺：depends_on、basis、scope、測試先行、不可逆動作
+[PASS] C1 Invoke-StationExitChecklist(站1，無 overrides) AllSatisfied=false（fail-closed） 
+[PASS] C1b 三項皆具名『未提供裁定結果』 
+[PASS] C2 Invoke-StationExitChecklist(站1，全 override 為 true) AllSatisfied=true 
+[PASS] C3 Invoke-StationExitChecklist(站3，機械項通過＋裁量項 override) AllSatisfied=true 
+[PASS] C4 Invoke-StationExitChecklist(站4，無 override) AllSatisfied=false 且具名『T-14 範圍』 
+[PASS] C5 Invoke-StationExitChecklist(站5，無 override) AllSatisfied=false 且具名『T-15a 範圍』 
+[PASS] D1 Test-WorkStationConsistency(零票) Applicable=false 且 Satisfied=true（N/A，不計入 AND） 零 open 票，「未關閉票最小站」公式不適用，完成態改由 §3.2／T-15b 判定（本項不計入 AND）
+[PASS] D2 Test-WorkStationConsistency(混合站4/5票，最小站=4，現站=4) Satisfied=true 現站 'sc:station-4' 與未關閉票最小站一致（2 張 open 票，最小站=4）
+[PASS] D3 Test-WorkStationConsistency(不一致：現站=5 但最小站應為4) Satisfied=false 不一致：anchor 現站='sc:station-5'，但未關閉票最小站應為 'sc:station-4'（2 張 open 票）
+[PASS] D4 Get-CrossStationChecklist(手動階段) attribution.Blocking=false 手動階段：無機器歸因判準，依 ADR-NP-009 降為規範層＋人工複查，不算入 AND；deferred-to-CI（提供 -GateIdentityLogins 後生效，見 gate-reset.md）
+[PASS] D4b 手動階段 identity 項具名回報 actor 
+[PASS] D5 Get-CrossStationChecklist(CI 階段，合法 actor) Blocking=true 且 Satisfied=true CI 階段：actor='github-actions[bot]'，gate 身分集合=[github-actions[bot]]，legal=True
+[PASS] D6 Get-CrossStationChecklist(CI 階段，人手改動) Blocking=true 且 Satisfied=false CI 階段：actor='glennisgood3-dev'，gate 身分集合=[github-actions[bot]]，legal=False
+[PASS] D7 Get-CrossStationChecklist DECISIONS 豁免項 N/A（T-19 範圍） Blocking=false Satisfied=$null N/A（T-19 範圍，本票不判定，不計入 AND，不得誤讀為已檢查）
+[PASS] E1 Invoke-GateCheck(站1 anchor 請求跳到站3) OverallPass=false，Reason=station-order-violation【驗收①之一：1→3】 跨站請求被拒（§3.4 站序不可跳）：現站='sc:station-1'，請求目標='sc:station-3'，唯一允許的下一站='sc:station-2'｜被跳過站 'sc:station-2' 未滿足條件：spec 有 Goal／Scope In-Out／可驗證 Success Criteria；使用者已確認；第三方缺口審報告存在且 hard finding 全結案
+[PASS] E1b 具名列出被跳過站 2 的未滿足條件 
+[PASS] E2 Invoke-GateCheck(站2 anchor 請求跳到站4) OverallPass=false【驗收①之二：2→4】 跨站請求被拒（§3.4 站序不可跳）：現站='sc:station-2'，請求目標='sc:station-4'，唯一允許的下一站='sc:station-3'｜被跳過站 'sc:station-3' 未滿足條件：每張票具備 §3.5 全八項欄位（結構性存在檢查）；切片可獨立驗收（垂直非水平）
+[PASS] E3 Invoke-GateCheck(站3 anchor 請求跳到站5) OverallPass=false【驗收①之三：3→5】 跨站請求被拒（§3.4 站序不可跳）：現站='sc:station-3'，請求目標='sc:station-5'，唯一允許的下一站='sc:station-4'｜被跳過站 'sc:station-4' 未滿足條件：每張票紅→綠兩段證據、verifier≠executor 實測一致（🔒 深度驗收邏輯屬 T-14 範圍，本票不實作，fail-closed）
+[PASS] E4 Invoke-GateCheck(站1→2，合法站序但無 override) OverallPass=false，Reason=checklist-unmet 未過，缺項：[站別 checklist] 名詞表存在且關鍵詞無未定義 — 未提供裁定結果（本項需人工／dispatch 判斷，caller 尚未提供 -ChecklistOverrides，fail-closed）｜[站別 checklist] ADR 記錄關鍵裁示（含理由與被否決方案） — 未提供裁定結果（本項需人工／dispatch 判斷，caller 尚未提供 -ChecklistOverrides，fail-closed）｜[站別 checklist] 使用者已確認共識 — 未提供裁定結果（本項需人工／dispatch 判斷，caller 尚未提供 -ChecklistOverrides，fail-closed）
+[PASS] E5 Invoke-GateCheck(站1→2，全 override 通過，零票 N/A) OverallPass=true 全過：現站 'sc:station-1' 出口條件全部滿足，允許推進到 'sc:station-2'
+[PASS] E6 Invoke-GateCheck(anchor 無站別 label，髒資料) OverallPass=false，Reason=dirty-anchor anchor 無任何 sc:station-* label（尚未初始化，或髒資料）
+[PASS] E7 Invoke-GateCheck(BypassStationOrderCheck 開啟，1→3) 不再因站序被拒（轉而落到 checklist-unmet，因未提供 override） Reason=checklist-unmet
+[PASS] F1 New-StationAdvanceLabelSet 保留非站別 label 且恰含新站別（原子：無舊站別殘留） [sc:work, sc:station-2]
+[PASS] F1b 站別 label 恰一個 
+[PASS] F2 Test-AdvanceVerified(恰為期望站別) Satisfied=true anchor 現有站別 label 恰為 'sc:station-2'（無殘留舊站別、無雙站別中間態）
+[PASS] F3 Test-AdvanceVerified(雙站別中間態) Satisfied=false anchor 現有站別 label=[sc:station-1, sc:station-2]（數量=2），期望恰為單一 'sc:station-2'
+[PASS] F4 Invoke-VerifyAdvanceWithRetry(首次即符合) Satisfied=true Attempts=1 anchor 現有站別 label 恰為 'sc:station-2'（無殘留舊站別、無雙站別中間態）
+[PASS] F5 Invoke-VerifyAdvanceWithRetry(首次不符，重試一次後符合) Satisfied=true Attempts=2【§4.4 重試一次設計】 首次不符，重試一次後相符：anchor 現有站別 label 恰為 'sc:station-2'（無殘留舊站別、無雙站別中間態）
+[PASS] F6 Invoke-VerifyAdvanceWithRetry(重試一次仍不符) Satisfied=false Attempts=2 且判寫入失敗【核心：不宣稱成功】 寫後回驗失敗（已重試一次仍不符）：anchor 現有站別 label=[sc:station-1]（數量=1），期望恰為單一 'sc:station-2'。判寫入失敗，具名回報，不宣稱推進成功。
+[PASS] G1 Add-QueueItemIfAbsent(首次加入) Added=true 已加入佇列
+[PASS] G1b 加入後檔內恰 1 筆 
+[PASS] G2 Add-QueueItemIfAbsent(重複加入，同 action+target+source) Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] G2b 去重後仍恰 1 筆 
+[PASS] H1 Find-LastLegalStationEvent(空 timeline) Found=false timeline 中無任何 sc:station-* 的 labeled 事件
+[PASS] H2 Find-LastLegalStationEvent(全為人手 actor) Found=false timeline 中有 2 筆 sc:station-* labeled 事件，但無一筆 actor 屬於 gate 身分集合（實際 actor：glennisgood3-dev；gate 身分集合：github-actions[bot]）
+[PASS] H3 Find-LastLegalStationEvent(混合 actor，最後合法事件在中間) Found=true 且 Station=sc:station-2（非最新的人手事件 station-3） 命中合法事件：station='sc:station-2'，actor='github-actions[bot]'，時間='2026-08-02T00:00:00Z'
+[PASS] H4 Invoke-GateReset(分支①命中) Branch=legal-found 且 TargetStation=sc:station-2【驗收③】 ① 沿 timeline 回溯，回退至最後一次合法事件所設站別：sc:station-2（事件時間：2026-08-02T00:00:00Z，actor='github-actions[bot]'）
+[PASS] H4b 佇列項為單一次完整集合：含 sc:work（保留）與 sc:station-2（回退），不含 sc:station-3（原髒站別已移除） [sc:work, sc:station-2]
+[PASS] H4c 站別 label 恰一個（原子性） 
+[PASS] H5 Invoke-GateReset(分支②無合法事件) Branch=no-legal-event 且 TargetStation=sc:awaiting-user【驗收④】 ② 整條 timeline 無任何合法事件 ⇒ 落 sc:awaiting-user、停止推進、交使用者裁示。timeline 中有 2 筆 sc:station-* labeled 事件，但無一筆 actor 屬於 gate 身分集合（實際 actor：glennisgood3-dev；gate 身分集合：github-actions[bot]）
+[PASS] H5b 佇列項含 sc:awaiting-user 且不含任何 sc:station-*（無合法站別可信，全數移除） [sc:work, sc:awaiting-user]
+
+共 60 項，FAIL=0

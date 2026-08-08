@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "T-31-gemini-v1beta-generateContent",
+  "endpointShape": "POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+  "authentication": "x-goog-api-key header（值只從 repo 外連接資料夾讀取，不得寫入本模板）",
+  "generationConfig": {
+    "maxOutputTokens": 1024,
+    "responseMimeType": "application/json"
+  },
+  "errorEnvelope": {
+    "model": "t31-free-tier-model-does-not-exist",
+    "prompt": "T-31 錯誤體守門測試。只需回應；此 model 名按測試設計不存在。"
+  },
+  "success": {
+    "model": "{{COMMANDER_SELECT_CURRENT_FREE_TIER_MODEL}}",
+    "promptTemplate": "你是規範審查者。請審查下列實際 diff，回應只能是單一 JSON 物件，不得加 Markdown code fence。格式固定為 {\"findings\":[{\"id\":\"GEM-001\",\"severity\":\"hard|soft\",\"summary\":\"一句摘要\",\"evidence\":\"diff 內具體證據\",\"recommendation\":\"可執行修法\"}]}；沒有 finding 時回 {\"findings\":[]}。\n\n實際 diff：\n{{DIFF}}"
+  }
+}

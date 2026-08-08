@@ -1,0 +1,28 @@
+{
+  "workId": "W-t15b-empty",
+  "primaryAnchor": {
+    "repo": "acme/app",
+    "issue": 500,
+    "labels": ["sc:work", "sc:station-3"]
+  },
+  "participatingRepos": [
+    {
+      "repo": "acme/app",
+      "milestone": {
+        "number": 13,
+        "title": "W-t15b-empty",
+        "description": "work-id: W-t15b-empty | primary-anchor: acme/app#500",
+        "state": "open"
+      }
+    }
+  ],
+  "gateIdentityLogins": ["station-gate-bot"],
+  "tickets": [],
+  "expected": {
+    "decision": "no-tickets",
+    "ticketCount": 0,
+    "openCount": 0,
+    "minimumStationApplicable": false,
+    "queueCount": 0
+  }
+}

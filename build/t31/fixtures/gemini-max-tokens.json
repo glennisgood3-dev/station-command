@@ -1,0 +1,21 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"findings\":[{\"id\":\"INCOMPLETE"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "MAX_TOKENS",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 31,
+    "candidatesTokenCount": 1024,
+    "totalTokenCount": 1055
+  }
+}

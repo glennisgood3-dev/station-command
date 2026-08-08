@@ -1,0 +1,17 @@
+T-28 正式綠燈（2026-08-08）
+
+指令：
+/opt/pwsh/pwsh -NoLogo -NoProfile -File build/t28/t28-offline-test.ps1
+
+結果：exit_code=0；PASS=68；FAIL=0。
+
+關鍵機械結果：
+- key-leak-scan.ps1 由子行程直接執行時輸出非空 usage；dot-source 時不額外輸出。
+- 四格式家族的 method、端點後綴、必要 header、認證 header 位置、body 路徑與回應解碼皆通過獨立 fixture 比對。
+- 12 家 probe 均為具名理由的 GET models 清單端點；provider／端點仍逐列符合 T-27 asset。
+- 人造 HTTP 200／401／403／429／400／404／405 全判可達；只有無 HTTP 回應的模擬連線失敗判不可達。
+- HTTP 400／404／405 的探測品質皆為 WARN 而非可達性 FAIL；proxy 421 特例判不可達且探測品質 N/A。
+- key 四表面掃描命中數=0；另逐一植入測試 key 時，四表面各自皆能檢出 1 筆且不回印 key。
+- 逾時 retry=1；5xx retry=1；兩者 attempts=2 且 provider 不可用。
+- 逾時、5xx、缺 key、回應含 key 均產生 provider／失敗原因／承接者三欄，生產線繼續。
+- 正式 repo 內容掃描命中數=0。

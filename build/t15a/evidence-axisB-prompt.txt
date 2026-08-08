@@ -1,0 +1,41 @@
+﻿=== 站 5 軸 B（規格對照審 sub-agent prompt）— 票 T-15a-evidence-demo ===
+你是站 5 兩軸雙審的軸 B（規格對照審）。你只審 diff 是否逐項落實下列 spec 原文要求，
+逐項標 ✓／✗，不判斷程式風格或 code smell（那是軸 A 的職責，你看不到也不需要看規範清單或 smell 基線）。
+報告結尾須有一行摘要：本軸 findings 總數、以及本軸內的 worst issue（若有）。
+
+--- [輸入 1/2] diff ---
+diff --git a/build/example/foo.ps1 b/build/example/foo.ps1
+
+--- [輸入 2/2] spec 原文（逐項 ✓／✗ 對照用） ---
+### 5.2 站 5 雙審規則
+**本站流程依 Pocock 原版：兩軸 parallel fresh-context `general-purpose` sub-agents，實作依據 ADR-NP-007**（兩軸的審查報告皆為 deliverable，一律 dispatch，Commander 不自審，§5.0）。
+
+🔴 **refactor 歸屬（v1.11 補採漏採原文）**：**站 4 只做 red → green，refactor 不屬站 4 的 loop；refactor 歸站 5 review 階段。** 依據為 Pocock `skills/engineering/tdd/SKILL.md`（Rules of the loop）逐字：
+> "**Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle."
+
+- **對站 4 的效果**：站 4 的 executor 不得以「順手重構」擴大 diff；§6 站 4 出口條件**不含任何 refactor 要求**（現行條文核對後確認無隱含要求）⇒ 本輪 §6 無須修改，兩處一致。
+- 🚫 **本條只規定歸屬，不規定驗收**：Pocock 原文只說 refactor 屬 review 階段，未規定 refactor 的驗收條件，故本 spec **不新增軸、不新增站 5 出口條件、不新增停止條件**。refactor 在站 5 的具體處理方式（由哪一軸提出、修法證據形狀、是否走 §5.2「修復必須復驗」路徑）**未定，待實作票處理**（見「未解問題」6）。
+- **軸 A 規範審**輸入**只有** diff ＋ repo 規範 ＋ 12 條 Fowler smell 基線；**軸 B 規格對照審**輸入**只有** diff ＋ spec 原文（逐項 ✓／✗）。
+- **兩份基線的正典位置**：**12 條 smell 基線隨 plugin 出貨，住 plugin assets**（版本與 plugin 綁定，各 repo 不各存一份）；**repo 規範**＝該 repo 內既有的規範文件，gate 須在報告中**具名指出本輪採用的檔案與版本**（無規範文件 ⇒ 具名「該 repo 無落檔規範，本輪僅以基線審」）。兩者衝突時 **repo 規範優先**，且基線永遠是判斷題、非硬違規。
+- 兩軸平行啟動、互不可見；🚫 報告不得合併、不得跨軸重排、**不得跨軸挑「單一最嚴重問題」**。
+- 🔴 **收尾摘要的正面要求（v1.11 依原文更正，原條文把「跨軸」漏寫成全稱禁令）**：兩軸報告並列呈現後，收尾**一行摘要**須含 ① **各軸的 findings 總數**、② **該軸軸內的 worst issue（若有）**。🚫 禁的只是**跨軸**挑贏家，**軸內**的 worst issue 不但可挑、而且必報。依據 Pocock `skills/engineering/code-review/SKILL.md` 逐字：
+  > "End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes"
+  ⚠️ **層級分辨**：本條是**軸內**排序；§5.5 的「🚫 禁多數決、🚫 禁以 Claude 為準」是**跨廠**分歧裁決，兩者不同層、互不覆蓋。
+  ⚠️ **兩廠升級時的界線（由 §5.5 推導，非新規則）**：單票經 DECISIONS.md 升兩廠後，A 軸存在兩份廠別清單 ⇒ worst issue **由各廠各自報一個**，🚫 **不得跨廠合選出單一 worst**——那正是 §5.5 禁止的跨廠重排。Pocock 原文假設一軸一個 sub-agent，對此情形沉默，本句為沉默處的本地推導。
+- **verifier ≠ executor，亦不得是 Commander**（定義見開頭）——hard rule，未滿足 ⇒ gate fail。
+- 🚫 禁餵過程對話與先前任何評分或評語（防 anchoring）。
+- **結案條件**：hard violation 全清且各附修法證據；每條 judgement call 有裁決紀錄；兩軸皆完成；含 SC#6 標註。
+- **修復必須復驗**：為清除 finding 而產生的修復 commit **不得自動視為已驗**——須經 ① verifier（≠ executor）對修復後的狀態重跑該票驗收條件，**或** ② 兩軸就修復後的 diff 補審一輪。二者擇一完成後方可結案。理由：修復 diff 是最後一段沒有任何人看過的程式碼。
+- 結案後由 **gate 關閉該票**；該 work 全票關閉後走完成態收尾（§3.2）。
+- **逃生口（載體＝DECISIONS.md，非 label）**：使用者得對任一票單筆裁示「升兩廠雙審」，寫入該 repo DECISIONS.md（ADR-NP-007 語意不變，僅換載體）。🟢 **本逃生口自 ADR-NP-011 起有實體**：外廠管道＝§5.1 登錄的 API 直呼（§5.4），不再是無處可去的空條款。gate 於站 5 讀到該條目而外廠不可用 ⇒ 依 §5.4 降級並具名，🚫 不得阻塞。
+- **A 軸最適合外包**：規範審只需 **diff ＋ 規範清單 ＋ 12 條 smell 基線**，脈絡依賴最低，API 給得起；B 軸需 spec 全文與需求脈絡，外包風險較高。故異廠交叉檢視自 A 軸開始。
+- **隔離實測的具名位置**：隔離實測票的結論以具名條目（如 `SC-DEC-ISO-001`）寫入 **plugin repo 的 DECISIONS.md**；gate 讀到該條目且結論為「隔離成立」後，SC#6 的強制標註方得解除。
+
+**第二層：每票覆寫**——站 3 拆票時每張票必填 executor＋basis；覆寫預設須在 basis 說明理由。無 basis ⇒ `[INVALID]`。
+
+### 5.3a session 內自主派工 loop（依 ADR-NP-010；手動階段生效）
+承接使用者原版 S4／S5 的 high-autonomy 要求：站 4／5 一旦開跑，不靠人逐次推動。
+`/station-run` 進入 loop，持續「選件 → 派工 → 收件 → 判 gate → 續派」，至停止條件成立。
+🟢 **狀態一律從 GitHub 現算，不引入任何狀態檔**——這正是優於舊 fleet 心跳之處：舊心跳把喚醒綁在一份會與真相漂移的狀態檔上，本設計沒有那份檔案可漂。
+
+**選件判準（frontier 的定義，非循環定義）

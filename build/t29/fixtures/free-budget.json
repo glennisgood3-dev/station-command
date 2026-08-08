@@ -1,0 +1,9 @@
+{
+  "tier": "free",
+  "limitType": "quota",
+  "quotaLimits": {
+    "RPM": 15,
+    "RPD": 1500,
+    "TPM": 1000000
+  }
+}

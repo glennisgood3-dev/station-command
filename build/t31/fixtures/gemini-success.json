@@ -1,0 +1,23 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"findings\":[{\"id\":\"GEM-001\",\"severity\":\"hard\",\"summary\":\"缺少輸入驗證\",\"evidence\":\"新增的 Invoke-Review 未檢查空 diff\",\"recommendation\":\"呼叫前拒絕空字串\"},{\"id\":\"GEM-002\",\"severity\":\"soft\",\"summary\":\"錯誤訊息缺少情境\",\"evidence\":\"catch 只輸出固定文字\",\"recommendation\":\"加入 provider 與 HTTP 狀態\"}]}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 31,
+    "candidatesTokenCount": 19,
+    "totalTokenCount": 50
+  },
+  "modelVersion": "gemini-fixture-model",
+  "responseId": "offline-fixture-success"
+}

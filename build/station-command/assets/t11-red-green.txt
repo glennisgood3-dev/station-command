@@ -1,0 +1,15 @@
+===== RED (產檔前) =====
+Spec §5.1 資料列數 = 9
+[RED] routing-table.md 不存在
+[RED] fowler-smells.md 不存在
+=== RED ===
+exit=1
+
+===== GREEN (產檔後) =====
+Spec §5.1 資料列數 = 9
+routing-table.md 資料列數 = 9
+[GREEN] 列數相符
+fowler-smells.md 找到標題數 = 12 / 12
+[GREEN] 12 條標題全數一致
+=== ALL GREEN ===
+exit=0

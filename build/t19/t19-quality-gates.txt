@@ -1,0 +1,109 @@
+T-19 三道品質關卡通過證據 — 2026-08-08 10:23:03 +0000
+（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+decisions-scan.ps1: BOM-OK
+t19-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+decisions-scan.ps1: PARSE-OK
+t19-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t19-offline-test.ps1，69 項斷言 ＋ 4 項 RED-CONFIRMED 紅燈證據，FAIL=0）
+====================================================================
+群組 A：Split-MarkdownTableRow／Test-IsSeparatorRow（表格切列基礎函式）
+[PASS] A1～A6
+
+群組 B：ConvertFrom-DecisionsTable 對五份人造 fixture 的解析（獨立預期值來源＝fixture 本身內容，
+        非取自被測程式輸出）
+[PASS] B1～B8（含解析失敗情境 B4、空內容 B6、分隔線缺失 B7、欄位數不符 B8）
+
+群組 C：Get-ExemptionRows 過濾非豁免類型列
+[PASS] C1～C3
+
+群組 D：ConvertFrom-ExemptionContentCell 子欄位解析（完整／缺欄位／缺標記／期限格式錯）
+[PASS] D1～D5
+
+群組 E：Test-ExemptionEntryExpired（永久／未過期／已過期／期限當天四態）
+[PASS] E1～E4
+
+群組 F：Invoke-DecisionsFileExemptionScan——【核心：驗收條件三情境 fail-closed】
+[PASS] F1 檔案不存在 Outcome=pass-no-file【驗收情境①：檔案不存在必 pass】
+[PASS] F2 讀取失敗 Outcome=fail-read-error【驗收情境②：讀取失敗必 fail】
+[PASS] F3 過期豁免 Outcome=fail-expired-exemption【驗收情境③：過期豁免必 fail】
+[PASS] F4～F7（未過期／格式不合／解析失敗／無豁免，延伸覆蓋）
+
+群組 G：Test-RepoScanCoverage（純函式）＋ Invoke-DecisionsExemptionScan 整合
+[PASS] G1～G5（含【核心：涵蓋範圍檢查】缺一 repo 未掃即算失敗）
+
+群組 H：sc:gate-fail 佇列項產生與冪等去重（唯一得產生 set-labels 者；一律走佇列，不直接呼叫
+        GitHub 寫入 API）
+[PASS] H1～H5c
+
+群組 I：Get-DecisionsFileFetchResult（-HttpGetFunc 依賴注入，成功／404／403／500／base64
+        解碼失敗五分支）
+[PASS] I1～I5
+
+群組 J：【紅燈】-BypassFailClosedForRedTest 開啟時，四條 fail-closed 斷言各自真的失敗一次
+[RED-CONFIRMED] J-RED-1：讀取失敗被誤判為通過
+[RED-CONFIRMED] J-RED-2：過期豁免被誤判為通過
+[RED-CONFIRMED] J-RED-3：格式不合被誤判為通過
+[RED-CONFIRMED] J-RED-4：解析失敗被誤判為通過
+[PASS] J-GREEN-1～4（關閉旗標後全數恢復 fail-*）
+
+群組 K：「DECISIONS.md 不存在」為受測情境（pass），明確標註非紅燈（與群組 J 區分）
+[PASS] K1～K2
+
+群組 L：PS 5.1／StrictMode 既知陷阱哨兵
+[PASS] L1～L3
+
+====================================================================
+總結：共 69 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t19/t19-offline-test-report.txt
+
+====================================================================
+過程中實跑抓到並修正的 2 類真實 bug（非憑空聲稱，已於原始碼留 rework 註解）
+====================================================================
+1. 【production 程式碼本身的 bug，非僅測試檔】decisions-scan.ps1 內 ConvertFrom-DecisionsTable
+   （3 處）與 Invoke-DecisionsFileExemptionScan（1 處）原本直接寫 `@(Split-MarkdownTableRow ...)`
+   `@(Get-ExemptionRows ...)`——對「內部已用逗號運算子保護陣列型別」的函式直接 @(函式呼叫本身)，
+   會把已保護好的陣列再包一層，變成「1 元素陣列，該元素是原陣列」（同型陷阱見 ../t21/queue-common.ps1
+   既有註解，../t10/../t13 亦踩過同型雷但踩在不同函式上）。首次實跑（群組 A／B）直接炸開：
+   3 欄的 Split 結果被誤判成 1 筆、DECISIONS.md 表格全部判「找不到表頭」。已修正為「先賦值、
+   再對已賦值變數包 @()」兩步寫法，逐處留 rework 註解。此 bug 若未被離線測試攔下，會讓整份
+   DECISIONS.md 表格永遠解析失敗（表頭偵測用 `-contains` 比對永遠比對到嵌套陣列而非欄名字串），
+   後果是**每個 repo 的豁免掃描永遠 fail-closed**——雖然仍是「安全」的錯誤方向（過度阻擋，非
+   誤放行），但會讓本功能完全不可用，不是可接受的殘留狀態。
+2. t19-offline-test.ps1 內同型 bug（Split-MarkdownTableRow／Get-ExemptionRows 呼叫處）與另一處
+   StrictMode 陷阱：`(EXPR | Where-Object {...}).Count` 在管線僅命中 1 筆時，該 1 筆物件本身無
+   .Count 屬性，StrictMode 下直接拋錯（G4c）。已修正為 `(@(EXPR | Where-Object {...})).Count`。
+
+====================================================================
+誠實聲明：deferred / best-effort 項目
+====================================================================
+- 【deferred，非規避】T-10 gate-check.ps1 的 `all.decisions-exemption` 交叉檢查項目目前仍標
+  「N/A（T-19 範圍，本票不判定）」——本票依 file ownership 規則不得修改 build/t10/ 內任何檔案，
+  故無法直接把此函式接上 gate-check.ps1 的判定流程。本票交付「可被呼叫的完整掃描模組」
+  （Invoke-DecisionsExemptionScan 為唯一對外頂層入口），並在 README「與 T-10 的整合契約」一節
+  具名記載接線方式；實際接線須由後續有 t10 file ownership 的票或使用者手動編輯完成。
+- 【best-effort，已具名限制】ConvertFrom-DecisionsTable 對表格結構的解析採「整份保守判定」：
+  任何一筆資料列的欄位數與表頭不符即整份判解析失敗（fail-closed），不嘗試「跳過壞列、部分解析」。
+  這在真實 DECISIONS.md 若含表格外的其他 markdown 內容（如本檔 fixture 開頭的說明段落）仍可正常
+  運作（掃描時逐行找表頭，非要求整份檔案只能是表格），但若同一份表格內混雜半形 `|` 字元（不屬本票
+  豁免子格式設計）會被判為結構不符而 fail-closed——此為刻意的保守設計（本票明文之誤判方向即
+  過度阻擋，§7.4 附註「風險方向相反」段），非 bug。
+- 【best-effort】豁免子欄位序列化格式（項目／理由／範圍／期限，以全形｜／：分隔）為本票在 spec
+  未定義處所做的必要設計決策，非逐字規定；決策理由與涵蓋範圍已在 decisions-scan.ps1 內
+  ConvertFrom-ExemptionContentCell 函式上方的區塊註解具名列出，README 亦有對應章節。
+- 動態（真連 GitHub）驗證未做：CLI 主流程（Invoke-DecisionsScanCli）需要真實 PAT 與真實 repo 的
+  DECISIONS.md，本沙盒不連外網，未提供 t19-test.ps1 動態腳本（任務未明確要求，且需真實環境）。
+  已通過 ParseFile 語法檢查、人工覆核 PowerShell 5.1 相容語法（無 ??／?. 等 PS7-only 語法）、
+  以及離線測試對 Get-DecisionsFileFetchResult／Invoke-GithubGetRaw 兩層邊界的依賴注入驗證
+  （群組 I，涵蓋成功／404／403／500／壞 base64 五分支），CLI 端到端的真實網路行為留待使用者
+  本機以真實 PAT 執行後核對。

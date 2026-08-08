@@ -1,0 +1,20 @@
+﻿t21-offline-test.ps1 執行報告 — 2026-08-05 22:32:04 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 Get-CurrentIssueComments(1 筆) 回傳值型別 預期陣列且 Count=1；實際：陣列，Count=1
+[PASS] A2 Get-CurrentIssueComments(1 筆) 內容正確 
+[PASS] A3 Test-ItemSatisfied(comment, 1 筆已存在) 不拋錯且判定 Satisfied 已存在相同內文的留言（比對方式=exact，id=111）
+[PASS] B1 Get-CurrentIssueComments(0 筆) 回傳值型別 預期陣列且 Count=0；實際：陣列，Count=0
+[PASS] B2 Test-ItemSatisfied(comment, 0 筆現況) 不拋錯且判定未達成 找不到相同內文的既有留言（完全相等與換行正規化後皆未命中；比對前 0 則）
+[PASS] C1 Get-CurrentIssueComments(3 筆) 回傳值型別 預期陣列且 Count=3；實際：陣列，Count=3
+[PASS] C2 Test-ItemSatisfied(comment, 3 筆中命中第 2 筆) 判定 Satisfied 已存在相同內文的留言（比對方式=exact，id=302）
+[PASS] D1 Test-ItemSatisfied(set-labels, issue.labels=$null) 不拋錯 現有 [] != 期望 [sc:ticket]
+[PASS] D2 判定為未達成（現有 0 個 label != 期望 1 個） 現有 [] != 期望 [sc:ticket]
+[PASS] D3 Test-ItemSatisfied(set-labels, issue 恰有 1 個既有 label) 判定已達成 現有 label 集合已符合：[sc:ticket]
+[PASS] E1 Get-DescriptionLengthViolations(恰好 1 筆違規) 回傳值型別 預期陣列且 Count=1；實際：陣列，Count=1
+[PASS] E2 Get-DescriptionLengthViolations(0 筆違規) 回傳值型別 預期陣列且 Count=0；實際：陣列，Count=0
+[PASS] F1 Read-QueueFile(檔內恰 1 筆) 回傳值型別 預期陣列且 Count=1；實際：陣列，Count=1
+[PASS] F2 Read-QueueFile(檔內 0 筆) 回傳值型別 預期陣列且 Count=0；實際：陣列，Count=0
+[PASS] F3 Read-QueueFile(檔案不存在) 回傳 $null（哨兵值，非空陣列） 
+
+共 15 項，FAIL=0

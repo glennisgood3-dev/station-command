@@ -1,0 +1,8 @@
+{
+  "provider": "Claude",
+  "findings": [
+    { "id": "C-A1", "matchKey": "shared-null-check", "severity": "judgement", "text": "空值處理可更清楚。" },
+    { "id": "C-A2", "matchKey": "claude-only-name", "severity": "hard", "text": "名稱仍未表達領域意圖。" },
+    { "id": "C-A3", "matchKey": "claude-only-chain", "severity": "info", "text": "可縮短訊息鏈。" }
+  ]
+}

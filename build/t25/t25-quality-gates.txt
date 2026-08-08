@@ -1,0 +1,26 @@
+T-25 品質閘實錄
+執行環境：/opt/pwsh/pwsh 7.4.6（Linux）
+目標相容契約：Windows PowerShell 5.1 + Set-StrictMode -Version Latest
+
+指令：
+/opt/pwsh/pwsh -NoProfile -Command '<逐支 ParseFile、UTF-8 BOM 檢查>'
+
+run-finalize.ps1 | BOM=True | ParseErrors=0
+t25-apply-mock.ps1 | BOM=True | ParseErrors=0
+t25-offline-test.ps1 | BOM=True | ParseErrors=0
+TOTAL | Files=3 | BOM=3/3 | ParseErrors=0
+
+完整離線測試：
+/opt/pwsh/pwsh -NoProfile -File build/t25/t25-offline-test.ps1
+exit=0；PASS=16；FAIL=0
+
+紅燈：
+- -SkipRequiredNotifications：exit=1；PASS=15；FAIL=1（A1 真斷言失敗）
+- -SkipSilentNotificationGuard：exit=1；PASS=15；FAIL=1（A2 真斷言失敗）
+- -SkipBatchAggregation：exit=1；PASS=14；FAIL=2（B1、B4 真斷言失敗）
+
+CLI smoke：
+/opt/pwsh/pwsh -NoProfile -File build/t25/run-finalize.ps1 -DemoMode
+exit=0；有輸出；comment=1；推播 Sent=True；停因=④
+
+附註：目前容器沒有 Windows PowerShell 5.1 執行檔；實跑版本是題目指定位置的真 PowerShell 7.4.6。

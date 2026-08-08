@@ -15,8 +15,10 @@ Owner: 彥揚 | Status: 站 1 共識草案 | Created: 2026-08-05
 | Decision Log / Change Log | 各專案 repo 內 DECISIONS.md / CHANGELOG.md；protocol 層跨專案正典照舊 Drive | ADR-4，ART-DEC-001 |
 | AgentKit 追蹤 | ak-project-management 的 plans/ 檔案（durable source）＋鏡射到 Cowork task 面板；ak 自帶 kanban 為 localhost-only，不作面板 | 站 1 事實查核 |
 | legacy | 非本流程產出的既有專案。收編＝auditor 定站退回站 x＋關鍵補件＋具名豁免；字卡帶 legacy badge 至通過第一個 native gate | ADR-6 |
-| 自主派工循環 | 站 4／5 的高自主權機制：session 內 loop ＋ 跨 session 排程喚醒，共用五條停止條件（不可逆／連續 fail／人類 gate／scope 變更／frontier 空）；狀態從 GitHub 現算，無狀態檔 | ADR-10（補使用者原版 S4/S5「high autonomy」） |
+| 自主派工循環 | 站 4／5 的高自主權機制：session 內 loop ＋ 跨 session 排程喚醒，共用六條停止條件（不可逆／連續 fail／人類 gate／scope 變更／frontier 空／外廠成本 100%）；狀態從 GitHub 現算，無狀態檔 | ADR-10（補使用者原版 S4/S5「high autonomy」） |
 | 待寫佇列 | Cowork 寫不了 GitHub 期間，loop 累積的寫入動作清單＋本機套用腳本。實作與判定照跑，只有蓋章延後 | ADR-10 ③，升 CI 後消失 |
+| provider（廠商） | 路由表的新維度。executor 由「agent 名」擴為「provider＋model」。12 家已登錄、沙盒實測全部可直達；有 key 者 `available`，無 key 者 `registered-no-key`（登錄≠啟用） | ADR-11 |
+| 異廠交叉檢視 | 用非 Claude 廠牌的模型做獨立審查，取其盲點不同。適用站 5 A 軸／站 2 出口／站 3 複核；站 4 實作維持 Claude。外廠不可用即降級單廠並具名 | ADR-11 ④⑤，A-30 原意 |
 
 ## 未決項（站 2 議）
 

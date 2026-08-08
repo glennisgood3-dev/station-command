@@ -1,0 +1,7 @@
+{
+  "provider": "Gemini",
+  "findings": [
+    { "id": "G-A1", "matchKey": "gemini-only-duplication", "severity": "info", "text": "兩處流程近似，可觀察是否形成重複。" },
+    { "id": "G-A2", "matchKey": "shared-null-check", "severity": "hard", "text": "空值路徑會造成未處理例外。" }
+  ]
+}

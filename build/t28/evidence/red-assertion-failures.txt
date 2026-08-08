@@ -1,0 +1,13 @@
+T-28 紅燈證據（2026-08-08）
+
+指令：
+/opt/pwsh/pwsh -NoLogo -NoProfile -File build/t28/t28-offline-test.ps1 -SkipKeyRedaction -SkipRetry
+
+結果：exit_code=1；PASS=66；FAIL=2。
+腳本已完整載入並執行至所有測試群組，非 ParseFile／載入／collection 失敗。
+
+[ASSERTION FAILED] 紅燈斷言③：key 不得出現在對話輸出、repo 內容、log、待寫佇列四處任一處（命中數=4，不顯示 key）
+[ASSERTION FAILED] 紅燈斷言④：逾時與 5xx 各重試恰一次（timeout retry=0，5xx retry=0）
+
+其餘 66 條皆為 [PASS]，包含 key-leak-scan.ps1 子行程直跑輸出非空、兩層可達性政策的人造回應分類、四家族 schema、回應解碼、Windows PowerShell 逾時分類、repo 外連接資料夾防線、掃描器對四表面逐一檢出、具名降級、回應 key 攔截與正式 repo 全域掃描。
+完整測試 key 值刻意不寫入本證據。

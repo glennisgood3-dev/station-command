@@ -1,0 +1,17 @@
+# 凍結 fixture（2026-08-08，兩欄：provider<TAB>端點，逐列配對，外部既存事實）
+# provider 名稱與拼寫 ＝ Spec_station-command_v1.11.md:203-214（§5.1 原表 provider 欄，逐字）
+# 端點值（含完整路徑）＝ tickets-vendor-draft.md T-27 驗收條件①原文列出之 12 個字串，逐字
+# 兩欄的配對關係＝以「端點主機」比對 spec 原表的「端點主機」欄，一對一無歧義，非由本 asset 反推
+# 格式：provider<TAB>endpoint（Tab 分隔，# 開頭為註解列，比對程式略過）
+OpenAI	api.openai.com/v1
+Gemini	generativelanguage.googleapis.com/v1beta
+OpenRouter	openrouter.ai/api/v1
+xAI Grok	api.x.ai/v1
+DeepSeek	api.deepseek.com
+Mistral	api.mistral.ai/v1
+Groq	api.groq.com/openai/v1
+Together	api.together.xyz/v1
+Perplexity	api.perplexity.ai
+Cohere	api.cohere.com/v1
+Fireworks	api.fireworks.ai/inference/v1
+Cerebras	api.cerebras.ai/v1

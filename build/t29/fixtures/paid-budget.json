@@ -1,0 +1,7 @@
+{
+  "tier": "paid",
+  "limitType": "amount",
+  "limitValue": 1.0,
+  "inputUsdPerMillion": 1.0,
+  "outputUsdPerMillion": 2.0
+}

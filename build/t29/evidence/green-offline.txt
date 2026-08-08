@@ -1,0 +1,27 @@
+﻿執行模式：SkipLimitEnforcement=False；SkipCompletedResultOutput=False
+群組 A【紅燈①／綠燈①】：極低上限、後續停手、輸入與輸出逐字完整
+[PASS] 紅燈斷言①原文：超限點須具名觸發停手，下一次呼叫不得送出，且本次送出內容與回傳內容必須逐字完整｜calls=1；percent=200；inputLen=29；outputLen=38
+[PASS] A2 極低金額上限依 fixture 算得 200%，本次完整結果先回傳
+群組 B：連續三次付費層逐次記帳；50%／80% 各一次且走 T-25 推播
+[PASS] B1 連續三次成功呼叫，gate ledger 恰有三筆記帳｜entries=3
+[PASS] B2 三筆 input／output／total token 逐筆等於 fixture 回應 usage
+[PASS] B3 三筆估算成本逐筆等於 fixture usage × 人造單價 worked example
+[PASS] B4 累計成本與百分比分別為 0.0004 USD／80%
+[PASS] B5 50%／80% 告警各恰一次，兩次皆明示續跑
+[PASS] B6 告警直接沿用 T-25 Send-StationUserPush 的 channel／category，未另立通知管道
+群組 C：Gemini 免費層費用為零，但逐次消耗 RPM／RPD／TPM 配額
+[PASS] C1 免費層兩筆 estimatedCost 及累計費用皆為 0
+[PASS] C2 Gemini 兩次仍消耗 RPM=2／RPD=2／TPM=500
+[PASS] C3 免費層以最高配額百分比 RPM=100% 觸發同一停因⑥
+[PASS] C4 配額達 100% 後第三次呼叫未送出
+群組 D【紅燈④／綠燈④】：T-29 寫狀態、T-24 停因⑥、T-25 收尾與既有成果輸出
+[PASS] 紅燈斷言④原文：達 100% 必須由 T-24 以停因⑥停手，停的是後續呼叫，且停手前既有完整審查結果仍照常輸出｜stop=⑥；gateCalls=1；transportCalls=1；reviewOutputs=1
+[PASS] D2 停因⑥通知由 T-25 既有 station-user-push／loop-stop 發送
+[PASS] D3 所有待寫佇列項恰四欄 action／target／payload／source｜queue=2
+[PASS] D4 只派工 #701，未替停手後的 #702 產生任何佇列項
+群組 E：格式家族 usage 正規化與上限語意拒絕混用
+[PASS] E1 Anthropic usage 正規化 input=7／output=3／total=10
+[PASS] E2 Cohere usage 正規化 input=8／output=4／total=12
+[PASS] E3 付費層不得冒用 quota；免費層不得冒用 amount
+總結：PASS=19 FAIL=0
+結束碼：0（由斷言失敗數決定）

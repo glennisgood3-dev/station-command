@@ -1,0 +1,347 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>station-command 面板（跨 repo 聚合）</title>
+<!--
+  T-16 · fleet-board-template.html — 跨 repo 多 work 聚合面板外殼樣板。
+
+  為何另立一份（不修改 ../t09/board-template.html，file ownership）：
+  t09 樣板的 <h1>/meta-line 文案與版面假設固定「單一 work 檢視」（見該檔內建註解「單 work 檢視，
+  T-09 範圍；跨 repo多 work 聚合屬 T-16」——t09 自己已預告本檔的存在）。T-16 需要：
+    ① 標題／說明文字改為「跨 repo 聚合」語意，不能沿用「單 work 檢視」字樣；
+    ② 一頁可能同時塞多張字卡（N 個 work），需要卡片間距 CSS（t09 只需單卡，未定義此規則）；
+    ③ 多一種 banner 樣式（消失偵測，見下方 .banner--disappeared）。
+  比照 build/t12/run-queue-ext.md 的先例（同一 repo 內另立擴充檔、不改原檔）。
+
+  CSS 變數與既有四個類別（.card/.badge/.stepper/.progress-bar/.stat-row 等）**逐字複製自
+  ../t09/board-template.html**，刻意保持 class 命名一致——因為卡片 HTML 本身仍由 t09 的
+  `Build-WorkCardHtml` 產生（未修改、直接複用），兩邊 class 命名系統必須對得上，否則卡片會沒有樣式。
+
+  四個佔位 TOKEN 與 t09 完全相同（同一組 render 邏輯的延伸，語意不變）：
+    GENERATED_AT              純文字，本次 render 的產生時間
+    BANNERS_HTML               零或多個 banner 區塊（§4.4 四種異常狀態 + T-16 新增的「工作消失」）
+    MAIN_CONTENT_HTML          N 張 work 字卡（或空狀態卡）串接而成的 HTML 片段
+    CACHE_DATA_JSON_ESCAPED    §4.2 顯示快取（多 work 版：{ lastFullSyncTimeUtc; lastReconcileTimeUtc;
+                               works: [{workId;station;primaryRepo}, ...] }），非真相源、不參與 gate 判定
+-->
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1b1f23;
+    --muted: #57606a;
+    --card-bg: #f6f8fa;
+    --card-border: #d0d7de;
+    --red: #cf222e;
+    --red-bg: #ffebe9;
+    --red-border: #ffb2ab;
+    --yellow: #9a6700;
+    --yellow-bg: #fff8c5;
+    --yellow-border: #eac54f;
+    --green: #1a7f37;
+    --green-bg: #dafbe1;
+    --green-border: #6fcf87;
+    --badge-bg: #ddf4ff;
+    --badge-fg: #0969da;
+    --badge-border: #54aeff;
+    --stale-bg: #eaeef2;
+    --stale-fg: #57606a;
+    --legacy-bg: #f3e8ff;
+    --legacy-fg: #6639ba;
+    --step-off-bg: #eaeef2;
+    --step-off-fg: #8c959f;
+    --step-on-bg: #0969da;
+    --step-on-fg: #ffffff;
+    --step-done-bg: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --fg: #c9d1d9;
+      --muted: #8b949e;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --red: #ff7b72;
+      --red-bg: #3c1618;
+      --red-border: #6e2429;
+      --yellow: #e3b341;
+      --yellow-bg: #3b2f00;
+      --yellow-border: #6e5400;
+      --green: #3fb950;
+      --green-bg: #0f2a17;
+      --green-border: #24522f;
+      --badge-bg: #132433;
+      --badge-fg: #79c0ff;
+      --badge-border: #1f6feb;
+      --stale-bg: #21262d;
+      --stale-fg: #8b949e;
+      --legacy-bg: #271052;
+      --legacy-fg: #c297ff;
+      --step-off-bg: #21262d;
+      --step-off-fg: #8b949e;
+      --step-on-bg: #1f6feb;
+      --step-on-fg: #ffffff;
+      --step-done-bg: #3fb950;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+  }
+  .meta-line {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  .banner {
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .banner strong { margin-right: 4px; }
+  .banner--stale {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+    color: var(--red);
+  }
+  .banner--incomplete {
+    background: var(--yellow-bg);
+    border-color: var(--yellow-border);
+    color: var(--yellow);
+  }
+  .banner--empty {
+    background: var(--stale-bg);
+    border-color: var(--card-border);
+    color: var(--fg);
+  }
+  .banner--no-baseline {
+    background: var(--stale-bg);
+    border-color: var(--card-border);
+    color: var(--muted);
+  }
+  /* T-16 新增：anchor 消失（§4.4「anchor 消失＝異常，不是空狀態」）——與查詢失敗同色階（紅），
+     但獨立 class 名稱以便日後樣式微調不互相牽動。 */
+  .banner--disappeared {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+    color: var(--red);
+  }
+  /* --- 以下逐字複製自 ../t09/board-template.html（理由見檔頭說明：卡片仍由 t09 Build-WorkCardHtml 產生） --- */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    max-width: 720px;
+  }
+  /* T-16 新增：多卡並列時的卡片間距（t09 只需單卡，未定義此規則） */
+  .card + .card {
+    margin-top: 16px;
+  }
+  .card--stale {
+    opacity: 0.72;
+    filter: grayscale(35%);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    flex: none;
+  }
+  .dot--red { background: var(--red); }
+  .dot--yellow { background: var(--yellow); }
+  .dot--green { background: var(--green); }
+  .dot--unknown { background: var(--muted); }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .work-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--badge-border);
+    background: var(--badge-bg);
+    color: var(--badge-fg);
+    white-space: nowrap;
+  }
+  .badge--legacy {
+    background: var(--legacy-bg);
+    color: var(--legacy-fg);
+    border-color: var(--legacy-fg);
+  }
+  .badge--stale {
+    background: var(--stale-bg);
+    color: var(--stale-fg);
+    border-color: var(--card-border);
+  }
+  .badge--queue {
+    background: var(--yellow-bg);
+    color: var(--yellow);
+    border-color: var(--yellow-border);
+  }
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 12px 0;
+  }
+  .step {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--step-off-bg);
+    color: var(--step-off-fg);
+    flex: none;
+  }
+  .step--done { background: var(--step-done-bg); color: #fff; }
+  .step--current { background: var(--step-on-bg); color: var(--step-on-fg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--step-on-bg) 30%, transparent); }
+  .step-connector {
+    flex: 1 1 auto;
+    height: 3px;
+    background: var(--step-off-bg);
+    min-width: 8px;
+  }
+  .step-connector--done { background: var(--step-done-bg); }
+  .stepper-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  dl.fields {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 6px 10px;
+    margin: 10px 0 0 0;
+  }
+  dl.fields dt {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  dl.fields dd {
+    margin: 0;
+    font-size: 13px;
+  }
+  ul.repo-progress {
+    margin: 0;
+    padding-left: 18px;
+  }
+  ul.repo-progress li {
+    margin-bottom: 2px;
+  }
+  .repo-progress .err { color: var(--red); }
+  .progress-bar {
+    height: 6px;
+    background: var(--step-off-bg);
+    border-radius: 999px;
+    margin: 3px 0 0 0;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--step-on-bg);
+    border-radius: 999px;
+  }
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .stat-tile {
+    flex: 1 1 90px;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 84px;
+  }
+  .stat-tile-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-tile-value--warn { color: var(--yellow); }
+  .stat-tile-value--alert { color: var(--red); }
+  .stat-tile-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .card-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--card-border);
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .card-footer div { margin-bottom: 2px; }
+  .empty-card {
+    background: var(--card-bg);
+    border: 1px dashed var(--card-border);
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 720px;
+    color: var(--muted);
+    text-align: center;
+  }
+  #content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+</style>
+</head>
+<body>
+  <h1>station-command 面板（跨 repo 聚合）</h1>
+  <div class="meta-line">產生時間：{{GENERATED_AT}}（跨 repo 多 work 聚合檢視，T-16 範圍；work 內票級細節見各 work 字卡）</div>
+
+  <div id="banners">
+{{BANNERS_HTML}}
+  </div>
+
+  <div id="content">
+{{MAIN_CONTENT_HTML}}
+  </div>
+
+  <!--
+    §4.2 顯示快取：非真相源、不參與任何 gate 判定，僅供「無基線」偵測降級判斷與 T-16 跨 repo
+    消失偵測比對基線。屬性值為 JSON（多 work 版 schema，見檔頭 TOKEN 說明），已做 HTML 屬性跳脫。
+  -->
+  <div id="station-board-cache" data-station-board-cache='{{CACHE_DATA_JSON_ESCAPED}}' style="display:none"></div>
+</body>
+</html>

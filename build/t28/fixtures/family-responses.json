@@ -1,0 +1,22 @@
+{
+  "OpenAI-compatible": {
+    "statusCode": 200,
+    "body": {"choices": [{"message": {"content": "fixture-openai-response"}}]},
+    "expectedText": "fixture-openai-response"
+  },
+  "Gemini": {
+    "statusCode": 200,
+    "body": {"candidates": [{"content": {"parts": [{"text": "fixture-gemini-response"}]}}]},
+    "expectedText": "fixture-gemini-response"
+  },
+  "Anthropic": {
+    "statusCode": 200,
+    "body": {"content": [{"type": "text", "text": "fixture-anthropic-response"}]},
+    "expectedText": "fixture-anthropic-response"
+  },
+  "Cohere": {
+    "statusCode": 200,
+    "body": {"text": "fixture-cohere-response"},
+    "expectedText": "fixture-cohere-response"
+  }
+}

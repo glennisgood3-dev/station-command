@@ -1,0 +1,40 @@
+########## RED（產檔前，t21-red-green.txt 首次記錄，未經事後修飾） ##########
+########## RED RUN (產檔前) ##########
+=== check-t21.sh 執行於 2026-08-05 21:40:46 +0000 ===
+
+--- 檢查① 冪等：套用前讀現況比對，且不用動作指紋 ---
+[RED] apply-queue.ps1 不存在：/home/claude/station-plugin/build/t21/apply-queue.ps1
+
+--- 檢查② 產生權：enqueue-guard.md 四類動作各自具名唯一產生者 ---
+[RED] enqueue-guard.md 不存在：/home/claude/station-plugin/build/t21/enqueue-guard.md
+
+=== 總結：RED（①冪等=FAIL、②產生權=FAIL） ===
+
+⚠️ 本檢查僅涵蓋靜態面（檔案是否含正確設計元素／具名條文）。
+   動態驗收（Spec 驗收②③④⑥：真實連線 GitHub 跑冪等、回驗、對帳出列、遺失降級）
+   須由使用者於本機以 PowerShell + PAT 實跑，本沙盒無法執行。
+exit code: 1
+
+########## GREEN（定案版 apply-queue.ps1／enqueue-guard.md 完成後重跑） ##########
+=== check-t21.sh 執行於 2026-08-05 21:46:28 +0000 ===
+
+--- 檢查① 冪等：套用前讀現況比對，且不用動作指紋 ---
+[GREEN] 找到「讀現況比對」邏輯段（已達成 payload 狀態即跳過）
+[GREEN] 找到套用前的 GET 現況呼叫
+[GREEN] 找到「套用後回驗」邏輯段
+[GREEN] 明文聲明「不設動作指紋」且未偵測到雜湊型比對程式碼，符合規定
+[GREEN] 找到 label description 長度守門（≤100 字元）邏輯
+[GREEN] 找到「待寫佇列不存在」具名回報字串
+
+--- 檢查② 產生權：enqueue-guard.md 四類動作各自具名唯一產生者 ---
+[GREEN] label／開關 issue 類的唯一產生者具名為 gate
+[GREEN] issue／milestone 建立的唯一產生者具名為 intake
+[GREEN] comment 類的產生權規則（依原動作歸屬）具名
+[GREEN] 找到「違反產生權 ⇒ 拒絕並具名」判定行為
+
+=== 總結：GREEN（①冪等設計、②產生權規格 兩項靜態檢查皆通過） ===
+
+⚠️ 本檢查僅涵蓋靜態面（檔案是否含正確設計元素／具名條文）。
+   動態驗收（Spec 驗收②③④⑥：真實連線 GitHub 跑冪等、回驗、對帳出列、遺失降級）
+   須由使用者於本機以 PowerShell + PAT 實跑，本沙盒無法執行。
+exit code: 0

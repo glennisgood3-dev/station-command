@@ -1,0 +1,17 @@
+########## RED（搬移前：對空 migration-map 跑覆蓋率檢查，斷言失敗型）##########
+$ ./t05-check.sh .red-stub/migration-map-empty.md /home/claude/station-plugin/t04-fixture.md
+=== T-05 覆蓋率檢查 ===
+fixture 分母：78 條（來源：/home/claude/station-plugin/t04-fixture.md）
+migration-map：.red-stub/migration-map-empty.md
+命中（有對應且新家非空）：0/78（0.0%）
+缺對照（migration-map 查無此 ID，共 78 條）：PR-01, PR-02, PR-03, PR-04, PR-05, PR-06, PR-07, PR-08, PR-09, PR-10, PR-11, PR-12, PR-13, PR-14, PR-15, PR-16, SK-01, SK-02, SK-03, SK-04, SK-05, SK-06, SK-07, SK-08, SK-09, SK-10, SK-11, SK-12, SK-13, SK-14, SK-15, SK-16, SK-17, SK-18, SK-19, SK-20, SK-21, SK-22, SK-23, AM-01, AM-02, AM-03, AM-04, AM-05, AM-06, AM-07, AM-08, AM-09, AM-10, AM-11, AM-12, AM-13, AM-14, AM-15, AM-16, AM-17, AM-18, AM-19, AM-20, AM-21, AM-22, AM-23, AM-24, AM-25, AM-26, AM-27, AM-28, AM-29, AM-30, AM-31, AM-32, AM-33, AM-34, AM-35, AM-36, AM-37, AM-38, AM-39
+(exit code: 1 — 非 0，且訊息為 ASSERTION FAILED，非 file not found)
+
+########## GREEN（搬移後：對正式 migration-map.md 跑覆蓋率檢查）##########
+$ ./t05-check.sh migration-map.md /home/claude/station-plugin/t04-fixture.md
+=== T-05 覆蓋率檢查 ===
+fixture 分母：78 條（來源：/home/claude/station-plugin/t04-fixture.md）
+migration-map：migration-map.md
+命中（有對應且新家非空）：78/78（100.0%）
+ASSERTION PASSED: coverage 78/78 == 78/78 — GREEN
+(exit code: 0)

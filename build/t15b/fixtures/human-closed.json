@@ -1,0 +1,57 @@
+{
+  "workId": "W-t15b-human",
+  "primaryAnchor": {
+    "repo": "acme/app",
+    "issue": 300,
+    "labels": ["sc:work", "sc:station-5"]
+  },
+  "participatingRepos": [
+    {
+      "repo": "acme/app",
+      "milestone": {
+        "number": 11,
+        "title": "W-t15b-human",
+        "description": "work-id: W-t15b-human | primary-anchor: acme/app#300",
+        "state": "open"
+      }
+    },
+    {
+      "repo": "acme/lib",
+      "milestone": {
+        "number": 12,
+        "title": "W-t15b-human",
+        "description": "work-id: W-t15b-human | primary-anchor: acme/app#300",
+        "state": "open"
+      }
+    }
+  ],
+  "gateIdentityLogins": ["station-gate-bot"],
+  "tickets": [
+    {
+      "repo": "acme/app",
+      "issue": 301,
+      "state": "closed",
+      "timeline": [
+        {"event": "closed", "actor": {"login": "station-gate-bot"}, "created_at": "2026-08-08T11:00:00Z"}
+      ]
+    },
+    {
+      "repo": "acme/lib",
+      "issue": 401,
+      "state": "closed",
+      "timeline": [
+        {"event": "closed", "actor": {"login": "human-user"}, "created_at": "2026-08-08T11:05:00Z"}
+      ]
+    }
+  ],
+  "expected": {
+    "decision": "awaiting-user",
+    "ticketCount": 2,
+    "openCount": 0,
+    "minimumStationApplicable": false,
+    "humanOrUnprovenCount": 1,
+    "queueCount": 1,
+    "actionCounts": {"set-labels": 1, "close-issue": 0, "close-milestone": 0},
+    "anchorLabels": ["sc:work", "sc:awaiting-user"]
+  }
+}

@@ -1,0 +1,26 @@
+T-28 第二次小幅 rework：key-leak-scan.ps1 直跑輸出斷言紅綠證據（2026-08-08）
+
+新增斷言：
+key-leak-scan.ps1 以子行程直接執行時輸出不得為空
+
+RED（先只加入斷言，尚未修改 key-leak-scan.ps1）：
+指令：
+/opt/pwsh/pwsh -NoLogo -NoProfile -File build/t28/t28-offline-test.ps1
+
+結果：exit_code=1；PASS=67；FAIL=1。
+[ASSERTION FAILED] key-leak-scan.ps1 以子行程直接執行時輸出不得為空
+=== RESULT：PASS=67 FAIL=1 ===
+
+腳本完整跑到 RESULT；唯一失敗是新增斷言，屬 assertion failure，並非 ParseFile、載入或 collection 失敗。
+
+GREEN（加入純函式庫 usage banner 後）：
+指令：
+/opt/pwsh/pwsh -NoLogo -NoProfile -File build/t28/t28-offline-test.ps1
+
+結果：exit_code=0；PASS=68；FAIL=0。
+[PASS] key-leak-scan.ps1 以子行程直接執行時輸出不得為空
+=== RESULT：PASS=68 FAIL=0 ===
+
+補充直跑／dot-source smoke：
+- 直接執行 key-leak-scan.ps1：exit_code=0，usage 輸出 482 bytes。
+- dot-source key-leak-scan.ps1：exit_code=0，輸出 0 bytes；函式庫載入不受 banner 干擾。

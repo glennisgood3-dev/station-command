@@ -1,0 +1,11 @@
+T-31 交件前驗證摘要
+
+- UTF-8 BOM：3/3 個 .ps1 首三 bytes 皆為 EF BB BF。
+- ParseFile：gemini-e2e-core.ps1 errors=0；invoke-gemini-e2e.ps1 errors=0；t31-offline-test.ps1 errors=0。
+- 紅燈：exit 1；PASS=51；FAIL=2；唯一失敗為紅燈斷言 (a)(b)，(c) 通過。
+- 完整離線測試：exit 0；PASS=60；FAIL=0。
+- 純函式庫 CLI：exit 0；印出三行用途／dot-source／端到端 CLI banner，非零輸出 no-op。
+- ErrorEnvelope fixture CLI：exit 0；HTTP=404；success=False；parseFailed=True；findings=0；usageWritten=False；印出 provider／失敗原因／承接者；錯誤目錄無 usage-record.json。
+- Success fixture CLI：exit 0；HTTP=200；success=True；parseFailed=False；findings=2；usageWritten=True；逐條印出 GEM-001、GEM-002。
+- CLI 兩路均明示「未讀 key；未送網路」。
+- 禁令檢查：沒有連網、沒有呼叫 GitHub API、沒有讀寫真實 key／token／個資，也沒有修改 build/t31/ 以外檔案。

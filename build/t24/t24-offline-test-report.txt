@@ -1,0 +1,63 @@
+﻿t24-offline-test.ps1 執行報告 — 2026-08-08 15:59:54 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 station-1 => human-gate 
+[PASS] A2 station-2 => human-gate 
+[PASS] A3 station-3 => human-gate 
+[PASS] A4 station-4 => autonomous 
+[PASS] A5 station-5 => autonomous 
+[PASS] A6 station-done => done 
+[PASS] A7 未知站別拋錯 
+[PASS] B1 未提供檔案 => 0% 不停不警 未提供成本狀態檔或檔案不存在：視為尚無外廠成本累計（§7.6 逐次記帳由 T-29 負責寫入，本票只負責讀取判定；未落地前不誤觸發任何告警或停手）
+[PASS] B2 50% => Warn50=true，Reached100=false 外廠累計成本 50%（provider=gemini，limitType=quota，§7.6），達 50% 告警（續跑，非停手）
+[PASS] B3 85% => Warn80=true，Reached100=false 外廠累計成本 85%（provider=gemini，limitType=quota，§7.6），達 80% 告警（續跑，非停手）
+[PASS] B4 100% => Reached100=true 外廠累計成本 100%（provider=gemini，limitType=quota，§7.6），已達上限 100% ⇒ 觸發 §5.3a 停止條件⑥（花下去拿不回來，與①不可逆同級）
+[PASS] B5 缺 percentUsed 欄位 => 拋錯（fail-closed，非默認 0%） 
+[PASS] C1 乾淨輸出 => Clean=true 全程 2 行輸出，未出現任何確認提問樣式（Spec §5.3a：站 4／5 內部 dispatch／驗收／雙審／merge 一律不問）
+[PASS] C2 含確認提問樣式 => Clean=false（掃描器真的抓得到，非恆真） 命中 1 處疑似確認提問：『是否確認要繼續？』(樣式:(?i)是否確認)
+[PASS] C3 英文 y/n 樣式亦命中 命中 1 處疑似確認提問：『Proceed? (y/n)』(樣式:(?i)proceed\s*\?)
+[PASS] D1 未 fail => 不停不 rework 
+[PASS] D2 首次 fail（先前 0 次）=> 安排第 1 次 rework，不停 
+[PASS] D3 第二次 fail（先前 1 次）=> 安排第 2 次 rework，不停 
+[PASS] D4 第三次 fail（已 rework 2 次）=> 停手（停因②） 同一票已 rework 2 次仍 fail（§5.3a 停止條件②）
+[PASS] E1 一般模式（無 -SkipFrontierFilter）僅回傳 Eligible 
+[PASS] E2 -SkipFrontierFilter 開啟 => 回傳 Eligible+Rejected 全體（依號排序，最小號在前） 
+[PASS] E3 排除清單生效（204 被排除後一般模式為空） 
+[RED-CONFIRMED] F-RED：-SkipFrontierFilter 開啟後 #201（blocked）真的被派工
+[PASS] F-GREEN 斷言「loop 只會派工 frontier 內合格票」通過：只派工過 #204，從未派工 #201/#202/#203 實際派工過的票號=[204]
+[PASS] F-GREEN 迴圈最終以停因⑤（frontier 空）收斂（#204 派工完成後其餘三票仍不合格） frontier 空：選出 ticket：o/f#204（frontier 共 1 項合格，取編號最小者）
+[RED-CONFIRMED] G-RED：-SkipIrreversibleHalt 開啟後 #301（不可逆：有）真的被派工，loop 未以停因①停手
+[PASS] G-GREEN 斷言「dispatch 前必先查第八欄」通過：佇列檔未產生任何內容（未被派工） queue 檔存在=False
+[PASS] G-GREEN loop 以停因①（不可逆動作前）停手 dispatch 前偵測第八欄「不可逆動作：有」（o/g#301）
+[PASS] H1 StopReason=② 票 o/h#401：同一票已 rework 2 次仍 fail（§5.3a 停止條件②）
+[PASS] H2 gate 恰被呼叫 3 次（首判＋2 次 rework 後仍 fail） 呼叫次數=3：[o/h#401@iter1, o/h#401@iter2, o/h#401@iter3]
+[PASS] H3 全程只選中同一張票（#401），未曾選中其他候選 [o/h#401]
+[PASS] H4 ReworkCounts 記錄該票已 rework 2 次 ReworkCounts['o/h#401']=2
+[PASS] I1 StopReason=③ 工作位於 sc:station-2（站 1／2／3），不自動推進，停在人類 gate（共識確認／spec 確認／拆票 quiz）
+[PASS] I2 恰跑 1 輪（IterationsRun=1，不自動推進第二輪） IterationsRun=1
+[PASS] I3 恰產生 1 則 RoundSummaries（一次派工） RoundSummaries=[第 1 輪（sc:station-2）：anchor o/i#100 — dispatch-ready]
+[PASS] J1 StopReason=⑤（無票可選） frontier 空：frontier 為空：候選 0 項，全數被排除或無候選（見 Rejected 具名理由）
+[PASS] J2 未產生任何佇列項（無候選，未派工） 
+[PASS] K1 StopReason=④ 票 o/k#501 判 gate 時偵測 scope 需變更：判 gate 時發現實作已超出票面 scope，須改票
+[PASS] L1 StopReason=⑥（外廠成本達上限 100%） 外廠累計成本 100%（provider=gemini，limitType=quota，§7.6），已達上限 100% ⇒ 觸發 §5.3a 停止條件⑥（花下去拿不回來，與①不可逆同級）
+[PASS] L2 停手前第一張票（#601）PASS 的結果仍保留在 RoundSummaries（已產出結果照常輸出，不因停手被清空） RoundSummaries=[第 1 輪：o/l#601 PASS]
+[PASS] L3 第二張票（#602）從未被 gate 判定（成本停手發生在下一輪選件之前） 
+[PASS] L4 80% 告警但續跑：#603 仍被正常派工並 PASS，StopReason≠⑥（最終應為⑤frontier空） frontier 空：選出 ticket：o/l2#603（frontier 共 1 項合格，取編號最小者）
+[PASS] L5 80% 告警文字有出現在 Lines 內 
+[PASS] M1 站 4／5 混合多輪（含一次 rework）全程 Lines 掃描 Clean=true（驗收⑥機械化檢查） 全程 18 行輸出，未出現任何確認提問樣式（Spec §5.3a：站 4／5 內部 dispatch／驗收／雙審／merge 一律不問）
+[PASS] M2 迴圈最終以停因⑤收斂（兩張票皆已處理完畢） frontier 空：選出 ticket：o/m#701（frontier 共 2 項合格，取編號最小者）
+[PASS] M3 掃描器並非恆真：手動在 Lines 尾端加一行違規文字，重新掃描應偵測到 
+[PASS] N1 彙整全部情境產生的佇列項（共 N 筆）從未出現 label／開關 issue／建票類動作 彙整筆數=9，違規筆數=0
+[PASS] N2 彙整佇列項全數屬 run 允許的兩型（set-assignee／set-ticket-fields） 允許型筆數=9／總筆數=9
+[PASS] N3 彙整筆數 > 0（確保本檢查不是因為空集合而恆真通過） 總筆數=9
+[PASS] O-① 具名文字非空 不可逆動作前（依 §3.5 第八欄的票級宣告判定，dispatch 前讀取，宣告「有」即停手待裁示）
+[PASS] O-② 具名文字非空 同一票 rework 2 次仍 fail
+[PASS] O-③ 具名文字非空 站 1／2／3 的人類 gate（共識確認、spec 確認、拆票 quiz）
+[PASS] O-④ 具名文字非空 scope 需變更
+[PASS] O-⑤ 具名文字非空 frontier 空
+[PASS] O-⑥ 具名文字非空 外廠累計成本達上限 100%（50%／80% 僅告警不停手）
+[PASS] O-notify ②③④⑥ 須主動推播 
+[PASS] O-silent ①⑤ 為安靜情形 
+[PASS] O-guard 不存在的第七條拋錯（窮舉不得自立第七條） 
+
+共 58 項，FAIL=0

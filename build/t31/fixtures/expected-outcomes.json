@@ -1,0 +1,26 @@
+{
+  "independentTruthSource": "手寫 known-good literals，依票面指定的 Gemini v1beta generateContent 外部 schema：成功體 candidates[].content；錯誤體 error.code／error.status。不是由被測函式輸出產生。",
+  "success": {
+    "httpStatus": 200,
+    "findingCount": 2,
+    "findingIds": ["GEM-001", "GEM-002"],
+    "promptTokenCount": 31,
+    "candidatesTokenCount": 19,
+    "totalTokenCount": 50,
+    "estimatedCost": 0
+  },
+  "error": {
+    "httpStatus": 404,
+    "code": 404,
+    "status": "NOT_FOUND",
+    "parseFailed": true,
+    "usageWritten": false,
+    "degradationFields": ["provider", "失敗原因", "承接者"]
+  },
+  "maxTokens": {
+    "finishReason": "MAX_TOKENS",
+    "parseFailed": true,
+    "totalTokenCount": 1055,
+    "usageWritten": true
+  }
+}

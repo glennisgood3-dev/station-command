@@ -1,0 +1,12 @@
+===== RED (建檔前) =====
+FAIL: 共 5 項未通過
+  - plugin.json 不存在：/home/claude/station-plugin/build/station-command/.claude-plugin/plugin.json
+  - SKILL.md 不存在：/home/claude/station-plugin/build/station-command/skills/station-board/SKILL.md
+  - SKILL.md 不存在：/home/claude/station-plugin/build/station-command/skills/station-run/SKILL.md
+  - SKILL.md 不存在：/home/claude/station-plugin/build/station-command/skills/station-gate/SKILL.md
+  - SKILL.md 不存在：/home/claude/station-plugin/build/station-command/skills/station-intake/SKILL.md
+exit code: 1
+
+===== GREEN (建檔後) =====
+PASS: 骨架檢查全數通過
+exit code: 0

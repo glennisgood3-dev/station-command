@@ -1,0 +1,111 @@
+﻿{
+  "mode": "dual-vendor-axis-a",
+  "axisAProviderReports": [
+    {
+      "provider": "Claude",
+      "findingCount": 3,
+      "findings": [
+        {
+          "id": "C-A1",
+          "matchKey": "shared-null-check",
+          "severity": "judgement",
+          "text": "空值處理可更清楚。"
+        },
+        {
+          "id": "C-A2",
+          "matchKey": "claude-only-name",
+          "severity": "hard",
+          "text": "名稱仍未表達領域意圖。"
+        },
+        {
+          "id": "C-A3",
+          "matchKey": "claude-only-chain",
+          "severity": "info",
+          "text": "可縮短訊息鏈。"
+        }
+      ],
+      "worstIssue": {
+        "id": "C-A2",
+        "severity": "hard",
+        "text": "名稱仍未表達領域意圖。"
+      }
+    },
+    {
+      "provider": "Gemini",
+      "findingCount": 2,
+      "findings": [
+        {
+          "id": "G-A1",
+          "matchKey": "gemini-only-duplication",
+          "severity": "info",
+          "text": "兩處流程近似，可觀察是否形成重複。"
+        },
+        {
+          "id": "G-A2",
+          "matchKey": "shared-null-check",
+          "severity": "hard",
+          "text": "空值路徑會造成未處理例外。"
+        }
+      ],
+      "worstIssue": {
+        "id": "G-A2",
+        "severity": "hard",
+        "text": "空值路徑會造成未處理例外。"
+      }
+    }
+  ],
+  "axisB": {
+    "provider": "Claude",
+    "findingCount": 1,
+    "findings": [
+      {
+        "id": "C-B1",
+        "matchKey": "spec-output",
+        "severity": "judgement",
+        "text": "規格對照輸出需補一項核對。"
+      }
+    ],
+    "worstIssue": {
+      "id": "C-B1",
+      "severity": "judgement",
+      "text": "規格對照輸出需補一項核對。"
+    }
+  },
+  "overlaps": [
+    {
+      "matchKey": "shared-null-check",
+      "signal": "strongest-overlap",
+      "references": [
+        {
+          "provider": "Claude",
+          "findingId": "C-A1"
+        },
+        {
+          "provider": "Gemini",
+          "findingId": "G-A2"
+        }
+      ]
+    }
+  ],
+  "disagreements": [
+    {
+      "provider": "Claude",
+      "findingId": "C-A2",
+      "matchKey": "claude-only-name"
+    },
+    {
+      "provider": "Claude",
+      "findingId": "C-A3",
+      "matchKey": "claude-only-chain"
+    },
+    {
+      "provider": "Gemini",
+      "findingId": "G-A1",
+      "matchKey": "gemini-only-duplication"
+    }
+  ],
+  "requiresUserDecision": true,
+  "gateMayProceed": false,
+  "decisionMethod": "具名交使用者裁示；gate 不自行選邊",
+  "closingSummary": "A 軸 Claude：3 條，軸內 worst：C-A2（hard）｜A 軸 Gemini：2 條，軸內 worst：G-A2（hard）｜B 軸 Claude：1 條，軸內 worst：C-B1（judgement）"
+}

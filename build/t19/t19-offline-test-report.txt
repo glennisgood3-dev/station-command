@@ -1,0 +1,74 @@
+﻿t19-offline-test.ps1 執行報告 — 2026-08-08 10:34:04 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 Split-MarkdownTableRow 正確切三欄並去除首尾管線 [a, b, c]
+[PASS] A2 全形｜不被當成表格分隔符（不干擾切欄） [項目：X｜理由：Y <=> 依據]
+[PASS] A3 Test-IsSeparatorRow(標準分隔線) True 
+[PASS] A4 Test-IsSeparatorRow(含冒號對齊) True 
+[PASS] A5 Test-IsSeparatorRow(非分隔線) False 
+[PASS] A6 Test-IsSeparatorRow(空陣列) False 
+[PASS] B1 decisions-expired.md ParseOk=true 且共 2 筆列 解析成功，共 2 筆條目
+[PASS] B2 decisions-not-expired.md ParseOk=true 且共 3 筆列 解析成功，共 3 筆條目
+[PASS] B3 decisions-malformed.md ParseOk=true（表格結構本身合法，壞的是豁免子欄位內容，非表格結構） 解析成功，共 2 筆條目
+[PASS] B4 decisions-no-table.md ParseOk=false（純文字，無合法表格標頭）【核心：解析失敗情境】 DECISIONS.md 內容找不到符合 §8 格式的表格標頭（須含：日期、ID、類型、裁示內容、依據、裁示人），視為解析失敗（fail-closed）
+[PASS] B5 decisions-no-exemptions.md ParseOk=true 且共 2 筆列（皆非豁免類） 解析成功，共 2 筆條目
+[PASS] B6 空字串內容 ParseOk=false DECISIONS.md 內容為空白，找不到任何表格，解析失敗（fail-closed）
+[PASS] B7 表頭下一行非分隔線 ParseOk=false 表頭下一行非 markdown 表格分隔線（實際內容：'| 不是分隔線 | x | y | z | w | v |'），表格結構不符預期，解析失敗（fail-closed）
+[PASS] B8 資料列欄位數與表頭不符 ParseOk=false（保守設計：整份判解析失敗，不部分解析） 表格資料列格式不符（第 3 行欄位數（5）與表頭欄位數（6）不符，內容：'| 2026-01-01 | X | 豁免 | 欄位數不符 | 依據 |'），解析失敗（fail-closed，不嘗試部分解析）
+[PASS] C1 decisions-expired.md 過濾後恰 1 筆豁免（另 1 筆拍板類被排除） Id=EX-ALPHA-001
+[PASS] C2 decisions-no-exemptions.md 過濾後恰 0 筆豁免 
+[PASS] C3 空列陣列輸入，回傳空陣列（陷阱③防呆） 
+[PASS] D1 完整格式 WellFormed=true，DeadlineKind=date 格式合規：項目='X'／期限=2099-01-01
+[PASS] D2 期限＝永久，WellFormed=true，DeadlineKind=permanent 格式合規：項目='X'／期限=永久
+[PASS] D3 缺「期限」與「本項【未】處理」 WellFormed=false 缺子欄位：期限；缺「本項【未】處理」字樣（§7.4 硬性要求）；期限值無法解析（原始值：''，須為 yyyy-MM-dd 或『永久』）
+[PASS] D3b 缺項具名含「期限」 
+[PASS] D4 期限值無法解析 WellFormed=false，DeadlineKind=invalid 期限值無法解析（原始值：'不知道'，須為 yyyy-MM-dd 或『永久』）
+[PASS] D5 缺「本項【未】處理」字樣 WellFormed=false（即使四個子欄位皆在） 缺「本項【未】處理」字樣（§7.4 硬性要求）
+[PASS] E1 永久豁免 Expired=false 期限＝永久，不過期
+[PASS] E2 未來期限 Expired=false（基準日=2026-08-08，期限=2099-01-01） 期限 2099-01-01 尚未到基準日 2026-08-08，未過期
+[PASS] E3 過去期限 Expired=true（基準日=2026-08-08，期限=2026-08-01）【核心：過期判定】 期限 2026-08-01 早於檢查基準日 2026-08-08，已過期
+[PASS] E4 期限恰為基準日當天 Expired=false（期限當天仍有效，隔天才過期） 期限 2026-08-08 尚未到基準日 2026-08-08，未過期
+[PASS] F1 檔案不存在 Outcome=pass-no-file【驗收情境①：檔案不存在必 pass，非紅燈（見群組 K）】 DECISIONS.md 不存在，依 §6 全站條件與 §7.4，視為該 repo 無豁免（不 fail）
+[PASS] F2 讀取失敗 Outcome=fail-read-error【驗收情境②：讀取失敗必 fail】 DECISIONS.md 讀取失敗（API 錯誤／權限不足），依 §6／§7.4 fail-closed：模擬 403 Resource not accessible
+[PASS] F3 過期豁免 Outcome=fail-expired-exemption【驗收情境③：過期豁免必 fail】 1 筆豁免已過期，本次 gate fail 並落 sc:gate-fail：EX-ALPHA-001（期限 2026-08-01）
+[PASS] F3b ExpiredEntries 具名含 EX-ALPHA-001 
+[PASS] F4 未過期豁免（含永久＋未來期限）Outcome=pass-all-valid 共 2 筆豁免條目，格式皆合規且皆未過期
+[PASS] F5 豁免條目格式不合 Outcome=fail-malformed-exemption【延伸情境：格式不合必 fail】 2 筆豁免條目格式不合，fail-closed：EX-GAMMA-001：缺子欄位：期限；缺「本項【未】處理」字樣（§7.4 硬性要求）；期限值無法解析（原始值：''，須為 yyyy-MM-dd 或『永久』）；EX-GAMMA-002：期限值無法解析（原始值：'不知道'，須為 yyyy-MM-dd 或『永久』）
+[PASS] F5b MalformedEntries 恰 2 筆（EX-GAMMA-001／002 皆命中） 
+[PASS] F6 解析失敗 Outcome=fail-parse-error【延伸情境：解析失敗必 fail】 DECISIONS.md 解析失敗，fail-closed：DECISIONS.md 內容找不到符合 §8 格式的表格標頭（須含：日期、ID、類型、裁示內容、依據、裁示人），視為解析失敗（fail-closed）
+[PASS] F7 無任何豁免條目 Outcome=pass-no-exemptions DECISIONS.md 存在且可解析，但無任何類型＝豁免的條目
+[PASS] G1 三個參與 repo 全掃 Complete=true 涵蓋全部 3 個參與 repo
+[PASS] G2 缺一 repo（o/c）未掃 Complete=false【核心：涵蓋範圍檢查】 缺漏未掃 repo：o/c（anchor body 宣告 3 個，實際掃 2 個）
+[PASS] G2b 具名缺漏 repo=o/c 
+[PASS] G3 大小寫不敏感比對 Complete=true 涵蓋全部 1 個參與 repo
+[PASS] G4 三 repo 混合情境（合規／過期／不存在）整體 OverallPass=false（一個 repo 過期即整體 fail） [o/expired-repo2] fail-expired-exemption：1 筆豁免已過期，本次 gate fail 並落 sc:gate-fail：EX-ALPHA-001（期限 2026-08-01）
+[PASS] G4b 涵蓋範圍完整（三個都掃到了） 
+[PASS] G4c NamedGaps 具名指向 o/expired-repo2 的過期原因 [o/expired-repo2] fail-expired-exemption：1 筆豁免已過期，本次 gate fail 並落 sc:gate-fail：EX-ALPHA-001（期限 2026-08-01）
+[PASS] G5 單一 repo 全合規 OverallPass=true 全參與 repo（1 個）皆掃描完成，無過期／格式不合／讀取失敗／解析失敗豁免問題
+[PASS] H1 Get-FullLabelSetWithGateFail 保留既有 label 且加入 sc:gate-fail [sc:work, sc:station-3, sc:gate-fail]
+[PASS] H2 已有 sc:gate-fail 時不重複加入（去重） [sc:work, sc:gate-fail]
+[PASS] H3 New-DecisionsGateFailQueueItem action=set-labels 且 payload 為完整集合 action=set-labels
+[PASS] H4 首次加入佇列 Added=true 已加入佇列
+[PASS] H5 重複加入（同 action+target+source）Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] H5b 去重後仍恰 1 筆 
+[PASS] H5c 佇列項 action 恰為 set-labels（無任何直接呼叫 GitHub 寫入 API 的路徑） 
+[PASS] I1 成功讀取＋base64 解碼還原內容（含中文字元）正確 ErrorKind=none
+[PASS] I2 HTTP 404 ⇒ Exists=false, ErrorKind=not-found 
+[PASS] I3 HTTP 403 ⇒ Exists=false, ErrorKind=read-error（非 not-found，403≠404） 讀取失敗，HTTP 狀態=403，訊息=Resource not accessible by integration
+[PASS] I4 HTTP 500 ⇒ ErrorKind=read-error 讀取失敗，HTTP 狀態=500，訊息=Internal Server Error
+[PASS] I5 base64 解碼失敗 ⇒ ErrorKind=read-error（fail-closed，非靜默視為空內容） base64 解碼失敗：Exception calling "FromBase64String" with "1" argument(s): "The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters."
+[RED-CONFIRMED] J-RED-1：BypassFailClosedForRedTest 開啟後讀取失敗被誤判為通過
+[RED-CONFIRMED] J-RED-2：BypassFailClosedForRedTest 開啟後過期豁免被誤判為通過
+[RED-CONFIRMED] J-RED-3：BypassFailClosedForRedTest 開啟後格式不合被誤判為通過
+[RED-CONFIRMED] J-RED-4：BypassFailClosedForRedTest 開啟後解析失敗被誤判為通過
+[PASS] J-GREEN-1 關閉旗標後，讀取失敗恢復 fail-read-error fail-read-error
+[PASS] J-GREEN-2 關閉旗標後，過期豁免恢復 fail-expired-exemption fail-expired-exemption
+[PASS] J-GREEN-3 關閉旗標後，格式不合恢復 fail-malformed-exemption fail-malformed-exemption
+[PASS] J-GREEN-4 關閉旗標後，解析失敗恢復 fail-parse-error fail-parse-error
+[PASS] K1 檔案不存在 Outcome=pass-no-file（受測情境，非紅燈；一次驗證即綠，無需 Bypass 旗標） DECISIONS.md 不存在，依 §6 全站條件與 §7.4，視為該 repo 無豁免（不 fail）
+[PASS] K2 唯一參與 repo 的 DECISIONS.md 不存在 ⇒ 整體 OverallPass=true（不因此拖累整個 work） 全參與 repo（1 個）皆掃描完成，無過期／格式不合／讀取失敗／解析失敗豁免問題
+[PASS] L1 單一物件陣列 .Count=1（陷阱①：單一物件無 .Count，須先 @() 包裝） 
+[PASS] L2 零列時回傳空陣列，安全兩步寫法包裝後 .Count=0（陷阱②③：,@() 與 @(函式呼叫) 不誤包成 1 筆） 
+[PASS] L3 函式回傳單一元素陣列時，呼叫端對已賦值變數包 @() 仍正確（非直接 @(函式呼叫本身)） 
+
+共 69 項，FAIL=0

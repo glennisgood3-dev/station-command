@@ -1,0 +1,94 @@
+T-22 三道品質關卡通過證據 — 產生於沙盒（Ubuntu, /opt/pwsh/pwsh 7.4.6；使用者實際環境為 Windows PowerShell 5.1，git 2.43.0）
+
+====================================================================
+關卡① UTF-8 BOM（head -c3 逐檔位元組核對，efbbbf = BOM）
+====================================================================
+apply-patch.ps1: efbbbf  BOM-OK
+patch-common.ps1: efbbbf  BOM-OK
+t22-test.ps1: efbbbf  BOM-OK
+t22-offline-test.ps1: efbbbf  BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過（[System.Management.Automation.Language.Parser]::ParseFile）
+====================================================================
+apply-patch.ps1: PARSE-OK
+patch-common.ps1: PARSE-OK
+t22-test.ps1: PARSE-OK
+t22-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線測試（t22-offline-test.ps1）—— 全程真實 git，不連 GitHub，不需 mock
+====================================================================
+指令：/opt/pwsh/pwsh -NoProfile -File t22-offline-test.ps1
+
+涵蓋段落：
+  A. Invoke-GitCommand 陣列安全性（0/1/多行輸出，真實 git，非 mock）
+  B. Test-ApplyPatchItemSchema 邊界（合法／缺欄位／錯誤 action）
+  C. sha256 完整性（同檔案穩定／內容改變後跟著變）
+  D. Test-WorktreeValid（合法 git 工作區／不存在路徑／存在但非 git 目錄）
+  E. 冪等判準（反向乾跑）：套用前 false、真套用、套用後 true（獨立預期值＝patch 宣告目標，
+     實測套用後檔案內容逐字比對）
+  F. 衝突偵測：base 已分歧 ⇒ 正向乾跑失敗、檔案完全未變、行尾診斷不誤判非行尾衝突
+  G. 多檔案 all-or-nothing 原子性：一檔衝突時，未衝突的另一檔案也不會被寫入
+  H. 二進位檔套用：base64 編碼二進位 patch 逐位元組還原相符
+  I. Test-PatchDelivered 交付判定四種情境（仍在佇列／佇列空無紀錄／佇列空有紀錄／查無此 source）
+
+結果：
+[PASS] A1 Invoke-GitCommand(0 行輸出) 不拋錯且 Output 為字串
+[PASS] A2 Invoke-GitCommand(0 行輸出) ExitCode=0
+[PASS] A3 Invoke-GitCommand(1 行輸出) Output.Trim()='true'
+[PASS] A4 Invoke-GitCommand(多行輸出) 含 2 個 commit
+[PASS] B1 合法 apply-patch 項目 Schema 通過
+[PASS] B2 缺 target.worktree ⇒ Invalid
+[PASS] B3 action 非 apply-patch ⇒ Invalid（本腳本不處理）
+[PASS] B4 缺 payload.sha256 ⇒ Invalid
+[PASS] C1 同一檔案兩次算出同一 sha256
+[PASS] C2 內容改變後 sha256 跟著變
+[PASS] D1 合法 git 工作區 ⇒ Valid
+[PASS] D2 不存在路徑 ⇒ Invalid
+[PASS] D3 存在但非 git 工作區 ⇒ Invalid
+[PASS] E1 套用前反向乾跑 ⇒ AlreadyApplied=false
+[PASS] E2 套用前正向乾跑 ⇒ Applicable=true
+[PASS] E3 真套用 ExitCode=0
+[PASS] E4 套用後檔案內容逐字相符（獨立預期值＝patch 宣告目標）
+[PASS] E5 套用後反向乾跑 ⇒ AlreadyApplied=true（回驗通過）
+[PASS] F1 base 已分歧 ⇒ 正向乾跑失敗
+[PASS] F2 乾跑失敗後檔案內容完全未變（🚫 不得部分套用）
+[PASS] F3 真正內容衝突（非行尾差異）⇒ 行尾診斷回傳 false（不誤發行尾提示）
+[PASS] G1 多檔案 patch 其中一檔衝突 ⇒ 正向乾跑整體失敗
+[PASS] G2 未衝突的 b.txt 也未被寫入（真正的 all-or-nothing，非逐檔各自套用）
+[PASS] H1 二進位 patch 套用 ExitCode=0
+[PASS] H2 二進位內容逐位元組相符
+[PASS] I1 patch 仍在佇列 ⇒ Delivered=false（未套用不得算交付）
+[PASS] I2 佇列已空但無落地紀錄 ⇒ 安全預設 Delivered=false
+[PASS] I3 佇列已空且有落地紀錄 ⇒ Delivered=true
+[PASS] I4 查無此 source 任何紀錄 ⇒ Delivered=false（不誤判）
+
+總結：共 29 項，FAIL=0
+報告已寫入：t22-offline-test-report.txt（每次重跑覆寫，內容為完整逐項結果）
+
+====================================================================
+附：t22-test.ps1（紅→綠動態測試 + 驗收①②③④端對端證明）—— 同樣沙盒可 100% 真實執行
+====================================================================
+指令：/opt/pwsh/pwsh -NoProfile -File t22-test.ps1
+
+段落 A（紅→綠，主線）：對必然衝突 patch 用 -SkipDryRunCheck 強制套用（git apply --reject）
+  ⇒ [RED-CONFIRMED] 斷言「工作區不得留下衝突標記／不得半套」真的失敗
+    （實測：.rej 殘留檔產生，證明跳過乾跑保護確實危險）；
+  再用正常模式（有乾跑）套用同一份衝突 ⇒ 同一斷言通過（[PASS]，完全未寫入）。
+
+段落 B（紅→綠，對應驗收條件③文字「未實作時 executor 自陳即被當成交付」）：
+  naive self-report baseline ⇒ [RED-CONFIRMED] 誤判為已交付；
+  真正 Test-PatchDelivered（只認佇列現況與落地紀錄）⇒ [PASS] 正確判定未交付。
+
+段落 C／D／E：驗收①②④端對端證明，全程呼叫真正 apply-patch.ps1 子行程（非只測函式庫）：
+  C0-C4：套用前查未交付 → 套用 exit=0 → 內容逐字相符 → 出列 → 套用後查已交付（皆 PASS）
+  D1-D4：重貼已出列項目重跑 → SKIPPED-ALREADY-APPLIED → 內容不變 → 再次出列（皆 PASS）
+  E1-E5：衝突場景 → exit≠0 → FAILED-CONFLICT 具名 source → 留佇列 → 內容未變 → 查未交付（皆 PASS）
+
+總結：共執行完成，FAIL=0（2 個 RED-CONFIRMED 為預期紅，不計入 FAIL）
+報告已寫入：t22-red-green.txt
+
+====================================================================
+三道關卡總結：① BOM 全綠 ② ParseFile 全綠 ③ 離線測試 29/29 全綠（外加動態紅→綠 0 FAIL）
+====================================================================

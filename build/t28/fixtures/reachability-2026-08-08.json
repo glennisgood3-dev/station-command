@@ -1,0 +1,19 @@
+{
+  "fixtureKind": "2026-08-08 實測可達性事實與 Commander 重跑契約",
+  "independentSource": "Spec_station-command_v1.11.md:198,400 與 T-27 凍結端點 fixture",
+  "probeQualityStatusCodes": [200, 401, 403, 429],
+  "providers": [
+    {"provider":"OpenAI","endpoint":"api.openai.com/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"OpenAI-compatible 的模型清單端點；GET 不需構造推論 body，適合無 key 可達性探測。"},
+    {"provider":"Gemini","endpoint":"generativelanguage.googleapis.com/v1beta","family":"Gemini","probeMethod":"GET","probeSuffix":"models","probeReason":"Gemini ListModels 的 GET /v1beta/models 形狀；避開需 POST 的 generateContent。"},
+    {"provider":"OpenRouter","endpoint":"openrouter.ai/api/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"OpenRouter 的 OpenAI-compatible 模型清單端點；以 GET 探測比 chat/completions 的 POST-only 形狀穩定。"},
+    {"provider":"xAI Grok","endpoint":"api.x.ai/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Commander 已實測 GET /v1/models 回 401；證明端點可達且避免 GET chat/completions 的 400／405 方法差異。"},
+    {"provider":"DeepSeek","endpoint":"api.deepseek.com","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"DeepSeek 的 OpenAI-compatible GET /models 清單端點；不需送推論 body。"},
+    {"provider":"Mistral","endpoint":"api.mistral.ai/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Mistral 的模型清單端點；GET 可在無 key 情境取得 HTTP 層回應。"},
+    {"provider":"Groq","endpoint":"api.groq.com/openai/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Groq OpenAI-compatible 的模型清單端點；GET 適合作為無副作用 probe。"},
+    {"provider":"Together","endpoint":"api.together.xyz/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Together 的 OpenAI-compatible 模型清單端點；GET 不依賴 chat completion 的 POST 方法。"},
+    {"provider":"Perplexity","endpoint":"api.perplexity.ai","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Perplexity 沒有 GET /models 端點；此列保留統一的無 body GET 可達性探測，本家 probe 品質恆 WARN 為預期，非缺陷。"},
+    {"provider":"Cohere","endpoint":"api.cohere.com/v1","family":"Cohere","probeMethod":"GET","probeSuffix":"models","probeReason":"Cohere List Models 的 GET /v1/models 形狀；避開只接受 POST 的 /v1/chat。"},
+    {"provider":"Fireworks","endpoint":"api.fireworks.ai/inference/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Commander 已實測 GET /inference/v1/models 回 401；保留 inference/v1 基底並避開不存在的 /v1/models。"},
+    {"provider":"Cerebras","endpoint":"api.cerebras.ai/v1","family":"OpenAI-compatible","probeMethod":"GET","probeSuffix":"models","probeReason":"Cerebras OpenAI-compatible 的模型清單端點；GET 可避免誤用 chat/completions 的 POST-only 方法。"}
+  ]
+}

@@ -1,0 +1,40 @@
+﻿t22-offline-test.ps1 執行報告 — 2026-08-06 09:06:53 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 Invoke-GitCommand(0 行輸出) 不拋錯且 Output 為字串 Output=''
+[PASS] A2 Invoke-GitCommand(0 行輸出) ExitCode=0 
+[PASS] A3 Invoke-GitCommand(1 行輸出) Output.Trim()='true' Output='true'
+[PASS] A4 Invoke-GitCommand(多行輸出) 含 2 個 commit 行數=2
+[PASS] B1 合法 apply-patch 項目 Schema 通過 
+[PASS] B2 缺 target.worktree ⇒ Invalid target.worktree 缺漏
+[PASS] B3 action 非 apply-patch ⇒ Invalid（本腳本不處理） action 非 apply-patch，本腳本不處理：'set-labels'
+[PASS] B4 缺 payload.sha256 ⇒ Invalid payload.sha256 缺漏
+[PASS] C1 同一檔案兩次算出同一 sha256 hash=9eab2c6c507f7578834effe50134423ec0c7fc7b27283f9e7fb8e467b097fa1c
+[PASS] C2 內容改變後 sha256 跟著變 hash1=9eab2c6c507f7578834effe50134423ec0c7fc7b27283f9e7fb8e467b097fa1c hash3=7f128d7ad8ed1d80645c1bf7975a76eb9d0e45ff4b226ddbcb983ab8efd3575c
+[PASS] D1 合法 git 工作區 ⇒ Valid 
+[PASS] D2 不存在路徑 ⇒ Invalid worktree 路徑不存在或不是資料夾：/tmp/does-not-exist-t22
+[PASS] D3 存在但非 git 工作區 ⇒ Invalid 路徑存在但不是合法 git 工作區：/tmp/plain-aacfe123（fatal: not a git repository (or any of the parent directories): .git）
+[PASS] E1 套用前反向乾跑 ⇒ AlreadyApplied=false error: patch failed: greeting.txt:1
+error: greeting.txt: patch does not apply
+[PASS] E2 套用前正向乾跑 ⇒ Applicable=true 
+[PASS] E3 真套用 ExitCode=0 
+[PASS] E4 套用後檔案內容逐字相符（獨立預期值＝patch 宣告目標） 實際='Hello, Universe
+World'
+[PASS] E5 套用後反向乾跑 ⇒ AlreadyApplied=true（回驗通過） 
+[PASS] F1 base 已分歧 ⇒ 正向乾跑失敗 error: patch failed: greeting.txt:1
+error: greeting.txt: patch does not apply
+[PASS] F2 乾跑失敗後檔案內容完全未變（🚫 不得部分套用） 實際='Hello
+Everyone'
+[PASS] F3 真正內容衝突（非行尾差異）⇒ 行尾診斷回傳 false（不誤發行尾提示） 
+[PASS] G1 多檔案 patch 其中一檔衝突 ⇒ 正向乾跑整體失敗 error: patch failed: a.txt:1
+error: a.txt: patch does not apply
+[PASS] G2 未衝突的 b.txt 也未被寫入（真正的 all-or-nothing，非逐檔各自套用） 實際='Foo
+Bar'
+[PASS] H1 二進位 patch 套用 ExitCode=0 
+[PASS] H2 二進位內容逐位元組相符 實際位元組數=8
+[PASS] I1 patch 仍在佇列 ⇒ Delivered=false（未套用不得算交付） 仍有 1 筆 apply-patch 型佇列項目未出列（source=T-14）——未套用前不得算交付
+[PASS] I2 佇列已空但無落地紀錄 ⇒ 安全預設 Delivered=false 佇列中查無該 source 的 apply-patch 項目，且落地紀錄檔不存在——安全預設為未交付（可能從未進佇列，非「已交付」的證據）
+[PASS] I3 佇列已空且有落地紀錄 ⇒ Delivered=true 已於 applied-patches.log 找到 source=T-14 的落地紀錄，且佇列已無未出列項目
+[PASS] I4 查無此 source 任何紀錄 ⇒ Delivered=false（不誤判） 佇列中查無該 source 的 apply-patch 項目，落地紀錄檔內也查無相符紀錄——安全預設為未交付
+
+共 29 項，FAIL=0

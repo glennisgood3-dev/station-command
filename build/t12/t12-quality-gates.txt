@@ -1,0 +1,83 @@
+T-12 三道品質關卡通過證據 — 2026-08-08（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+run-common.ps1: BOM-OK
+run-select.ps1: BOM-OK
+run-dispatch.ps1: BOM-OK
+run-apply.ps1: BOM-OK
+t12-offline-test.ps1: BOM-OK
+t12-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+run-common.ps1: PARSE-OK
+run-select.ps1: PARSE-OK
+run-dispatch.ps1: PARSE-OK
+run-apply.ps1: PARSE-OK
+t12-offline-test.ps1: PARSE-OK
+t12-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t12-offline-test.ps1，62 項斷言，全在沙盒實跑，不連 GitHub）
+====================================================================
+群組 A：Get-ExecutorBasisDeclaration／Get-DependsOnList／Get-IrreversibleDeclaration（純 regex 解析）— 9 項全綠
+群組 B：Test-CandidateBlocked／Test-CandidateRunning（含跨站繼承）— 6 項全綠
+群組 C：Test-DependsOnSatisfied（未解／未關閉／已滿足／空清單，fail-closed）— 5 項全綠
+群組 D：Get-RunRoutingDefault（站1-4映射＋站5拒絕，雙審屬 gate 職責）— 5 項全綠
+群組 E：Select-NextActionableItem 整合
+  E-1 站1-3 work 級選件（anchor 本身即候選）— 2 項全綠
+  E-2 站4 造四張票（有未解 blocker／depends_on 未完成／已有在跑 executor／三條皆滿足），
+      只有第四張進 frontier — 6 項全綠（Eligible.Count=1，選中 #204，Rejected.Count=3，
+      三張各自具名理由：blocker／depends_on／在跑 executor）
+  E-3 站5 red-proven 票不進候選（雙審 dispatch 屬 gate 職責）— 1 項全綠
+  E-4 sc:station-done ⇒ 無可動作項 — 1 項全綠
+群組 F【紅燈①：產生權守門】：
+  [RED-CONFIRMED] -SkipEnqueueGuard 開啟後，斷言「run 不得產生 label 類佇列項」真的失敗
+  （佇列中真的出現 1 筆 set-labels，Added=True）——證明沒有守門時 run 真的能把 label 類
+  佇列項寫進去，非紙上談兵。
+  [PASS] 關閉 -SkipEnqueueGuard（正常模式）後，同一斷言通過（set-labels 筆數=0，
+  Added=False，Blocked=True，具名理由含「唯一產生者：gate」）。
+  [PASS] run 的三個合法動作型別（set-assignee／set-ticket-fields）皆正常放行 — 共 4 項全綠
+群組 G：Invoke-RunDispatch — needsBodyWrite／2nd-layer override／[INVALID]／不可逆動作停手
+  — 11 項全綠（含：work 級 anchor 未宣告 executor ⇒ 產生 set-ticket-fields+set-assignee；
+  票已宣告 executor+basis ⇒ 只產生 set-assignee；executor 有宣告缺 basis ⇒ [INVALID] 且
+  不產生任何佇列項；第八欄「不可逆動作：有」⇒ dispatch 前停手且不產生任何佇列項；
+  「不可逆動作：無」⇒ 正常放行）
+群組 H【紅燈②：失敗回滾，人造中間態 fixture】：
+  fixture：mock GitHub 現況為「assignee 已指派」（模擬 run 稍早已指派、dispatch 隨後失敗）。
+  [RED-CONFIRMED] -SkipRollback 開啟後，斷言「回滾後 assignee 必為空」真的失敗——對著有狀態
+  mock 的**現況直接查詢**（非僅佇列存在性），確認 assignee 依然殘留（[glennisgood3-dev]）。
+  [PASS] 關閉 -SkipRollback（正常模式），佇列產生 set-assignee(assignees=[]) 一筆，模擬套用
+  （呼叫 Invoke-SetAssigneeWrite 寫入 mock）後，核心斷言「mock GitHub 現況 assignee 必為空」
+  通過（現有 assignees 集合已符合：[]）—— 5 項全綠
+群組 I：run-apply.ps1 輔助函式對有狀態 mock 的正確性（套用前/後對比＋CRLF/LF 換行正規化容忍）
+  — 5 項全綠
+
+====================================================================
+總結：共 62 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t12/t12-offline-test-report.txt
+
+====================================================================
+過程中發現並修正的 1 個 bug（實跑抓到，非憑空聲稱；已於原始碼留 rework 註解）
+====================================================================
+1. 跨目錄 dot-source 造成的變數覆蓋：run-select.ps1／run-dispatch.ps1／t12-offline-test.ps1
+   最初都用常見的 `$ScriptDir = $PSScriptRoot` 快取自己目錄，但 dot-source run-common.ps1 會
+   cascade 進 ../t10/gate-check.ps1，該檔也宣告未加 Script: 範圍的 `$ScriptDir` 並指向 t10 自己
+   的目錄；dot-source 全程共用同一層作用域，後執行的賦值覆蓋前面的同名變數——實跑後報告檔真的
+   被寫進 build/t10/t12-offline-test-report.txt 而非 build/t12/（見本檔開發過程紀錄）。
+   已修正為改用不會被下游任何被 dot-source 檔案用到的獨有變數名（$T12Dir／$T12TestDir），
+   三個檔案全數改用並重新驗證報告路徑正確落在 build/t12/。此 bug 若未被離線測試流程中途檢查
+   報告輸出位置攔下，會讓使用者本機執行時的報告檔悄悄寫錯目錄。
+
+====================================================================
+誠實聲明：t12-test.ps1（動態紅→綠，需真實 GitHub PAT 與可寫測試 repo）本沙盒無法連線實跑，
+已通過 ParseFile 語法檢查（見上）與人工覆核（PowerShell 5.1 相容語法、@() 先賦值再包慣例、
+統一使用 $T12Dir 避免跨目錄 dot-source 變數覆蓋），實際 PASS/FAIL 待使用者本機以
+-Owner/-Repo 執行後核對 t12-red-green.txt 與 t12-dynamic-test-report.txt。
+本票核心邏輯（三判準過濾、產生權守門、失敗回滾）已在 t12-offline-test.ps1 以有狀態 mock
+完整驗證兩段紅燈，t12-test.ps1 是對真實 GitHub 環境的覆核，非唯一證據來源。
+====================================================================

@@ -1,0 +1,147 @@
+T-18 三道品質關卡通過證據 — 2026-08-08 12:54 +0000
+（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+legacy-intake.ps1: BOM-OK
+gate-legacy-advance.ps1: BOM-OK
+t18-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+legacy-intake.ps1: PARSE-OK
+gate-legacy-advance.ps1: PARSE-OK
+t18-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t18-offline-test.ps1，共 73 項斷言 ＋ 1 項 RED-CONFIRMED 紅燈證據，FAIL=0）
+====================================================================
+[T18-SMOKE] 已收參數（dot-source 前存證，證明非 no-op）：WorkId='W-legacy-demo' PrimaryRepo='acme/legacy-repo' ParticipatingRepos=[acme/legacy-repo]
+[T18-SMOKE] dot-source 完成後 $T18WorkId 仍為 'W-legacy-demo'（未被 t08 佔位值 'W-t18-dotsource-placeholder' 覆蓋——證明 $T18* 命名隔離有效）
+[T18-SMOKE] gate-legacy-advance 已收參數：WorkId='' Anchor='#0' Target=''
+[T18-SMOKE] dot-source 完成後 $T18AdvWorkId 仍為 ''（t10/gate-check.ps1 無 Mandatory 參數，理論風險低，仍依票面規範保留 $T18Adv* 隔離命名）
+
+--- 群組 SETUP：cascade 陷阱哨兵 ---
+[PASS] SETUP1 dot-source legacy-intake.ps1 後 $T18WorkId 仍為 'W-legacy-demo'（未被 t08 內部佔位值覆蓋）
+[PASS] SETUP2 $T18PrimaryRepo 仍為 'acme/legacy-repo'（未被 t08 佔位值覆蓋）
+[PASS] SETUP3 $T18Dir 指向本檔（t18）自己的目錄，非 t08／t13 的目錄
+[PASS] SETUP4 dot-source gate-legacy-advance.ps1 後 $T18AdvDir 亦指向本檔目錄（與 $T18Dir 不同變數名，互不覆蓋）
+[PASS] SETUP5 兩檔各自的 $T18Dir 與 $T18AdvDir 皆未殘留 t08／t10/t13 的路徑
+
+--- 群組 A：fixture 載入與 Test-AuditorFindingsWellFormed（品質守門） ---
+[PASS] A1 legacy-project-a findings 載入成功，8 筆
+[PASS] A2 legacy-project-b findings 載入成功，8 筆
+[PASS] A3 legacy-project-a findings 通過品質守門
+[PASS] A4 legacy-project-b findings 通過品質守門
+[PASS] A5 optimistic findings 結構仍合格（結構守門管不到內容誠實與否，那是 cap 的職責）
+[PASS] A6 手工構造『✗項缺證據』⇒ WellFormed=false
+
+--- 群組 B：Get-AuditorCandidateStation（§6 同一份 checklist，重用 t10 定義） ---
+[PASS] B1 legacy-project-a 候選站別＝1（1.glossary 為第一個未滿足項）
+[PASS] B1b legacy-project-a UnmetItems 恰含站1三項
+[PASS] B2 legacy-project-b 候選站別＝3（站1/2全過，3.fields 未過）
+[PASS] B2b legacy-project-b UnmetItems 恰 1 項
+[PASS] B3 optimistic findings 候選站別＝4（站1-3全報pass，用於群組C紅燈情境）
+[PASS] B4 auditor 漏回報 1.confirm ⇒ fail-closed 視為未滿足，候選站別＝1
+
+--- 群組 C：🔴【紅燈】Test-LegacyStationCap——legacy 定站上限站3（驗收條件①核心） ---
+[RED-CONFIRMED] 斷言『legacy 定站不得高於站3（DeterminedStation -le 3）』如預期失敗：-BypassCapForRedTest
+    開啟後，DeterminedStation=4（>3）。證明若無 cap 邏輯，auditor 過度樂觀候選站別（群組B3，candidate=4）
+    會被直接當定站結果，跳過站3直達站4——這正是 Spec §7.3『legacy 定站上限站3』要防的事。
+[PASS] C-GREEN 關閉 -BypassCapForRedTest 後，候選站別4（未收編）⇒ DeterminedStation=3 CapApplied=true
+[PASS] C1 legacy-project-a（候選=1）⇒ DeterminedStation=1 CapApplied=false
+[PASS] C2 legacy-project-b（候選=3，legacy收編最典型情境）⇒ DeterminedStation=3 CapApplied=false
+[PASS] C3 候選=4 且已收編完成（TicketsRemediated）⇒ DeterminedStation=4 CapApplied=false（cap解除）
+[PASS] C4 候選=5（未收編）⇒ 同樣封頂為3
+
+--- 群組 D：Test-LegacyRemediationComplete（§7.3 兩條路徑，含 setup-check 避免自證） ---
+[PASS] D-setup1 ticket-201.md 確實含全八項欄位標記（獨立於被測函式的人工核對）
+[PASS] D-setup2 ticket-202.md 確實含全八項欄位標記
+[PASS] D-setup3 原始 DECISIONS.md 確實不含『不收編、僅供查閱』字樣
+[PASS] D-setup4 DECISIONS-path2-not-adopted.md 確實含『不收編、僅供查閱』字樣
+[PASS] D1a Get-RemediatedTicketsFromDir 讀到 2 張票
+[PASS] D1 路徑①：8欄位齊全的native票集 ⇒ Remediated=true Path=path1-8fields
+[PASS] D2 路徑②：DECISIONS.md 具名『不收編、僅供查閱』 ⇒ Remediated=true Path=path2-not-adopted
+[PASS] D3 無native票集、DECISIONS.md 亦無不收編記載 ⇒ Remediated=false
+[PASS] D4 舊格式票（無§3.5欄位）不滿足路徑① ⇒ Remediated=false
+
+--- 群組 E：badge 生命週期三階段 ---
+[PASS] E1 階段①掛上：初始 label 集合含 sc:legacy 與 sc:station-3
+[PASS] E1b 初始 label 集合恰 3 項
+[PASS] E2 階段②存續中：anchor 現有 sc:legacy ⇒ HasLegacyBadge=true
+[PASS] E3 階段③摘除：推進後 label 集合不含 sc:legacy
+[PASS] E3b BadgeRemoved=true
+[PASS] E3c 推進後仍正確含新站別 sc:station-4、不含舊站別 sc:station-3、保留 sc:work
+[PASS] E4 badge 已消失後再推進：不含 sc:legacy（未被重新加回）
+[PASS] E4b BadgeRemoved=false（如實回報非本次摘除）
+[PASS] E5 native work 推進：labels 中從未出現 sc:legacy
+
+--- 群組 F：🔴 不改寫舊票——程式碼層守門 ---
+[PASS] F-setup 保護清單載入 2 筆（#101／#102）
+[PASS] F1 對受保護舊票 #101 的 set-labels ⇒ Blocked=true
+[PASS] F2 Add-Station18QueueItemIfAbsent 對受保護舊票 ⇒ Added=false Blocked=true
+[PASS] F2b 佇列檔仍不存在（真的沒有寫入）
+[PASS] F3 對受保護舊票 #102 的 close-issue ⇒ Blocked=true（涵蓋刪除語意）
+[PASS] F4 對非保護清單內的 #201 ⇒ Blocked=false（守門不誤擋合法動作）
+[PASS] F4b 合法動作確實成功寫入佇列（Added=true）
+[PASS] F5 create-issue（無 issue 欄位）⇒ Blocked=false（不適用本守門）
+
+--- 群組 G：auditor 報告格式化與證據非空泛交叉核對 ---
+[PASS] G1 legacy-project-a 報告：1.glossary 的行含 ✗ 符號
+[PASS] G1b legacy-project-a 報告：含缺件分類標註
+[PASS] G2 legacy-project-a 驅動候選站別判定的未滿足項（1.glossary/1.adr/1.confirm）Evidence 皆指向真實 fixture 檔名
+[PASS] G2b 其餘（因目錄內檔案根本不存在而未過的）項目，證據仍非空字串
+[PASS] G3 legacy-project-b 每個 ✗ 項的 Evidence 皆確實指向真實 fixture 檔名
+
+--- 群組 H：PS 5.1／StrictMode 既知陷阱哨兵 ---
+[PASS] H1 單筆 findings 陣列 .Count=1
+[PASS] H2 傳入單筆陣列不拋錯，正常回傳候選站別
+[PASS] H3 保護清單為空陣列時 @(函式呼叫) 不誤包成 1 筆，Blocked=false
+[PASS] H4 NativeTickets 為空陣列時不拋錯
+
+--- 群組 I：CLI smoke test（函式層級整合，Stage A→B→C 全跑一次） ---
+[PASS] I1 Call1：anchor 不存在 ⇒ Stage=A-pending
+[PASS] I1b 佇列產生 1 筆 create-issue（產生權=intake，與 native 模式同形狀）
+[PASS] I1c create-issue payload.labels 恰含 sc:work（不含任何站別或 sc:legacy）
+[PASS] I2 Call2：milestone 不存在 ⇒ Stage=B-pending
+[PASS] I2b 佇列產生 1 筆 create-milestone（產生權=intake）
+[PASS] I3 Call3：Stage=C-pass OverallPass=True
+[PASS] I3b 定站結果＝3（legacy-project-b 典型情境）DeterminedStation=3 CapApplied=False
+[PASS] I3c CapApplied=false（候選=3 本身未超過上限）
+[PASS] I3d 佇列產生 1 筆 set-labels（產生權=gate）
+[PASS] I3e 最終 label 集合含 sc:work／sc:station-3／sc:legacy 三者
+[PASS] I3f 最終 label 集合恰 3 項
+[PASS] I4 Invoke-LegacyGateAdvanceProduce 整體判定 OverallPass=true（重用 T-10 Invoke-GateCheck）
+[PASS] I4b 推進前 badge 狀態確實為『有』
+[PASS] I4c 推進後產生的佇列項 payload.labels 不含 sc:legacy
+[PASS] I4d 佇列檔內容與函式回傳一致
+
+====================================================================
+總結：共 73 項，FAIL=0（另有 1 項 RED-CONFIRMED 不計入 FailCount）
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t18/t18-offline-test-report.txt
+
+====================================================================
+補充：黑箱 CLI smoke test（獨立於 t18-offline-test.ps1 的 in-process 群組I，另跑一次真正的子行程呼叫）
+====================================================================
+指令：
+  /opt/pwsh/pwsh -NoProfile -File ./legacy-intake.ps1 `
+    -WorkId 'W-smoke-cli-test' -PrimaryRepo 'acme/legacy-repo' `
+    -ParticipatingRepos 'acme/legacy-repo' `
+    -PatPath '/tmp/t18-smoke/fake-pat.txt' -QueuePath '/tmp/t18-smoke/queue.json' `
+    -AuditorFindingsPath './fixtures/auditor-findings-legacy-project-b.json' `
+    -ProtectedLegacyTicketsPath './fixtures/protected-legacy-tickets.json'
+
+輸出前兩行（證明非 no-op，真的收到並保留了呼叫端傳入的參數值，未被 dot-source 覆蓋）：
+  [T18-SMOKE] 已收參數（dot-source 前存證，證明非 no-op）：WorkId='W-smoke-cli-test' PrimaryRepo='acme/legacy-repo' ParticipatingRepos=[acme/legacy-repo]
+  [T18-SMOKE] dot-source 完成後 $T18WorkId 仍為 'W-smoke-cli-test'（未被 t08 佔位值 'W-t18-dotsource-placeholder' 覆蓋——證明 $T18* 命名隔離有效）
+
+隨後腳本依 Stage A 邏輯呼叫 Invoke-RestMethod 嘗試讀取 GitHub anchor 現況（讀，非寫），因沙盒本身
+不允許本 session 存取任何 GitHub repo（"GitHub access to this repository is not enabled for this
+session"），該次讀取呼叫失敗，$ErrorActionPreference='Stop' 使腳本以非零結束碼終止：
+  REAL_EXIT_CODE=1
+且 /tmp/t18-smoke/queue.json 確認未被建立（真的沒有任何寫入發生，佇列在讀取失敗前就終止，未落地
+任何內容）——這正好同時證明兩件事：①CLI 真的執行到會嘗試接觸 GitHub 的那一步（非 no-op，變數
+確實流通到底），②本次交付全程未也不會對任何真實 repo 產生寫入（票面安全邊界）。

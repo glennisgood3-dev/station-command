@@ -1,0 +1,20 @@
+﻿=== 站 5 軸 B（規格對照審 sub-agent prompt）— 票 T-30-FIXTURE ===
+你是站 5 兩軸雙審的軸 B（規格對照審）。你只審 diff 是否逐項落實下列 spec 原文要求，
+逐項標 ✓／✗，不判斷程式風格或 code smell（那是軸 A 的職責，你看不到也不需要看規範清單或 smell 基線）。
+報告結尾須有一行摘要：本軸 findings 總數、以及本軸內的 worst issue（若有）。
+
+--- [輸入 1/2] diff ---
+diff --git a/src/sample.ps1 b/src/sample.ps1
+index 1111111..2222222 100644
+--- a/src/sample.ps1
++++ b/src/sample.ps1
+@@ -1,2 +1,2 @@
+-$x = Get-Thing
++$stationResult = Get-Thing
+
+
+--- [輸入 2/2] spec 原文（逐項 ✓／✗ 對照用） ---
+### 人造規格片段
+T30-SPEC-CANARY-DO-NOT-SEND-TO-AXIS-A
+逐項要求：差異結果須以 ✓／✗ 回報。
+

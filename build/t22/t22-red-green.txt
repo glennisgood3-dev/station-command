@@ -1,0 +1,76 @@
+﻿
+====================================================================
+段落 A（紅→綠）：-SkipDryRunCheck 對必然衝突 patch 強制套用 ⇒ 半套斷言
+====================================================================
+--- A-RED：SkipDryRunCheck 開啟，強制套用必然衝突的 patch ---
+⚠️⚠️⚠️ -SkipDryRunCheck 已開啟：本次執行跳過套用前正向乾跑，改用 --reject 直接嘗試套用。
+         必然衝突的 patch 在此模式下會產生半套殘局（部分檔案被改、衝突檔案留 .rej）。
+         此為 T-22 紅燈驗證專用開關，正式流程與一般手動套用絕對不得使用。
+[FAILED-PARTIAL-APPLY    ] owner/repo @ /tmp/a-red-target-a9f2888f | T-CONFLICT-DEMO — ⚠️ SkipDryRunCheck 模式偵測到半套殘留：.rej 檔=[/tmp/a-red-target-a9f2888f/greeting.txt.rej]；衝突標記檔=[]。工作區可能已部分被改動，本腳本不自動復原，請人工檢查 /tmp/a-red-target-a9f2888f。
+共處理 1 筆 apply-patch 項目：APPLIED-VERIFIED=0 SKIPPED-ALREADY-APPLIED=0 FAILED-CONFLICT=0 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-INTEGRITY=0 FAILED-WORKTREE=0 FAILED-MISSING-PATCH-FILE=0 FAILED-SCHEMA=0 FAILED-PARTIAL-APPLY=1；剩餘於佇列：1 筆
+報告已寫入：/home/claude/station-plugin/build/t22/apply-patch-report.txt
+[RED-CONFIRMED] 斷言「工作區不得留下衝突標記／不得半套」如預期失敗：HasRejects=True，檔案內容='Hello
+Everyone'。SkipDryRunCheck 模式下 git apply --reject 確實留下 .rej 殘留（半套的具體樣貌），證明「不設乾跑保護」是真的危險，不是紙上談兵。
+
+--- A-GREEN：正常模式（無 SkipDryRunCheck），對同一份必然衝突 patch 重新產生場景並套用 ---
+[FAILED-CONFLICT         ] owner/repo @ /tmp/a-green-target-a3eb1e78 | T-CONFLICT-DEMO — 套用前正向乾跑失敗，🚫 未寫入任何內容，留在佇列：error: patch failed: greeting.txt:1
+error: greeting.txt: patch does not apply
+共處理 1 筆 apply-patch 項目：APPLIED-VERIFIED=0 SKIPPED-ALREADY-APPLIED=0 FAILED-CONFLICT=1 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-INTEGRITY=0 FAILED-WORKTREE=0 FAILED-MISSING-PATCH-FILE=0 FAILED-SCHEMA=0 FAILED-PARTIAL-APPLY=0；剩餘於佇列：1 筆
+報告已寫入：/home/claude/station-plugin/build/t22/apply-patch-report.txt
+[PASS] A-GREEN 斷言「工作區不得留下衝突標記／不得半套」（正常模式） HasRejects=False，檔案內容='Hello
+Everyone'
+[PASS] A-GREEN 衝突項目仍留在佇列（未被誤標為已套用） 剩餘筆數=1
+[PASS] A-GREEN exit code 非 0（有失敗項目） ExitCode=1
+
+====================================================================
+段落 B（紅→綠）：驗收條件③——不得因 executor 自陳完成就判定已交付
+====================================================================
+--- B-RED：naive self-report baseline ---
+[RED-CONFIRMED] 斷言「executor 自陳完成不得被當成已交付」如預期失敗：naive baseline 只看 executor 自陳='done'，誤判 Delivered=true。證明『只信任 executor 自陳』會誤判為已交付，驗收條件③正是為了防這個錯誤模式。
+
+--- B-GREEN：真正的 Test-PatchDelivered（只認佇列現況與落地紀錄，不看 executor 自陳） ---
+[PASS] B-GREEN 斷言「executor 自陳完成不得被當成已交付」（真正實作） 仍有 1 筆 apply-patch 型佇列項目未出列（source=T-CONFLICT-DEMO）——未套用前不得算交付
+
+====================================================================
+段落 C：驗收① — 乾淨套用後工作區內容與 patch 宣告目標相符
+====================================================================
+[PASS] C0 套用前查交付狀態 ⇒ 未交付 仍有 1 筆 apply-patch 型佇列項目未出列（source=T-14）——未套用前不得算交付
+[APPLIED-VERIFIED        ] owner/repo @ /tmp/c-clean-acac6199 | T-14 — 套用後回驗通過
+共處理 1 筆 apply-patch 項目：APPLIED-VERIFIED=1 SKIPPED-ALREADY-APPLIED=0 FAILED-CONFLICT=0 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-INTEGRITY=0 FAILED-WORKTREE=0 FAILED-MISSING-PATCH-FILE=0 FAILED-SCHEMA=0 FAILED-PARTIAL-APPLY=0；剩餘於佇列：0 筆
+報告已寫入：/home/claude/station-plugin/build/t22/apply-patch-report.txt
+[PASS] C1 apply-patch.ps1 exit code = 0 ExitCode=0
+[PASS] C2 套用後檔案內容與 patch 宣告目標逐字相符 實際='Hello, Universe
+World'
+[PASS] C3 套用成功後該項目已出列 剩餘筆數=0
+[PASS] C4 套用後查交付狀態 ⇒ 已交付 已於 applied-patches.log 找到 source=T-14 的落地紀錄，且佇列已無未出列項目
+
+====================================================================
+段落 D：驗收② — 同一 patch 套用兩次，第二次因現況已符而跳過
+====================================================================
+[SKIPPED-ALREADY-APPLIED ] owner/repo @ /tmp/c-clean-acac6199 | T-14 — 工作區現況已符合 patch 宣告的目標內容
+共處理 1 筆 apply-patch 項目：APPLIED-VERIFIED=0 SKIPPED-ALREADY-APPLIED=1 FAILED-CONFLICT=0 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-INTEGRITY=0 FAILED-WORKTREE=0 FAILED-MISSING-PATCH-FILE=0 FAILED-SCHEMA=0 FAILED-PARTIAL-APPLY=0；剩餘於佇列：0 筆
+報告已寫入：/home/claude/station-plugin/build/t22/apply-patch-report.txt
+[PASS] D1 重跑 exit code = 0（跳過不是失敗） ExitCode=0
+[PASS] D2 重跑輸出含 SKIPPED-ALREADY-APPLIED 
+[PASS] D3 重跑後檔案內容不變（未重複套用造成損壞或疊加） 實際='Hello, Universe
+World'
+[PASS] D4 重跑後該項目再次出列 剩餘筆數=0
+
+====================================================================
+段落 E：驗收④ — 套用衝突（目標已被改動）⇒ 具名回報並留在佇列，不部分套用
+====================================================================
+[FAILED-CONFLICT         ] owner/repo @ /tmp/e-final-accept-target-39d91d81 | T-CONFLICT-DEMO — 套用前正向乾跑失敗，🚫 未寫入任何內容，留在佇列：error: patch failed: greeting.txt:1
+error: greeting.txt: patch does not apply
+共處理 1 筆 apply-patch 項目：APPLIED-VERIFIED=0 SKIPPED-ALREADY-APPLIED=0 FAILED-CONFLICT=1 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-INTEGRITY=0 FAILED-WORKTREE=0 FAILED-MISSING-PATCH-FILE=0 FAILED-SCHEMA=0 FAILED-PARTIAL-APPLY=0；剩餘於佇列：1 筆
+報告已寫入：/home/claude/station-plugin/build/t22/apply-patch-report.txt
+[PASS] E1 exit code 非 0 ExitCode=1
+[PASS] E2 輸出含 FAILED-CONFLICT 且具名 source 
+[PASS] E3 衝突項目留在佇列（未出列） 剩餘筆數=1
+[PASS] E4 衝突後工作區內容完全未變（🚫 不得部分套用後宣稱成功） 實際='Hello
+Everyone'
+[PASS] E5 衝突後查交付狀態 ⇒ 未交付 仍有 1 筆 apply-patch 型佇列項目未出列（source=T-CONFLICT-DEMO）——未套用前不得算交付
+
+====================================================================
+總結
+====================================================================
+共執行完成，FAIL=0

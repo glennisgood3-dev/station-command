@@ -1,0 +1,13 @@
+T-25 CLI smoke test 實錄
+
+指令：
+/opt/pwsh/pwsh -NoProfile -File build/t25/run-finalize.ps1 -DemoMode
+
+exit=0
+[Demo 推播收到] channel=station-user-push stop=④
+T-25 CLI DemoMode 已實際執行（全程離線）
+佇列總筆數=1；comment 筆數=1
+推播已送=True；停因=④
+摘要=loop 批次摘要｜work=W-t25-demo｜輪次結果：第 1 輪：demo/repo#21 PASS；第 2 輪：demo/repo#22 FAIL，安排 rework；第 3 輪：demo/repo#22 PASS｜停因④：scope 需變更｜停因細節：demo：scope 需變更
+
+判定：不是 exit 0 零輸出的靜默 no-op；函式鏈、佇列寫入、單一批次摘要與推播 callback 均確實執行。

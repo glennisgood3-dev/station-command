@@ -1,0 +1,11 @@
+COMMAND=./build/t26/check_completeness.py
+EXIT_CODE=1
+SOURCE_COUNT=29
+SECTION_COUNT=0
+COVERED_COUNT=0
+[FAIL] 缺對應章節（29）：DTC-001, DTC-002, DTC-003, DTC-004, DTC-005, DTC-006, DTC-007, DTC-008, DTC-009, DTC-010, DTC-011, DTC-012, DTC-013, DTC-014, DTC-015, DTC-016, DTC-017, DTC-018, DTC-019, DTC-020, DTC-021, DTC-022, DTC-023, DTC-024, DTC-025, DTC-026, DTC-027, DTC-028, DTC-029
+RESULT=RED
+
+證據性質：來源表與檢查腳本皆已存在且成功載入；失敗原因是 29 條來源斷言皆找不到對應 `### DTC-NNN` 章節，屬完備性斷言失敗，不是檔案不存在／載入失敗。
+
+版本演化註記：本證據由 rework 前、尚未輸出 `SOURCE_FIXTURE_ROWS` 診斷行的 `check_completeness.py` 產生，因此格式與現行腳本不同。該版已成功載入來源表並以 29 個來源 ID 為分母，因 29 個對應章節全缺而以 exit code 1／`RESULT=RED` 失敗；後續新增的 `SOURCE_FIXTURE_ROWS` 只補強來源 occurrence 計數揭露，不改變這次紅燈所證明的「來源存在但章節覆蓋為零」，故原始紅證據仍有效且不重造。

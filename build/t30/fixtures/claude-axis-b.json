@@ -1,0 +1,6 @@
+{
+  "provider": "Claude",
+  "findings": [
+    { "id": "C-B1", "matchKey": "spec-output", "severity": "judgement", "text": "規格對照輸出需補一項核對。" }
+  ]
+}

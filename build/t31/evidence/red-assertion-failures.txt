@@ -1,0 +1,12 @@
+T-31 紅燈實錄（斷言失敗型）
+執行環境：/opt/pwsh/pwsh；Set-StrictMode -Version Latest
+指令：& .\build\t31\t31-offline-test.ps1 -SkipErrorEnvelopeGuard
+exit code：1
+
+WARNING: 已略過 Gemini 錯誤體守門；僅供紅燈驗證，正式流程禁用。
+[ASSERTION FAILED] 紅燈斷言 (a)：適配層須判定解析失敗，不得把 Gemini error JSON 當成沒有 finding。
+[ASSERTION FAILED] 紅燈斷言 (b)：解析失敗須產生同時含 provider／失敗原因／承接者三項的具名降級記錄。
+[PASS] 紅燈斷言 (c)：錯誤體該次不得產生 usage 記帳。
+T31 OFFLINE RESULT：PASS=51 FAIL=2
+
+只有 (a)(b) 兩條斷言失敗；腳本已載入、fixture 已解析，並一路執行到全部測試結束。這不是檔案不存在、語法、import、載入或 collection 失敗。

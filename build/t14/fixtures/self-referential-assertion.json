@@ -1,0 +1,14 @@
+{
+  "ticket": "T-14-FIXTURE-TAUTOLOGY",
+  "executor": "fullstack-developer",
+  "verifier": "tester",
+  "redOutput": "Describing Get-Sum\n  [-] doubles correctly 12ms\n    Expected: 5\n    But was:  0\n    AssertionError: assert 0 == 5\n",
+  "greenOutput": "Describing Get-Sum\n  [+] doubles correctly 9ms\n",
+  "assertions": [
+    {
+      "id": "A1",
+      "text": "$expected = Get-Sum 2 3\n$actual = Get-Sum 2 3\nassert $actual -eq $expected",
+      "expectedSourceNote": ""
+    }
+  ]
+}

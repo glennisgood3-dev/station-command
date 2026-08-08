@@ -1,0 +1,13 @@
+{
+  "AuditorSuggestedRetreatStation": "sc:station-3",
+  "Findings": [
+    { "Station": "sc:station-1", "Id": "1.glossary", "Mark": "pass", "Evidence": "legacy-project-b/GLOSSARY.md 定義 WidgetSync／StaleLock／ReconcileWindow，涵蓋 README／SPEC／DECISIONS 內出現的全部關鍵詞", "MissingClass": null },
+    { "Station": "sc:station-1", "Id": "1.adr", "Mark": "pass", "Evidence": "legacy-project-b/DECISIONS.md LP-DEC-001 含被否決方案（即時 webhook，否決理由：對方 API 無 webhook 能力）", "MissingClass": null },
+    { "Station": "sc:station-1", "Id": "1.confirm", "Mark": "pass", "Evidence": "legacy-project-b/DECISIONS.md LP-DEC-002：『使用者已確認本專案共識』", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.spec", "Mark": "pass", "Evidence": "legacy-project-b/SPEC.md 含 Goal／Scope In-Out／Success Criteria 三段，Success Criteria 為可驗證數字（7 天、1%）", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.confirm", "Mark": "pass", "Evidence": "legacy-project-b/SPEC.md 末行：『使用者已於 2026-06-15 確認本 spec』", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.gapreview", "Mark": "pass", "Evidence": "legacy-project-b/GAP-REVIEW.md 兩條 hard finding 皆標『已結案』", "MissingClass": null },
+    { "Station": "sc:station-3", "Id": "3.fields", "Mark": "fail", "Evidence": "legacy-project-b/tickets/ticket-legacy-101.md 與 ticket-legacy-102.md 皆為『負責人／內容／狀態』三欄自由格式，grep -E 'REQ-ID|驗收條件|depends_on|executor|basis|scope|測試先行|不可逆動作' 對兩檔皆零命中", "MissingClass": "minor" },
+    { "Station": "sc:station-3", "Id": "3.vertical", "Mark": "na", "Evidence": "舊票未採用 §3.5 切片模型，垂直／水平切片概念不適用於自由格式票", "MissingClass": null }
+  ]
+}

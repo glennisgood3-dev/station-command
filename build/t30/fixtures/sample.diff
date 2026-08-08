@@ -1,0 +1,7 @@
+diff --git a/src/sample.ps1 b/src/sample.ps1
+index 1111111..2222222 100644
+--- a/src/sample.ps1
++++ b/src/sample.ps1
+@@ -1,2 +1,2 @@
+-$x = Get-Thing
++$stationResult = Get-Thing

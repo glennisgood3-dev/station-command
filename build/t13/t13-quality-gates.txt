@@ -1,0 +1,117 @@
+﻿T-13 三道品質關卡通過證據 — 2026-08-08 09:21:45 +0000
+（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+gate-station3.ps1: BOM-OK
+t13-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+gate-station3.ps1: PARSE-OK
+t13-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t13-offline-test.ps1，共 52 項斷言 ＋ 2 項 RED-CONFIRMED 紅燈證據，FAIL=0）
+====================================================================
+[PASS] 設定檢查：bodyA 不含 'basis:' 行 
+[PASS] 設定檢查：bodyB 不含 'depends_on:' 行 
+[PASS] 設定檢查：bodyC 不含 '測試先行:' 行 
+[PASS] 設定檢查：bodyD 不含 '不可逆動作:' 行 
+[PASS] 設定檢查：bodyF 含測試先行但不含 'seam:' 
+[PASS] 設定檢查：bodyG 含測試先行但不含 '獨立預期值來源:' 
+
+====================================================================
+群組 A：Get-FieldBlock 欄位邊界抽取
+====================================================================
+[PASS] A1 Get-FieldBlock('executor') 抽出正確內容且不含下一欄 Text='fullstack-developer'
+[PASS] A2 Get-FieldBlock('不可逆動作'，最後一欄，文件結尾為界) 抽出正確內容 Text='無 —— 純檢查與寫 label，可回退'
+[PASS] A3 Get-FieldBlock(空字串 body) Present=false 
+[PASS] A4 Get-FieldBlock('測試先行') 含 seam 與獨立預期值來源全文 Text='先寫斷言取紅燈；seam: gate-station3.ps1 的 Test-Station3FieldsDeep；獨立預期值來源: Spec §3.5 欄位清單與人造票缺項配置'
+
+====================================================================
+群組 B：Test-Station3FieldsDeep 單票深度檢查
+====================================================================
+[PASS] B1 完整票 Classification=PASS Missing=[]
+[PASS] B2 缺 basis（executor 仍在）Classification=INVALID【核心：缺executor/basis判INVALID】 Classification=INVALID
+[PASS] B2b 缺項具名含 basis 
+[PASS] B3 缺 executor（basis 仍在）Classification=INVALID Classification=INVALID
+[PASS] B4 缺 depends_on 整欄 Classification=FAIL（非 INVALID，因 executor/basis 仍在） Classification=FAIL
+[PASS] B4b 缺項具名含 depends_on 
+
+====================================================================
+群組 C：【驗收①】五票情境——缺 basis／缺 depends_on／缺測試先行／缺不可逆動作／完整
+====================================================================
+[PASS] C1 五票情境 Satisfied=false 4／5 張票未過：#1[INVALID]：basis（欄位缺漏或為空（§3.5：缺 basis 判 [INVALID]））；#2[FAIL]：depends_on（欄位缺漏（label 未出現——§3.5 要求「可為空但欄位必須在」，本票連欄位本身都沒有））；#3[FAIL]：測試先行-存在（欄位缺漏或為空（label 未出現，或出現但無內容））、測試先行-seam具名（基礎欄位（測試先行）缺漏，無法檢查 seam 具名）、測試先行-獨立預期值來源具名（基礎欄位（測試先行）缺漏，無法檢查獨立預期值來源具名）；#4[FAIL]：不可逆動作（欄位缺漏（第八欄「不可逆動作：有／無＋說明」未出現；§3.5：八項任一缺漏即站3出口 gate fail））
+[PASS] C1b 具名前四張（#1#2#3#4）皆在 BadTickets，#5 不在 Bad=[1, 2, 3, 4]
+[PASS] C1c 恰 4 張 bad（非誤判多或少） 
+[PASS] C2 補齊後重跑 Satisfied=true 共 5 張票，§3.5 八欄位深度檢查（含註B seam／註C獨立預期值來源具名、缺 executor／basis 判 INVALID）全數通過
+[PASS] C3 零票 Satisfied=false 該 work 尚無任何 sc:ticket，站 3 出口條件不成立（無票可判）
+
+====================================================================
+群組 D：【驗收⑤】兩票情境——未具名 seam／未具名獨立預期值來源
+====================================================================
+[PASS] D1 兩票（F/G）Satisfied=false 2／2 張票未過：#6[FAIL]：測試先行-seam具名（未具名 seam（§3.5 註B：須寫下本票測試打在哪個 seam；格式：seam: <內容>））；#7[FAIL]：測試先行-獨立預期值來源具名（未具名獨立預期值來源（§3.5 註C：須具名 known-good literal／worked example／spec 之一；格式：獨立預期值來源: <內容>））
+[PASS] D1b F(#6)／G(#7) 皆在 BadTickets 
+[PASS] D2 #6(F) 缺項具名『測試先行-seam具名』 Missing=[測試先行-seam具名]
+[PASS] D2b #6(F) 不缺『測試先行-獨立預期值來源具名』（F 只缺 seam） 
+[PASS] D3 #7(G) 缺項具名『測試先行-獨立預期值來源具名』 Missing=[測試先行-獨立預期值來源具名]
+[PASS] D3b #7(G) 不缺『測試先行-seam具名』（G 只缺獨立預期值來源） 
+[PASS] D4 F／G 兩張 Classification 皆為 FAIL（非 INVALID，executor/basis 皆在） 
+
+====================================================================
+群組 E：【驗收⑥】Invoke-Station3ExitChecklistDeep — 3.seam-confirmed 出口條件項
+====================================================================
+[PASS] E1 無任何 override（含 3.seam-confirmed 缺）AllSatisfied=false，fail-closed 
+[PASS] E1b 3.seam-confirmed 項具名『未提供裁定結果』 未提供裁定結果（本項需人工／拆票 quiz 裁定，caller 尚未提供 -ChecklistOverridesPath，fail-closed）
+[PASS] E2 quiz 明確裁定「未確認」⇒ AllSatisfied=false，gate 拒絕推站【核心：⑥】 
+[PASS] E2b 具名理由來自 quiz 裁定內容（非泛用『未提供』字串） 拆票 quiz 中使用者尚未確認 seam（quiz 逐字記錄核對）
+[PASS] E3 三項皆通過（含票集深度檢查）⇒ AllSatisfied=true 3.fields=True; 3.vertical=True; 3.seam-confirmed=True
+[PASS] E4 3.vertical／3.seam-confirmed 皆過但 3.fields 未過（票集仍有壞票）⇒ AllSatisfied=false 
+
+====================================================================
+群組 F：【紅燈】-SkipDeepContentCheck 開啟時，兩類斷言真的失敗一次
+====================================================================
+--- F-RED-1：ticket A（缺 basis）在淺層模式下不再被判 INVALID ---
+[33;1mWARNING: ⚠️⚠️⚠️ -SkipDeepContentCheck 已開啟：退化為淺層關鍵字檢查，僅供紅燈驗證使用，正式流程絕對不得使用。[0m
+[RED-CONFIRMED] 斷言『缺 basis 必須判 INVALID』如預期失敗：-SkipDeepContentCheck 開啟後，Classification='FAIL'（非 INVALID）。證明若無深度檢查的 INVALID 特化分類，缺 executor/basis 的票會被淺層判準誤歸為普通 FAIL（或甚至 PASS），這正是 §3.5『缺 executor／basis 判 [INVALID]』要防的事，不是紙上談兵。
+--- F-RED-2：ticket F／G（缺 seam／缺獨立預期值來源具名）在淺層模式下不再被抓進 BadTickets ---
+[33;1mWARNING: ⚠️⚠️⚠️ -SkipDeepContentCheck 已開啟：退化為淺層關鍵字檢查，僅供紅燈驗證使用，正式流程絕對不得使用。[0m
+[33;1mWARNING: ⚠️⚠️⚠️ -SkipDeepContentCheck 已開啟：退化為淺層關鍵字檢查，僅供紅燈驗證使用，正式流程絕對不得使用。[0m
+[RED-CONFIRMED] 斷言『F(#6)／G(#7) 皆須在 BadTickets』如預期失敗：-SkipDeepContentCheck 開啟後，BadTickets=[]（缺少 #6 與/或 #7）。證明若無 seam／獨立預期值來源的具名子檢查，只檢查『測試先行』關鍵字是否出現，F／G 兩票會被誤判為合格——這正是 §3.5 註B／註C 要防的自證式紅燈與未經確認 seam，不是紙上談兵。
+--- F-GREEN：關閉旗標，同一組資料重來一次（等同群組 B／D，此處獨立再驗證一次做首尾呼應） ---
+[PASS] F-GREEN-1 關閉 -SkipDeepContentCheck 後，ticket A 恢復判 INVALID Classification=INVALID
+[PASS] F-GREEN-2 關閉 -SkipDeepContentCheck 後，F(#6)／G(#7) 恢復被抓進 BadTickets Bad=[6, 7]
+
+====================================================================
+群組 G：gate 佇列項產生（唯一得產生 set-labels 者）
+====================================================================
+[PASS] G1 Get-FullLabelSetWithGateFail 保留既有 label 且加入 sc:gate-fail [sc:ticket, sc:gate-fail]
+[PASS] G2 已有 sc:gate-fail 時不重複加入（去重） [sc:ticket, sc:gate-fail]
+[PASS] G3 New-GateFailQueueItem action=set-labels 且 payload 為完整集合 action=set-labels
+[PASS] G4 首次加入佇列 Added=true 已加入佇列
+[PASS] G5 重複加入（同 action+target+source）Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] G5b 去重後仍恰 1 筆 
+[PASS] G5c 佇列項的 action 恰為 set-labels（gate 專屬型別，未混入 run 的 set-assignee/set-ticket-fields） 
+
+====================================================================
+群組 H：run 在站 3 dispatch 拆票 executor（重用驗證，見 README）
+====================================================================
+[PASS] H1 站3路由預設 executor 含 planner 與 kongming（拆票＋複核，§5.1） Executor='planner 拆票 ＋ kongming 複核；ak-project-management'
+[PASS] H2 站3 anchor（尚無票）被選為可動作項，Kind=anchor 選出 anchor：o/r#900（frontier 共 1 項合格，取編號最小者）
+[PASS] H2b 建議 executor 等於路由表拆票 executor（含 planner／kongming） EffectiveExecutor='planner 拆票 ＋ kongming 複核；ak-project-management'
+[PASS] H2c anchor body 尚無 executor/basis 宣告 ⇒ NeedsBodyWrite=true（待 run-dispatch 寫入，重用 T-12 既有機制） 
+
+====================================================================
+群組 I：PS 5.1／StrictMode 既知陷阱哨兵
+====================================================================
+[PASS] I1 單票陣列 .Count=1（陷阱①：單一物件無 .Count，須先 @() 包裝） 
+[PASS] I2 傳入單一物件（非陣列）給 Test-Station3TicketSetDeep 仍正確處理（函式內部 @() 防呆） 共 1 張票，§3.5 八欄位深度檢查（含註B seam／註C獨立預期值來源具名、缺 executor／basis 判 INVALID）全數通過
+[PASS] I3 零票時 BadTickets 為空陣列，@(...) 包裝後 .Count=0（陷阱③：@(函式呼叫) 不誤包成 1 筆） 
+
+====================================================================
+總結：共 52 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t13/t13-offline-test-report.txt

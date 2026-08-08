@@ -1,0 +1,14 @@
+{
+  "ticket": "T-14-FIXTURE-VALID",
+  "executor": "fullstack-developer",
+  "verifier": "tester",
+  "redOutput": "============================= test session starts ==============================\ncollected 1 item\n\ntests/test_calc.py F                                                     [100%]\n\n=================================== FAILURES ====================================\n____________________________________ test_add ___________________________________\n\n    def test_add():\n>       assert add(2, 3) == 5\nE       AssertionError: assert 0 == 5\nE        +  where 0 = add(2, 3)\n\ntests/test_calc.py:6: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_calc.py::test_add - AssertionError: assert 0 == 5\n============================== 1 failed in 0.06s ===============================\n",
+  "greenOutput": "============================= test session starts ==============================\ncollected 1 item\n\ntests/test_calc.py .                                                     [100%]\n\n============================== 1 passed in 0.05s ===============================\n",
+  "assertions": [
+    {
+      "id": "A1",
+      "text": "assert add(2, 3) == 5",
+      "expectedSourceNote": "known-good literal 5，依 spec 附例（worked example）：2+3=5，非由 add() 自身回傳值取得"
+    }
+  ]
+}

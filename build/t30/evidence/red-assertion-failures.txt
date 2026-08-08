@@ -1,0 +1,4 @@
+﻿【紅燈驗證】兩個開關僅供紅燈驗證，正式流程禁用。
+[ASSERTION FAILED] ③ 兩份 finding 清單各自完整、原順序留存，輸出不得合併或跨廠重排
+[ASSERTION FAILED] ⑤ 分歧輸出不得含票面禁止的兩種裁決字樣
+RED-PROOF SUMMARY：PASS=0；FAIL=2

@@ -1,0 +1,28 @@
+﻿legacy-intake 執行報告 — 2026-08-08 13:08:07 +00:00
+WorkId=W-legacy-demo  PrimaryRepo=acme/legacy-repo  ParticipatingRepos=[acme/legacy-repo]
+
+anchor 已存在：acme/legacy-repo#555
+
+--- Stage C（gate 產生權，legacy 定站封頂＋sc:legacy）---
+判準1（重用 T-08 Test-GateInitCriteria，與 native 共用）：✓ — acme/legacy-repo：首行='work-id: W-legacy-demo | primary-anchor: acme/legacy-repo#555'；期望='work-id: W-legacy-demo | primary-anchor: acme/legacy-repo#555'
+判準2（重用 T-08 Test-GateInitCriteria，與 native 共用）：✓ — sc:work=True；body work-id='W-legacy-demo'（期望='W-legacy-demo'）；primary-repo='acme/legacy-repo'（期望='acme/legacy-repo'）；participating=[acme/legacy-repo]（期望=[acme/legacy-repo]）
+判準3（重用 T-08 Test-GateInitCriteria，與 native 共用）：✓ — 掃描 1 個 fleet repo（acme/legacy-repo），無同 work-id 衝突
+判準4（重用 T-08 Test-GateInitCriteria，與 native 共用）：✓ — anchor 無既有站別 label（現有：[sc:work]）
+判準5（身分檢查，依 ADR-NP-009 不作 fail 條件）：gate 執行身分實查：actor login='glennisgood3-dev'。手動階段：無機器歸因，依 ADR-NP-009
+
+--- auditor 報告（逐條 ✓／✗／N/A ＋證據＋缺件分類） ---
+[✓] sc:station-1 1.glossary — legacy-project-b/GLOSSARY.md 定義 WidgetSync／StaleLock／ReconcileWindow，涵蓋 README／SPEC／DECISIONS 內出現的全部關鍵詞
+[✓] sc:station-1 1.adr — legacy-project-b/DECISIONS.md LP-DEC-001 含被否決方案（即時 webhook，否決理由：對方 API 無 webhook 能力）
+[✓] sc:station-1 1.confirm — legacy-project-b/DECISIONS.md LP-DEC-002：『使用者已確認本專案共識』
+[✓] sc:station-2 2.spec — legacy-project-b/SPEC.md 含 Goal／Scope In-Out／Success Criteria 三段，Success Criteria 為可驗證數字（7 天、1%）
+[✓] sc:station-2 2.confirm — legacy-project-b/SPEC.md 末行：『使用者已於 2026-06-15 確認本 spec』
+[✓] sc:station-2 2.gapreview — legacy-project-b/GAP-REVIEW.md 兩條 hard finding 皆標『已結案』
+[✗] sc:station-3 3.fields — 證據：legacy-project-b/tickets/ticket-legacy-101.md 與 ticket-legacy-102.md 皆為『負責人／內容／狀態』三欄自由格式，grep -E 'REQ-ID|驗收條件|depends_on|executor|basis|scope|測試先行|不可逆動作' 對兩檔皆零命中（缺件分類：minor）
+[N/A] sc:station-3 3.vertical — 舊票未採用 §3.5 切片模型，垂直／水平切片概念不適用於自由格式票
+（auditor 自報建議退回站別：sc:station-3——僅供人讀參考，實際判定一律由程式從 Findings 重新算出，不採信此欄位本身，見 auditor-prompt.md）
+
+候選站別（程式重新計算，不採信 auditor 自報摘要）：3 — 從站 1 往上核對 §6 同一份 checklist（§7.3），第一個未滿足＝『sc:station-3』；未滿足項：3.fields
+§7.3 兩條路徑判定：Remediated=False — 兩條路徑皆未滿足：無通過 §3.5 八欄位深度檢查之 native 票集，DECISIONS.md 亦無「不收編、僅供查閱」具名記載
+定站上限（Spec §7.3）：DeterminedStation=3  CapApplied=False — 候選站別=3：未超過站 3 上限，或票已收編完成（cap 不介入）
+定站結果：sc:station-3 ＋ sc:legacy；已加入佇列（action=set-labels，產生權=gate）
+=> 請執行 ..\t21\apply-queue.ps1 -QueuePath "/home/claude/station-plugin/build/t18/t18-offline-test-tmp-queue.json" 落地。

@@ -1,0 +1,96 @@
+﻿t15a-offline-test.ps1 執行報告 — 2026-08-08 13:07:57 +00:00
+PSVersion: 7.4.6
+
+[PASS] A1 軸A合格輸入（diff+standards+smell-baseline）⇒ Satisfied=true AxisA 輸入清單共 3 項，kind 皆在允許清單內，且第二道文字掃描未命中禁止標記
+[PASS] A2 軸B合格輸入（diff+spec）⇒ Satisfied=true AxisB 輸入清單共 2 項，kind 皆在允許清單內，且第二道文字掃描未命中禁止標記
+[PASS] A3【核心：驗收①】軸A出現 kind=spec ⇒ Satisfied=false（禁止 spec 原文洩漏） 結構性違規：kind='spec'（不在允許清單 [diff／standards／smell-baseline] 內，禁止類別：spec）："Spec §5.2 全文摘錄..."
+[PASS] A4【核心：驗收①】軸B出現 kind=smell-baseline ⇒ Satisfied=false（禁止基線洩漏） 結構性違規：kind='smell-baseline'（不在允許清單 [diff／spec] 內，禁止類別：standards／smell-baseline）："12 條 Fowler smell 基線全文..."
+[PASS] A5 未知 kind ⇒ Satisfied=false（fail-closed，不在白名單內一律拒絕） 結構性違規：kind='notes'（不在允許清單 [diff／standards／smell-baseline] 內，禁止類別：spec）："隨便寫的東西..."
+[PASS] A6 軸B出現 kind=standards ⇒ Satisfied=false（軸B只准 diff/spec） 結構性違規：kind='standards'（不在允許清單 [diff／spec] 內，禁止類別：standards／smell-baseline）："docs/STANDARDS.md..."
+[PASS] B1 具名檔案+版本 ⇒ Satisfied=true 已具名採用檔案='docs/STANDARDS.md'，版本='v3'
+[PASS] B2 明文「無落檔規範」聲明 ⇒ Satisfied=true 已具名『無落檔規範』聲明："該repo無落檔規範，本輪僅以基線審"
+[PASS] B3 兩者皆缺 ⇒ Satisfied=false（fail-closed） 軸 A 報告未具名本輪所用 repo 規範檔案與版本，亦無「該repo無落檔規範」明文聲明（依 station-command/assets/fowler-smells.md「站 5 報告義務」，fail-closed）
+[PASS] C1 無禁止欄位 ⇒ Satisfied=true 未出現任何合併／跨軸重排欄位；軸 A／軸 B findings 各自獨立留存（Pocock code-review 逐字：Do not merge or rerank findings — the two axes are deliberately separate）
+[PASS] C2【核心】出現 mergedFindings ⇒ Satisfied=false（兩軸不得合併重排） 出現禁止的合併／重排欄位：mergedFindings（違反『兩軸不得合併重排』）
+[PASS] D1 hard有證據+judgement有裁決 ⇒ Satisfied=true 軸X 共 2 條 findings，hard 皆附修法證據、judgement 皆有裁決紀錄
+[PASS] D2 hard缺證據 ⇒ Satisfied=false 軸X 缺項：F3（hard）缺修法證據（remediationEvidence）
+[PASS] D3 judgement缺裁決 ⇒ Satisfied=false 軸X 缺項：F4（judgement）缺裁決紀錄（decision）
+[PASS] D4 非法 severity 值 ⇒ Satisfied=false 軸X 缺項：F5 的 severity 值不合法（須為 hard 或 judgement，實得='minor'）
+[PASS] D5 空 findings 陣列（PS5.1陷阱：0筆） ⇒ Satisfied=true（無條目可違規） 軸X 共 0 條 findings，hard 皆附修法證據、judgement 皆有裁決紀錄
+[PASS] E1 不同身分 ⇒ Satisfied=true verifier（'tester'）≠ executor（'fullstack-developer'）且非 Commander
+[PASS] E2【核心：驗收③】相同身分 ⇒ Satisfied=false verifier 與 executor 相同（'fullstack-developer'）——執行者自陳不能當驗收（Spec §5.2）
+[PASS] E3【核心：驗收③】verifier=Commander ⇒ Satisfied=false verifier 為 Commander（'Commander'）——Spec §5.2『verifier ≠ executor，亦不得是 Commander』
+[PASS] E4 verifier=「主 session」（含空白正規化）⇒ Satisfied=false verifier 為 Commander（'  主 session  '）——Spec §5.2『verifier ≠ executor，亦不得是 Commander』
+[PASS] E5 verifier 為空 ⇒ Satisfied=false（fail-closed） verifier 欄位為空，無法確認 verifier≠executor（fail-closed）
+[PASS] F1 verifier-rerun 已復驗 ⇒ Satisfied=true 已復驗：方式=verifier-rerun，證據：verifier 重跑結果：全過
+[PASS] F2 two-axis-supplement 已復驗 ⇒ Satisfied=true 已復驗：方式=two-axis-supplement，證據：兩軸補審一輪：無新增 hard finding
+[PASS] F3【核心：驗收②】verified=false ⇒ Satisfied=false（未經復驗即結案，拒絕） 未經復驗即結案——Spec §5.2『修復必須復驗』：為清除 finding 而產生的修復 commit 不得自動視為已驗，須經 verifier 重跑該票驗收條件或兩軸補審一輪（remediation.verified=false 或缺漏）
+[PASS] F4 method 不合法（非二擇一之一）⇒ Satisfied=false remediation.method 不合法（須為 verifier-rerun 或 two-axis-supplement 之一，實得='eyeballed-it'）——二擇一完成後方可結案（Spec §5.2）
+[PASS] F5 evidence 為空 ⇒ Satisfied=false（fail-closed） remediation.evidence 為空——復驗須留存證據（重跑結果或補審結論），不得只填 verified=true 沒有內容
+[PASS] F6 -SkipRemediationCheck 開啟 ⇒ 一律 Satisfied=true（僅供紅燈驗證用途本身的正確性） ⚠️⚠️⚠️ -SkipRemediationCheck 已開啟：略過修復復驗查核，一律視為已復驗（僅供紅燈驗證使用，正式流程與一般手動執行絕對不得使用，見 README）
+[RED-CONFIRMED] F-RED：-SkipRemediationCheck 開啟後未復驗交件被誤判為 PASS
+[PASS] F-GREEN 斷言「未經復驗即結案必須被拒絕」通過（正常模式，②查核生效） 未過，缺項：[② 修復復驗] 未經復驗即結案——Spec §5.2『修復必須復驗』：為清除 finding 而產生的修復 commit 不得自動視為已驗，須經 verifier 重跑該票驗收條件或兩軸補審一輪（remediation.verified=false 或缺漏）
+[PASS] F-GREEN NamedGaps 具名指出②修復復驗，其餘（輸入分離/verifier/隔離/摘要）皆合格（變因隔離） [② 修復復驗] 未經復驗即結案——Spec §5.2『修復必須復驗』：為清除 finding 而產生的修復 commit 不得自動視為已驗，須經 verifier 重跑該票驗收條件或兩軸補審一輪（remediation.verified=false 或缺漏）
+[PASS] G1 已落檔（isolationDecisionRecorded=true）⇒ Satisfied=true（要求解除，不需固定字串） SC-DEC-ISO-001 已落檔（隔離成立）——依 SC#6，本項強制標註要求已解除
+[PASS] G2 未落檔但含固定字串 ⇒ Satisfied=true 結案報告含固定字串「context 隔離未實測，本結論僅由輸入分離支撐」
+[PASS] G3【核心：驗收⑤】未落檔且缺固定字串 ⇒ Satisfied=false（預設狀態，不需 T-03 完成即可驗證） SC-DEC-ISO-001 尚未落檔（隔離未實測為預設狀態），但結案報告缺固定字串「context 隔離未實測，本結論僅由輸入分離支撐」——依 SC#6，gate fail
+[PASS] H1【核心：驗收⑥】3/1 配置，兩軸各自具名 worst，無跨軸贏家 ⇒ Satisfied=true 收尾摘要合格：軸 A 3 條（worst：A1），軸 B 1 條（worst：B1），未見跨軸單一贏家
+[PASS] H2【核心：驗收⑥】同 3/1 配置但出現跨軸單一贏家樣式 ⇒ Satisfied=false 缺項：摘要文字命中禁止的跨軸單一贏家樣式（"整體最嚴重"）——Pocock code-review 逐字：Don't pick a single winner across axes
+[PASS] H3 軸A有findings但缺worst ⇒ Satisfied=false；軸B無findings不強制worst 缺項：(b) 軸 A 有 findings 但摘要缺軸內 worst issue
+[PASS] H4 摘要宣稱筆數（5）與實際筆數（3）不符 ⇒ Satisfied=false（獨立預期值來源比對） 缺項：(a) 軸 A findings 總數不符：摘要宣稱 5，實際 3
+[PASS] H5 兩軸皆 0 筆（PS5.1陷阱：0） ⇒ Satisfied=true（無 findings 則不強制 worst） 收尾摘要合格：軸 A 0 條（worst：），軸 B 0 條（worst：），未見跨軸單一贏家
+[PASS] I-valid-submission 可讀取，ticket 欄位非空 
+[PASS] I-not-reverified 可讀取，ticket 欄位非空 
+[PASS] I-two-axis-supplement 可讀取，ticket 欄位非空 
+[PASS] I-executor-is-verifier 可讀取，ticket 欄位非空 
+[PASS] I-verifier-is-commander 可讀取，ticket 欄位非空 
+[PASS] I-missing-isolation-disclaimer 可讀取，ticket 欄位非空 
+[PASS] I-isolation-decision-recorded 可讀取，ticket 欄位非空 
+[PASS] I-closing-summary-3-1-good 可讀取，ticket 欄位非空 
+[PASS] I-closing-summary-3-1-cross-winner 可讀取，ticket 欄位非空 
+[PASS] I-closing-summary-missing-worst 可讀取，ticket 欄位非空 
+[PASS] I-spec-leak-axisA 可讀取，ticket 欄位非空 
+[PASS] I-smell-leak-axisB 可讀取，ticket 欄位非空 
+[PASS] I-standards-not-named 可讀取，ticket 欄位非空 
+[PASS] I-merged-findings 可讀取，ticket 欄位非空 
+[PASS] I-hard-finding-no-evidence 可讀取，ticket 欄位非空 
+[PASS] I-missing 缺 axisA/axisB/remediation 等欄位 ⇒ 擲例外（fail-closed） 
+[PASS] J1【基準】valid-submission ⇒ OverallPass=true，NamedGaps 為空 全過：可產生 close-issue 佇列項關票
+[PASS] J2 two-axis-supplement ⇒ OverallPass=true（②的另一合法路徑） 全過：可產生 close-issue 佇列項關票
+[PASS] J3【驗收③】executor-is-verifier ⇒ OverallPass=false，唯一缺項為 verifier獨立 [③ verifier獨立] verifier 與 executor 相同（'fullstack-developer'）——執行者自陳不能當驗收（Spec §5.2）
+[PASS] J4【驗收③】verifier-is-commander ⇒ OverallPass=false，唯一缺項為 verifier獨立 [③ verifier獨立] verifier 為 Commander（'Commander'）——Spec §5.2『verifier ≠ executor，亦不得是 Commander』
+[PASS] J5【驗收⑤】missing-isolation-disclaimer ⇒ OverallPass=false，唯一缺項為 SC#6隔離標註 [⑤ SC#6隔離標註] SC-DEC-ISO-001 尚未落檔（隔離未實測為預設狀態），但結案報告缺固定字串「context 隔離未實測，本結論僅由輸入分離支撐」——依 SC#6，gate fail
+[PASS] J6【驗收⑤解除】isolation-decision-recorded ⇒ OverallPass=true（標註要求已解除） 全過：可產生 close-issue 佇列項關票
+[PASS] J7【驗收⑥】closing-summary-3-1-good ⇒ OverallPass=true（軸A 3條/軸B 1條，逐字比照範例） 全過：可產生 close-issue 佇列項關票
+[PASS] J8【驗收⑥】closing-summary-3-1-cross-winner ⇒ OverallPass=false，唯一缺項為收尾摘要 [⑥ 收尾摘要] 缺項：摘要文字命中禁止的跨軸單一贏家樣式（"整體最嚴重"）——Pocock code-review 逐字：Don't pick a single winner across axes
+[PASS] J9【驗收⑥】closing-summary-missing-worst ⇒ OverallPass=false，唯一缺項為收尾摘要 [⑥ 收尾摘要] 缺項：(b) 軸 A 有 findings 但摘要缺軸內 worst issue
+[PASS] J10【驗收①】spec-leak-axisA ⇒ OverallPass=false，唯一缺項為軸A輸入分離 [①a 軸A輸入分離] 結構性違規：kind='spec'（不在允許清單 [diff／standards／smell-baseline] 內，禁止類別：spec）："🚫 違規示範：Spec_station-command_v1.11.md §5.2 全文摘錄……（軸 A 不應收到 s..."
+[PASS] J11【驗收①】smell-leak-axisB ⇒ OverallPass=false，唯一缺項為軸B輸入分離 [①a 軸B輸入分離] 結構性違規：kind='smell-baseline'（不在允許清單 [diff／spec] 內，禁止類別：standards／smell-baseline）："🚫 違規示範：12 條 Fowler smell 基線全文（Mysterious Name／Duplicated Co..."｜文字掃描：軸 B prompt 命中 3 個不同疑似12 條 Fowler smell 基線標記（門檻=2，樣式：(?i)mysterious name、(?i)fowler、(?i)feature envy）——best-effort 偵測，非完整語意分析，見 README 已知限制
+[PASS] J12 standards-not-named ⇒ OverallPass=false，唯一缺項為規範版本具名 [①b 規範版本具名] 軸 A 報告未具名本輪所用 repo 規範檔案與版本，亦無「該repo無落檔規範」明文聲明（依 station-command/assets/fowler-smells.md「站 5 報告義務」，fail-closed）
+[PASS] J13 merged-findings ⇒ OverallPass=false，唯一缺項為報告不合併 [報告不合併] 出現禁止的合併／重排欄位：mergedFindings（違反『兩軸不得合併重排』）
+[PASS] J14 hard-finding-no-evidence ⇒ OverallPass=false，唯一缺項為修法證據/裁決 [修法證據/裁決] 軸 A 缺項：A1（hard）缺修法證據（remediationEvidence）
+[PASS] K1 佇列項 schema：action=close-issue（重用 T-21 原五型，不新增動作型別） 
+[PASS] K1b target/payload/source 四欄正確 
+[PASS] K2 首次加入 ⇒ Added=true 已加入佇列
+[PASS] K2b 加入後檔內恰 1 筆 
+[PASS] K3 重複加入（同 action+target+source） ⇒ Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] K3b 去重後仍恰 1 筆 
+[PASS] L1 票已關閉 ⇒ Satisfied=true 票現況 state='closed'
+[PASS] L2 票仍 open ⇒ Satisfied=false 票現況 state='open'（尚未關閉）
+[PASS] L3 空 timeline ⇒ Found=false timeline 中無 closed 事件
+[PASS] L4 多筆 closed 事件 ⇒ 取最後一筆 actor（時間序取尾端） 最後一次 closed 事件：actor='glennisgood3-dev'，時間='2026-08-08T01:00:00Z'
+[PASS] L5 手動階段（未提供 -GateIdentityLogins）⇒ Blocking=false（deferred-to-CI，具名回報 actor） 手動階段：無機器歸因判準，依 ADR-NP-009 降為規範層＋人工複查，不算入 AND；deferred-to-CI（提供 -GateIdentityLogins 後生效，比照 ../t10/gate-reset.md 先例）。具名回報 actor='glennisgood3-dev'
+[PASS] L6【驗收④】CI 階段，合法 bot actor ⇒ Blocking=true 且 Satisfied=true CI 階段：actor='github-actions[bot]'，gate 身分集合=[github-actions[bot]]，legal=True
+[PASS] L7 CI 階段，人手 actor ⇒ Blocking=true 且 Satisfied=false CI 階段：actor='glennisgood3-dev'，gate 身分集合=[github-actions[bot]]，legal=False
+[PASS] L8 找不到任何 closed 事件 ⇒ Blocking=true 且 Satisfied=false（不得默認通過） timeline 中無 closed 事件
+[PASS] M1 軸A恰1筆findings、軸B恰0筆（PS5.1陷阱①：單一物件無.Count） ⇒ 正確計數且 OverallPass=true 全過：可產生 close-issue 佇列項關票
+[PASS] M2 陷阱②③：單元素佇列陣列 Count=1（非被解卷成純量、亦非被誤包成巢狀陣列） Count=1
+[PASS] N1【結構性保證】New-AxisAPrompt 簽章不含任何名稱含 Spec 的參數（物理上無法傳入 spec 原文專屬欄位） 參數清單=[Ticket, DiffText, StandardsRefs, SmellBaselineText, Verbose, Debug, ErrorAction, WarningAction, InformationAction, ProgressAction, ErrorVariable, WarningVariable, InformationVariable, OutVariable, OutBuffer, PipelineVariable]
+[PASS] N2【結構性保證】New-AxisBPrompt 簽章不含 StandardsRefs／SmellBaselineText（物理上無法傳入規範清單或 smell 基線） 參數清單=[Ticket, DiffText, SpecExcerptText, Verbose, Debug, ErrorAction, WarningAction, InformationAction, ProgressAction, ErrorVariable, WarningVariable, InformationVariable, OutVariable, OutBuffer, PipelineVariable]
+[PASS] N3【真實內容】用真實 12 條 smell 基線＋佔位 diff 組出的軸A prompt ⇒ 未命中任何 spec 原文標記 軸 A prompt 未達spec 原文洩漏門檻（有 1 個零星命中未達門檻，視為合法提及非夾帶：Spec_station-command）
+[PASS] N4【真實內容】用真實 Spec §5.2 摘錄＋佔位 diff 組出的軸B prompt ⇒ 未命中任何 smell 基線標記 軸 B prompt 未達12 條 Fowler smell 基線洩漏門檻（有 1 個零星命中未達門檻，視為合法提及非夾帶：(?i)fowler）
+[PASS] N5【偵測力驗證】人為污染軸A文字（含 REQ-ID／Spec_station-command）⇒ Satisfied=false 軸 A prompt 命中 2 個不同疑似spec 原文標記（門檻=2，樣式：Spec_station-command、REQ-ID）——best-effort 偵測，非完整語意分析，見 README 已知限制
+[PASS] N6【偵測力驗證】人為污染軸B文字（含 Fowler／Mysterious Name）⇒ Satisfied=false 軸 B prompt 命中 2 個不同疑似12 條 Fowler smell 基線標記（門檻=2，樣式：(?i)mysterious name、(?i)fowler）——best-effort 偵測，非完整語意分析，見 README 已知限制
+[PASS] N7 證據檔已寫入（evidence-axisA-prompt.txt／evidence-axisB-prompt.txt，供報告③核對） 
+
+共 91 項，FAIL=0

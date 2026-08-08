@@ -1,0 +1,18 @@
+T-28 交件前機械驗證（2026-08-08）
+
+UTF-8 BOM：6/6 .ps1 首三 bytes 皆為 EF BB BF。
+ParseFile：6/6 .ps1，errors=0。
+完整離線測試：PASS=68，FAIL=0，exit_code=0。
+指定紅燈測試：PASS=66，FAIL=2，exit_code=1；只有紅燈斷言③與④失敗，並完整跑到 RESULT。
+key-leak-scan.ps1 直接執行：exit_code=0，輸出 482 bytes 的 usage；dot-source：exit_code=0，輸出 0 bytes。
+可達性 fixture 離線檢查：exit_code=0；12 家逐列符合 T-27 asset；全為 GET models 且逐列具名理由；探測品質區間=200/401/403/429；未送網路。
+Perplexity fixture 已具名註記沒有 GET /models，本家 probe 品質恆 WARN 為預期、非缺陷；兩層判準未更動。
+兩層政策斷言：HTTP 200/401/403/429/400/404/405 全判可達；模擬連線失敗判不可達；400/404/405 皆為 WARN；proxy 421 判不可達且 probe N/A。
+
+CLI smoke 1（外部暫存連接資料夾＋執行期組合的測試 key＋-DryRun）：exit_code=0；
+DRY-RUN：provider=OpenAI；family=OpenAI-compatible；method=POST；host=api.openai.com；認證 header 已設定=True；未送出網路請求
+
+CLI smoke 2（Cohere 缺 key）：exit_code=0；
+降級：provider=Cohere；失敗原因=缺少 key；承接者=Claude；生產線繼續=True
+
+兩個 smoke 均未連外；暫存連接資料夾已在 finally 中移除。

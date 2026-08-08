@@ -1,0 +1,12 @@
+asset   = /home/claude/station-plugin/build/station-command/assets/vendor-registry.md
+fixture = /home/claude/station-plugin/build/t27/fixtures/endpoints-2026-08-08.txt
+[OK] fixture (provider, 端點) 筆數 = 12，provider 皆唯一
+[OK] asset 資料列數 = 12
+[OK] provider 集合與 fixture 相符、asset 內無重複 provider
+[OK] 12 列 (provider, 端點) 逐列配對與 fixture 逐字相符
+[OK] 格式家族皆屬四值之一
+[OK] 狀態欄位符合 Gemini available（首發）／其餘 registered-no-key 規則
+[OK] 兩句具名警語存在（登錄≠啟用；金額／配額兩語意計費警語）
+
+=== ALL GREEN ===
+exit_code=0

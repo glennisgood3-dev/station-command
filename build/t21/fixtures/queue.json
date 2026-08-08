@@ -1,0 +1,20 @@
+[
+  {
+    "action": "set-labels",
+    "target": { "repo": "glennisgood3-dev/station-command", "issue": 999 },
+    "payload": { "labels": ["sc:ticket", "sc:awaiting-user"] },
+    "source": "T-21-fixture-1"
+  },
+  {
+    "action": "close-issue",
+    "target": { "repo": "glennisgood3-dev/station-command", "issue": 999 },
+    "payload": { "state": "closed", "state_reason": "not_planned" },
+    "source": "T-21-fixture-2"
+  },
+  {
+    "action": "comment",
+    "target": { "repo": "glennisgood3-dev/station-command", "issue": 999 },
+    "payload": { "body": "T-21 fixture：驗收用留言，套用後應可在 issue #999 讀到本則文字。" },
+    "source": "T-21-fixture-3"
+  }
+]

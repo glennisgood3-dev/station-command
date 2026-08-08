@@ -1,0 +1,22 @@
+﻿群組 A：六條停因的推播矩陣（獨立人造預期值）
+[PASS] A1 斷言「停因②③④⑥必須各主動推播一次」（錯誤模式：該叫不叫） 獨立預期=②:1,③:1,④:1,⑥:1；實際=②:1,③:1,④:1,⑥:1
+[PASS] A2 斷言「停因①⑤必須安靜、零推播」（錯誤模式：不該叫狂叫） 獨立預期=①:0,⑤:0；實際=①:0,⑤:0
+[PASS] A3 每次停因推播皆走唯一 station-user-push 管道（T-29 可沿用同一底層入口） 總推播數=4，錯誤管道數=0
+[PASS] A4 T-29 可直接沿用同一底層推播入口，不需第二套機制 
+群組 B：實跑 T-24 三輪後收尾，只准一則批次摘要
+[FAIL] B1 斷言「loop 跑三輪只產生恰一則摘要留言，非逐輪洗版」 獨立預期=1；實際 comment=4；RoundSummaries=3
+[PASS] B2 loop 的確完成三個派票／gate 判定輪次後才以停因⑤收斂 輪次=3，停因=⑤，派工項=3
+[PASS] B3 單行摘要涵蓋三輪派票與三次 gate=PASS，並具名停因⑤ loop 批次摘要｜work=W-three-rounds｜輪次結果：第 1 輪：mock/loop#101 PASS；第 2 輪：mock/loop#102 PASS；第 3 輪：mock/loop#103 PASS｜停因⑤：frontier 空｜停因細節：frontier 空：選出 ticket：mock/loop#101（frontier 共 3 項合格，取編號最小者）
+[FAIL] B4 續跑期間零逐輪 comment；唯一 comment 目標為 anchor comment 目標=mock/loop#101
+群組 C：佇列 schema 與 run 產生權邊界
+[PASS] C1 全部佇列項恰四欄 action／target／payload／source 檢查筆數=7
+[PASS] C2 run 只產生 set-assignee／set-ticket-fields／comment 三型 違規=0
+[PASS] C3 未產生 label／開關 issue／建票類 gate 或 intake 專屬型別 違規=0
+[PASS] C4 摘要是正典 comment schema：payload 只有完整 body 
+群組 D：用 T-21 既有套用器的隔離副本套用後，可從 anchor 留言端點讀回
+[PASS] D1 T-21 apply-queue.ps1 隔離副本離線套用成功且回驗成功 exit=0；[APPLIED-VERIFIED        ] comment | mock/apply#77 | W-three-rounds — 已存在相同內文的留言（比對方式=exact，id=1） | 共 1 筆：APPLIED-VERIFIED=1 SKIPPED-ALREADY-SATISFIED=0 FAILED-VERIFY=0 FAILED-APPLY=0 FAILED-VALIDATION=0 FAILED-SCHEMA=0；剩餘於佇列：0 筆 | 報告已寫入：/tmp/t25-apply-67417727/apply-queue-report.txt
+[PASS] D2 套用後在對應 anchor mock/apply#77 讀到完全相同摘要 留言數=1
+[PASS] D3 套用後回驗相符，comment 佇列項已出列 剩餘=0
+群組 E：移除摘要後重跑既有 gate，判定完全不變
+[PASS] E1 摘要存在與移除後的 gate 結果相同（摘要不參與任何 gate 判定） 有摘要={"Pass":true,"Reason":"pass","Detail":"全過：現站 'sc:station-1' 出口條件全部滿足，允許推進到 'sc:station-2'"}；移除後={"Pass":true,"Reason":"pass","Detail":"全過：現站 'sc:station-1' 出口條件全部滿足，允許推進到 'sc:station-2'"}
+總結：PASS=14 FAIL=2

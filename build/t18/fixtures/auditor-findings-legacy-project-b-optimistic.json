@@ -1,0 +1,14 @@
+{
+  "_WARNING": "⚠️ 本檔僅供 T-18 紅燈驗證使用，內容刻意不誠實（把 3.fields 判成 pass，儘管 legacy-project-b 的舊票明明沒有 §3.5 格式，見 artifact-inventory.md）。模擬 ticket 驗收條件擔心的風險情境：『未實作 cap 時 auditor 可能直接判在站 4』。正式流程不得使用本檔內容作為真實判定依據。",
+  "AuditorSuggestedRetreatStation": "sc:station-4",
+  "Findings": [
+    { "Station": "sc:station-1", "Id": "1.glossary", "Mark": "pass", "Evidence": "legacy-project-b/GLOSSARY.md 定義 WidgetSync／StaleLock／ReconcileWindow", "MissingClass": null },
+    { "Station": "sc:station-1", "Id": "1.adr", "Mark": "pass", "Evidence": "legacy-project-b/DECISIONS.md LP-DEC-001", "MissingClass": null },
+    { "Station": "sc:station-1", "Id": "1.confirm", "Mark": "pass", "Evidence": "legacy-project-b/DECISIONS.md LP-DEC-002", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.spec", "Mark": "pass", "Evidence": "legacy-project-b/SPEC.md", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.confirm", "Mark": "pass", "Evidence": "legacy-project-b/SPEC.md 末行", "MissingClass": null },
+    { "Station": "sc:station-2", "Id": "2.gapreview", "Mark": "pass", "Evidence": "legacy-project-b/GAP-REVIEW.md", "MissingClass": null },
+    { "Station": "sc:station-3", "Id": "3.fields", "Mark": "pass", "Evidence": "⚠️ 不誠實示範：實際上 ticket-legacy-101.md／102.md 並無 §3.5 格式，本欄故意誤判為 pass 供紅燈驗證", "MissingClass": null },
+    { "Station": "sc:station-3", "Id": "3.vertical", "Mark": "pass", "Evidence": "⚠️ 不誠實示範，同上", "MissingClass": null }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "AuditorSuggestedRetreatStation": "sc:station-1",
+  "Findings": [
+    { "Station": "sc:station-1", "Id": "1.glossary", "Mark": "fail", "Evidence": "legacy-project-a/README.md 使用『FooWidget』『BarQueue』『三段式驗證』三個詞彙；目錄內無 GLOSSARY.md 或等效名詞表檔案", "MissingClass": "minor" },
+    { "Station": "sc:station-1", "Id": "1.adr", "Mark": "fail", "Evidence": "legacy-project-a/NOTES.md 明文：『沒有任何書面 ADR 或會議紀錄檔案留存於本 repo』", "MissingClass": "critical" },
+    { "Station": "sc:station-1", "Id": "1.confirm", "Mark": "fail", "Evidence": "legacy-project-a/NOTES.md 明文：『沒有任何檔案記載使用者已確認共識這件事本身』", "MissingClass": "critical" },
+    { "Station": "sc:station-2", "Id": "2.spec", "Mark": "fail", "Evidence": "legacy-project-a/ 目錄內無 SPEC.md 或等效 spec 文件（僅 README.md／NOTES.md 兩檔）", "MissingClass": "critical" },
+    { "Station": "sc:station-2", "Id": "2.confirm", "Mark": "fail", "Evidence": "無 spec 文件可供使用者確認，亦無確認紀錄檔案", "MissingClass": "critical" },
+    { "Station": "sc:station-2", "Id": "2.gapreview", "Mark": "fail", "Evidence": "legacy-project-a/ 目錄內無缺口審報告檔案", "MissingClass": "critical" },
+    { "Station": "sc:station-3", "Id": "3.fields", "Mark": "fail", "Evidence": "legacy-project-a/ 目錄內無 tickets/ 目錄或任何票檔案，無票可判", "MissingClass": "critical" },
+    { "Station": "sc:station-3", "Id": "3.vertical", "Mark": "na", "Evidence": "無票可判，切片可獨立驗收之項目不適用", "MissingClass": null }
+  ]
+}

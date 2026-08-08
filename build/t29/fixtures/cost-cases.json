@@ -1,0 +1,76 @@
+{
+  "paidBudget": {
+    "tier": "paid",
+    "limitType": "amount",
+    "limitValue": 0.0005,
+    "inputUsdPerMillion": 1,
+    "outputUsdPerMillion": 2
+  },
+  "paidCalls": [
+    {
+      "callId": "paid-1",
+      "prompt": "第一輪完整輸入\n保留換行與尾端：甲乙丙。",
+      "output": "第一輪完整輸出\nfinding-A；finding-B。",
+      "usage": { "prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150 },
+      "expectedCost": 0.0002,
+      "expectedCumulativeCost": 0.0002,
+      "expectedPercent": 40
+    },
+    {
+      "callId": "paid-2",
+      "prompt": "第二輪完整輸入：不可裁頭。",
+      "output": "第二輪完整輸出：零 completion token 是人造 usage 邊界。",
+      "usage": { "prompt_tokens": 50, "completion_tokens": 0, "total_tokens": 50 },
+      "expectedCost": 0.00005,
+      "expectedCumulativeCost": 0.00025,
+      "expectedPercent": 50
+    },
+    {
+      "callId": "paid-3",
+      "prompt": "第三輪完整輸入：0123456789。",
+      "output": "第三輪完整輸出：審查完成。",
+      "usage": { "prompt_tokens": 100, "completion_tokens": 25, "total_tokens": 125 },
+      "expectedCost": 0.00015,
+      "expectedCumulativeCost": 0.0004,
+      "expectedPercent": 80
+    }
+  ],
+  "tinyPaidBudget": {
+    "tier": "paid",
+    "limitType": "amount",
+    "limitValue": 0.0001,
+    "inputUsdPerMillion": 1,
+    "outputUsdPerMillion": 2
+  },
+  "overLimitCall": {
+    "callId": "over-1",
+    "prompt": "【完整輸入】第一行\n第二行：不可靜默截斷 🚫\n最後一行。",
+    "output": "【完整審查結果】finding-1\nfinding-2\n結尾：輸出必須完整。",
+    "usage": { "prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150 },
+    "expectedCost": 0.0002,
+    "expectedPercent": 200
+  },
+  "freeBudget": {
+    "tier": "free",
+    "limitType": "quota",
+    "quotaLimits": { "RPM": 2, "RPD": 10, "TPM": 1000 }
+  },
+  "geminiCalls": [
+    {
+      "callId": "gemini-1",
+      "prompt": "Gemini 免費層完整輸入一",
+      "output": "Gemini 免費層完整輸出一",
+      "usage": { "promptTokenCount": 200, "candidatesTokenCount": 100, "totalTokenCount": 300 },
+      "expectedQuota": { "RPM": 1, "RPD": 1, "TPM": 300 },
+      "expectedPercent": 50
+    },
+    {
+      "callId": "gemini-2",
+      "prompt": "Gemini 免費層完整輸入二",
+      "output": "Gemini 免費層完整輸出二",
+      "usage": { "promptTokenCount": 100, "candidatesTokenCount": 100, "totalTokenCount": 200 },
+      "expectedQuota": { "RPM": 2, "RPD": 2, "TPM": 500 },
+      "expectedPercent": 100
+    }
+  ]
+}

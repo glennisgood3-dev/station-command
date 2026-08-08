@@ -1,0 +1,57 @@
+﻿[RED-CONFIRMED] ASSERTION FAILED: 存在人手關閉的票 ⇒ Decision 不得為 complete；-SkipHumanClosureCheck 開啟後實得 Decision='complete'
+[PASS] A2 紅燈開關確實讓人手關票案例誤判 complete 零 open 票，且 2 張票皆由站 5 gate 身分關閉
+[PASS] B1【驗收②】人手關票案例不判 complete 零 open 票，但 1 張票非站 5 gate 關閉或歸因未證；不得判完成
+[PASS] B2【驗收②】Decision 等於 fixture expected.awaiting-user actual=awaiting-user expected=awaiting-user
+[PASS] B3 零 open 票 
+[PASS] B4 人手／未證關票筆數來自 fixture 預設值 
+[PASS] B5 零 open 分支不套最小站公式 
+[PASS] B6 awaiting-user 只產 fixture 預期筆數 
+[PASS] B7 awaiting-user 不產 close-issue 
+[PASS] B8 awaiting-user 不產 close-milestone 
+[PASS] B9 awaiting-user 完整 label 集合等於 fixture 預期 [sc:work, sc:awaiting-user]
+[PASS] B10 awaiting-user 完整 label 集合不殘留 station label 
+[PASS] C1【驗收①】Decision 等於 fixture expected.complete 零 open 票，且 3 張票皆由站 5 gate 身分關閉
+[PASS] C2 票數等於 fixture 預設值 
+[PASS] C3 open 數等於 fixture 預設值 
+[PASS] C4 每張關票歸因皆合法 
+[PASS] C5 全參與 repo milestone 慣例通過 共 2 個參與 repo，milestone 慣例皆符合
+[PASS] C6 完成態佇列總筆數等於 fixture 預期 
+[PASS] C action=set-labels 筆數來自 fixture 預期 actual=1 expected=1
+[PASS] C action=close-issue 筆數來自 fixture 預期 actual=1 expected=1
+[PASS] C action=close-milestone 筆數來自 fixture 預期 actual=2 expected=2
+[PASS] C10 sc:station-done 完整 label 集合等於 fixture 預期 [sc:work, custom:keep, sc:station-done]
+[PASS] C11 anchor close 使用 canonical close-issue payload 
+[PASS] C12 全參與 repo milestone 皆在批次目標內 [acme/app#7, acme/lib#9]
+[PASS] D1【驗收③】真正空 tickets 無錯誤且 Decision 等於 fixture 預期 
+[PASS] D2【驗收③】零票不套最小站公式 
+[PASS] D3 真正空陣列不被誤包成含 1 個空陣列 Count=0
+[PASS] D4 單一 ticket 純量邊界不觸發 .Count 錯誤 
+[PASS] D5 open 票不進完成態 
+[PASS] D6 open 票產生 0 筆收尾佇列 
+[PASS] E 四欄 schema：set-labels acme/app 四欄 schema 合格：set-labels
+[PASS] E 外層恰四欄：set-labels action,target,payload,source
+[PASS] E 四欄 schema：close-issue acme/app 四欄 schema 合格：close-issue
+[PASS] E 外層恰四欄：close-issue action,target,payload,source
+[PASS] E 四欄 schema：close-milestone acme/app 四欄 schema 合格：close-milestone
+[PASS] E 外層恰四欄：close-milestone action,target,payload,source
+[PASS] E 四欄 schema：close-milestone acme/lib 四欄 schema 合格：close-milestone
+[PASS] E 外層恰四欄：close-milestone action,target,payload,source
+[PASS] E 四欄 schema：set-labels acme/app 四欄 schema 合格：set-labels
+[PASS] E 外層恰四欄：set-labels action,target,payload,source
+[PASS] E11 多第五欄必須拒絕 外層必須恰四欄 action/target/payload/source；實得 [action, target, payload, source, extra]
+[PASS] E12 首次批次加入全部項目 
+[PASS] E13 同一批重跑新增 0 筆（冪等） 
+[PASS] E14 重跑後佇列筆數不增 
+[PASS] E persisted 恰四欄：set-labels 
+[PASS] E persisted 恰四欄：close-issue 
+[PASS] E persisted 恰四欄：close-milestone 
+[PASS] E persisted 恰四欄：close-milestone 
+[PASS] F1 close-milestone 擴充 schema 合格 close-milestone schema 合格
+[PASS] F2 open milestone 套用前尚未達成 milestone 現況 state='open'，期望 'closed'
+[PASS] F3 PATCH 後直讀回驗為 closed milestone 現況 state='closed'，期望 'closed'
+[PASS] F4 mock 寫入恰呼叫一次 
+[PASS] G1 milestone title 不等於 work ID ⇒ 批次收尾前拒絕 acme/lib milestone.title='同名但錯 work-id'，應等於 work ID 'W-t15b-green'
+[PASS] G2 milestone 慣例失敗時不產生部分批次 
+[PASS] G3 收尾只用 closed（無 delete-milestone 動作） 
+[PASS] G4 close-milestone payload 是可 reopen 的 state=closed 
+TOTAL=55 PASS=55 FAIL=0 RED-CONFIRMED=1

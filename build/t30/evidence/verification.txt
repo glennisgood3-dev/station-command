@@ -1,0 +1,46 @@
+T-30 出貨驗證實錄（2026-08-08 UTC）
+
+執行器：/opt/pwsh/pwsh（PowerShell 7.4.6）
+目標相容：Windows PowerShell 5.1；四支腳本皆 #requires -Version 5.1 且啟用 Set-StrictMode -Version Latest。
+網路：未使用。GitHub API：未呼叫。真 key／token／個資：未讀取。
+
+1. UTF-8 BOM
+t30-core.ps1         首三 bytes=EF BB BF  PASS
+t30-gate.ps1         首三 bytes=EF BB BF  PASS
+t30-offline-test.ps1 首三 bytes=EF BB BF  PASS
+t30-run.ps1          首三 bytes=EF BB BF  PASS
+摘要：4/4 PASS
+
+2. ParseFile
+t30-core.ps1         errors=0  PASS
+t30-gate.ps1         errors=0  PASS
+t30-offline-test.ps1 errors=0  PASS
+t30-run.ps1          errors=0  PASS
+摘要：4/4 PASS
+
+3. 斷言紅燈
+指令：t30-offline-test.ps1 -SkipVendorSeparation -SkipDisputeLanguageGuard
+exit=1
+[ASSERTION FAILED] ③ 兩份 finding 清單各自完整、原順序留存，輸出不得合併或跨廠重排
+[ASSERTION FAILED] ⑤ 分歧輸出不得含票面禁止的兩種裁決字樣
+RED-PROOF SUMMARY：PASS=0；FAIL=2
+判讀：腳本與 fixture 均載入成功，失敗點為兩個斷言，不是語法／import／collection 失敗。
+
+4. 完整離線綠燈
+指令：t30-offline-test.ps1（不帶任何 Skip 開關）
+exit=0
+GREEN SUMMARY：PASS=46；FAIL=0
+
+5. CLI smoke
+a. t30-core.ps1 直接執行：exit=0，輸出三行 usage banner，非靜默 no-op。
+b. t30-run.ps1：exit=0；讀到 SC-DEC-T30-FIXTURE，A 軸計畫 Claude+Gemini，B 軸 Claude；
+   不存在的 repo 外連接資料夾觸發「provider=Gemini；失敗原因=缺少 key；承接者=Claude；gate 不阻塞=True」；未送網路。
+c. t30-gate.ps1：exit=0；摘要為 Claude A=3（worst C-A2）、Gemini A=2（worst G-A2）、Claude B=1（worst C-B1）；
+   重疊=1、分歧=3、需使用者裁示=True、gate 可前進=False。
+
+6. 證據形狀
+axis-a-claude-input-list.json：count=3；kinds=diff,standards,smell-baseline；spec canary=False。
+axis-a-external-input-list.json：count=3；kinds=diff,standards,smell-baseline；spec canary=False。
+dispute-queue-item.json：最外層為陣列；items=1；第 1 項鍵恰為 action,target,payload,source。
+gate-result.json：A 軸廠別報告=2；重疊=1；分歧=3；兩家 worst=C-A2,G-A2。
+正式 gate／queue／dispatch 三份 JSON 的票面禁止措辭掃描：命中 0。

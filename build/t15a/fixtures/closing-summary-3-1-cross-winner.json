@@ -1,0 +1,42 @@
+{
+  "ticket": "T-15a-FIXTURE-SUMMARY-3-1-CROSSWINNER",
+  "executor": "fullstack-developer",
+  "verifier": "tester",
+  "axisA": {
+    "inputList": [
+      { "kind": "diff", "value": "diff --git a/build/example/foo.ps1 b/build/example/foo.ps1\n@@ -1,5 +1,5 @@\n-function Get-Sum { param($a,$b) return $a+$b }\n+function Get-SumOfTwoIntegers { param($a,$b) return $a+$b }\n" },
+      { "kind": "standards", "value": "docs/STANDARDS.md" },
+      { "kind": "smell-baseline", "value": "12 條 Fowler smell 基線 v1（見 station-command/assets/fowler-smells.md）" }
+    ],
+    "standardsFileUsed": "docs/STANDARDS.md",
+    "standardsVersion": "v3（2026-07-20 修訂）",
+    "findings": [
+      { "id": "A1", "severity": "hard", "text": "函式命名 Get-Sum 掩蓋意圖（Mysterious Name）", "remediationEvidence": "commit a1b2c3d：改名為 Get-SumOfTwoIntegers", "decision": "" },
+      { "id": "A2", "severity": "hard", "text": "同一段邏輯在兩處重複（Duplicated Code）", "remediationEvidence": "commit b2c3d4e：抽出共用函式 Get-SharedLogic", "decision": "" },
+      { "id": "A3", "severity": "judgement", "text": "參數型別可再收斂（Primitive Obsession），是否值得新增型別待評估", "remediationEvidence": "", "decision": "接受現狀，理由：影響範圍小、新增型別的維護成本高於現有寫法" }
+    ]
+  },
+  "axisB": {
+    "inputList": [
+      { "kind": "diff", "value": "diff --git a/build/example/foo.ps1 b/build/example/foo.ps1\n@@ -1,5 +1,5 @@\n-function Get-Sum { param($a,$b) return $a+$b }\n+function Get-SumOfTwoIntegers { param($a,$b) return $a+$b }\n" },
+      { "kind": "spec", "value": "Spec §5.2 逐項對照：軸 A 規範審 ✓／軸 B 規格對照審 ✓／修復必須復驗 ✓" }
+    ],
+    "findings": [
+      { "id": "B1", "severity": "hard", "text": "diff 缺對 Spec §3.5 註 C『獨立預期值來源』欄位的檢查", "remediationEvidence": "commit d4e5f6g：補上 expectedSourceNote 檢查邏輯", "decision": "" }
+    ]
+  },
+  "remediation": {
+    "verified": true,
+    "method": "verifier-rerun",
+    "evidence": "verifier tester 已對修復後狀態重跑票驗收條件，結果：全過"
+  },
+  "isolationDecisionRecorded": false,
+  "closingReportText": "站 5 結案報告：軸 A（3 條 findings）、軸 B（1 條 finding）皆完成。context 隔離未實測，本結論僅由輸入分離支撐。",
+  "closingSummary": {
+    "axisACount": 3,
+    "axisBCount": 1,
+    "axisAWorst": "A1（hard）：函式命名 Mysterious Name，已修復",
+    "axisBWorst": "B1（hard）：缺獨立預期值來源檢查，已修復",
+    "text": "軸 A：3 條 findings，軸內 worst：A1（hard，已修復）｜軸 B：1 條 finding，軸內 worst：B1（hard，已修復）｜🚫 本票整體最嚴重問題是 A1（跨軸挑出的單一贏家，違規示範）"
+  }
+}

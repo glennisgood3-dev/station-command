@@ -1,0 +1,70 @@
+{
+  "$schema_note": "sc: label scheme per Spec_station-command_v1.5.md §3.3。description 內含合法載體註記（僅 anchor／僅票／anchor 或票）。color 為 GitHub 六碼 hex（不含 #）。不引入 §3.3「不引入的 label」清單所列項目：sc:exec-*、sc:red-pending、sc:dual-vendor。",
+  "labels": [
+    {
+      "name": "sc:work",
+      "color": "5319E7",
+      "description": "節點類型（不可變）｜載體：anchor｜每 work 僅一張 primary anchor，帶此 label；建立者：intake（§3.3）"
+    },
+    {
+      "name": "sc:ticket",
+      "color": "5319E7",
+      "description": "節點類型（不可變）｜載體：票｜站 3 拆票 dispatch 建立時寫入（§3.3）"
+    },
+    {
+      "name": "sc:station-1",
+      "color": "C5DEF5",
+      "description": "work 站別：grill（互斥）｜載體：僅 anchor｜寫入者：gate（§3.2、§3.3）"
+    },
+    {
+      "name": "sc:station-2",
+      "color": "BFD4F2",
+      "description": "work 站別：spec（互斥）｜載體：僅 anchor｜寫入者：gate（§3.2、§3.3）"
+    },
+    {
+      "name": "sc:station-3",
+      "color": "A2C4E0",
+      "description": "work 站別：tickets（互斥）｜載體：僅 anchor｜寫入者：gate（§3.2、§3.3）"
+    },
+    {
+      "name": "sc:station-4",
+      "color": "7FA8D1",
+      "description": "work 站別：implement（互斥）｜載體：僅 anchor｜寫入者：gate（§3.2、§3.3）"
+    },
+    {
+      "name": "sc:station-5",
+      "color": "4E7FB5",
+      "description": "work 站別：雙審（互斥）｜載體：僅 anchor｜寫入者：gate（§3.2、§3.3）"
+    },
+    {
+      "name": "sc:station-done",
+      "color": "0E8A16",
+      "description": "work 完成態（唯一斷點條件）｜載體：僅 anchor｜零 open 票且全票經站 5 gate 關閉（非人手關閉）時由 gate 寫入，並關閉 primary anchor 與全參與 repo milestone（§3.2）"
+    },
+    {
+      "name": "sc:legacy",
+      "color": "D4C5F9",
+      "description": "收編中，未通過第一個 native gate｜載體：僅 anchor｜寫入者：gate（§3.3、§7）"
+    },
+    {
+      "name": "sc:red-proven",
+      "color": "2EA44F",
+      "description": "兩段證據已由 verifier（≠executor）實測通過；缺席即未證明，不設反面 label｜載體：僅票｜寫入者：gate（依 verifier 實測）（§3.3）"
+    },
+    {
+      "name": "sc:blocked",
+      "color": "B60205",
+      "description": "有未解 blocker（含跨站繼承）⇒ 紅燈｜載體：anchor 或票｜寫入者：gate（§3.3、§4.1）"
+    },
+    {
+      "name": "sc:gate-fail",
+      "color": "D93F0B",
+      "description": "最近一次 gate 未過 ⇒ 紅燈｜載體：anchor 或票｜寫入者：gate（§3.3、§4.1）"
+    },
+    {
+      "name": "sc:awaiting-user",
+      "color": "FBCA04",
+      "description": "等待使用者確認或裁示 ⇒ 黃燈｜載體：anchor 或票｜寫入者：gate（§3.2、§3.3、§3.4、§4.1）"
+    }
+  ]
+}

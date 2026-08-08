@@ -1,0 +1,81 @@
+T-14 三道品質關卡通過證據 — 2026-08-08（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+station4-check.ps1: BOM-OK
+t14-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+station4-check.ps1: PARSE-OK
+t14-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t14-offline-test.ps1，55 項斷言，全在沙盒實跑，不連 GitHub、不執行任何被測系統）
+====================================================================
+群組 A：Test-RedLightIsAssertionFailure（斷言失敗／載入失敗／未知三類特徵）— 7 項全綠
+  含【驗收①核心】ModuleNotFoundError／SyntaxError／CommandNotFoundException／collection 中斷
+  四種載入失敗特徵皆判 Kind=load-failure、Satisfied=false；pytest AssertionError 與 Jasmine
+  風格 Expected/But was 兩種斷言失敗特徵皆判 Kind=assertion-failure、Satisfied=true。
+群組 B：Test-VerifierIndependent（不同／相同／大小寫空白正規化／空值）— 4 項全綠
+  含【驗收③核心】executor=verifier ⇒ Satisfied=false。
+群組 C：Test-AssertionExpectedIndependent — 6 項全綠 ＋ 【紅燈】RED-PROOF 段落：
+  [RED-CONFIRMED] -SkipProvenanceCheck 開啟後，斷言「自證式交件必須被拒絕（OverallPass=false）」
+  真的失敗（對 fixtures/self-referential-assertion.json 執行 Invoke-Station4Check 後
+  OverallPass 真的變成 true）——證明沒有④查核時，自證式斷言真的會被誤判為合格，不是紙上談兵。
+  [PASS] 關閉 -SkipProvenanceCheck（正常模式）後，同一斷言通過（OverallPass=false，NamedGaps
+  具名指出斷言 A1 且提及 Tautological／自證）— 2 項全綠
+群組 D：Read-Station4Submission（四份 fixture 皆可讀取；缺欄位／空 assertions 陣列皆擲例外）
+  — 6 項全綠
+群組 E：Invoke-Station4Check 整合——四份 fixture 逐一對應驗收①②③④，並驗證「變因隔離」
+  （每份 fixture 的 NamedGaps 恰含 1 條，且是該 fixture 唯一刻意留下的缺項）— 8 項全綠
+  E1【驗收①】load-failure-red.json ⇒ FAIL，具名原因僅為紅燈型態
+  E2【驗收②＋④通過】valid-submission.json ⇒ PASS，NamedGaps 為空
+  E3【驗收③】executor-is-verifier.json ⇒ FAIL，具名原因僅為 verifier≠executor
+  E4【驗收④拒絕】self-referential-assertion.json ⇒ FAIL，具名原因僅為斷言 A1 的預期值出處
+群組 F：New-RedProvenLabelSet／New-RedProvenQueueItem（加項不減項、冪等、set-labels schema
+  正確——重用 T-21 原五型，不新增動作型別）— 5 項全綠
+群組 G：Add-QueueItemIfAbsent（去重）— 4 項全綠
+群組 H：Test-RedProvenLabelPresent／Find-LastRedProvenLabelEvent／Test-RedProvenActorLegit
+  （驗收②後段 actor=bot，deferred-to-CI 結構驗證，比照 T-10 gate-reset 既有先例）— 8 項全綠
+群組 I：PS 5.1 / StrictMode 陣列陷阱（0/1/N 筆 assertions、單元素陣列回傳、$null labels）
+  — 4 項全綠
+
+====================================================================
+總結：共 55 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t14/t14-offline-test-report.txt
+
+====================================================================
+過程中發現並修正的 1 個 bug（實跑抓到，非憑空聲稱）
+====================================================================
+1. Test-RedLightIsAssertionFailure 對 Jasmine 風格輸出（`Expected: 5` 與 `But was: 0` 分行
+   出現，非同一行）誤判為 Kind=unknown（fail-closed 拒絕，A5 斷言首次實跑真的 FAIL）。
+   根因：原斷言失敗特徵樣式 `'Expected .* (but|to) '` 要求 Expected 與 but/to 同一行（.NET
+   regex 預設 . 不跨行），Jasmine 分行輸出命不中。修法：新增 `'(?m)^\s*Expected:\s'` 與
+   `'(?m)^\s*But was:\s'` 兩條獨立樣式（不要求同行），重跑後 A5 轉綠、其餘 54 項不受影響。
+
+====================================================================
+誠實聲明：deferred-to-CI／best-effort 項目
+====================================================================
+- 驗收②「actor 為 bot」：actor 歸因判準依 ADR-NP-009 手動階段不生效（執行身分即使用者本人，
+  機器無從區分人手改動與 gate 改動）；`Test-RedProvenActorLegit` 程式路徑已完整實作並由群組 H
+  離線 mock 涵蓋兩模式（手動階段 Blocking=false 具名回報／CI 階段 Blocking=true 判定合法性），
+  比照 T-10 `gate-reset.ps1`／`gate-check.ps1` 既有先例；動態驗收（真實 CI bot 身分寫入
+  timeline）待 CI 階段以 `-GateIdentityLogins 'github-actions[bot]'` 生效，本沙盒無法連線
+  真實 GitHub 實跑。
+- 紅燈／載入失敗特徵偵測（Test-RedLightIsAssertionFailure）與自證式斷言結構偵測
+  （Test-AssertionExpectedIndependent 的呼叫式比對）皆為 best-effort 的正則／字串比對，非
+  完整語法分析器——已在群組 A／C／I 涵蓋常見框架輸出樣式（pytest／Jasmine／PowerShell）與
+  邊界情況（字面值 expected、缺標記、標記無關鍵詞），但無法涵蓋所有可能的框架輸出格式或更
+  隱晦的自證寫法（例如透過中介變數間接呼叫同一函式）。此為結構性限制：本票 scope 明文「判讀
+  對象是人造交件所附的測試輸出原文（靜態文本），不執行被測系統」，故無法用「真的跑一次」來
+  消除歧義，只能持續擴充樣式庫；未命中任何已知特徵時一律 fail-closed 拒絕（不默認放行），
+  將邊界情況導向人工複查而非誤判通過。
+- 未附獨立的動態 GitHub 測試腳本（如 t10/t12 的 `tXX-test.ps1`）：本票 ticket 面要求的交付
+  清單為「實作腳本、SKILL 增補、離線測試、README」，未列動態測試；`station4-check.ps1` 本身的
+  Check／Verify 兩模式即為可直接對真實 GitHub 執行的生產程式碼（見 README「使用者要跑的指令」），
+  與 t10/t12 的 `-VerifyAfterApply`／`-VerifyRedProven` 設計精神一致，只是未另包一支獨立測試
+  外殼腳本——此為刻意的 scope 收斂，非遺漏。

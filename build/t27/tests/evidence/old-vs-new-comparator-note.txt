@@ -1,0 +1,10 @@
+目的：獨立佐證『舊比對法（sorted 多重集合）在 OpenAI<->Cohere 互換下不會發現差異』
+這是 2026-08-08 站 4 verifier 的原始實證，此處另以獨立程式碼重算一次作交叉確認。
+
+real 端點集合 (sorted)    = ['api.cerebras.ai/v1', 'api.cohere.com/v1', 'api.deepseek.com', 'api.fireworks.ai/inference/v1', 'api.groq.com/openai/v1', 'api.mistral.ai/v1', 'api.openai.com/v1', 'api.perplexity.ai', 'api.together.xyz/v1', 'api.x.ai/v1', 'generativelanguage.googleapis.com/v1beta', 'openrouter.ai/api/v1']
+swapped 端點集合 (sorted) = ['api.cerebras.ai/v1', 'api.cohere.com/v1', 'api.deepseek.com', 'api.fireworks.ai/inference/v1', 'api.groq.com/openai/v1', 'api.mistral.ai/v1', 'api.openai.com/v1', 'api.perplexity.ai', 'api.together.xyz/v1', 'api.x.ai/v1', 'generativelanguage.googleapis.com/v1beta', 'openrouter.ai/api/v1']
+sorted(real) == sorted(swapped) ? True
+
+結論：多重集合完全相同 => 舊版 compare_endpoints.py（sorted list 比對）對這組
+變異版必為 ALL GREEN（假綠）。新版改採逐列 (provider, 端點) 配對比對後，
+同一份 swapped asset 已在 tests/evidence/red-swap-assertion-failure.txt 中證實 RED。

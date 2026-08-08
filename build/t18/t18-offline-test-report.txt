@@ -1,0 +1,78 @@
+﻿t18-offline-test.ps1 執行報告 — 2026-08-08 13:08:07 +00:00
+PSVersion: 7.4.6
+
+[PASS] SETUP1 dot-source legacy-intake.ps1 後 $T18WorkId 仍為 'W-legacy-demo'（未被 t08 內部佔位值 'W-t18-dotsource-placeholder' 覆蓋） 實際='W-legacy-demo'
+[PASS] SETUP2 $T18PrimaryRepo 仍為 'acme/legacy-repo'（未被 t08 佔位值 'placeholder/placeholder' 覆蓋） 實際='acme/legacy-repo'
+[PASS] SETUP3 $T18Dir 指向本檔（t18）自己的目錄，非 t08／t13 的目錄 T18Dir='/home/claude/station-plugin/build/t18' TestDir='/home/claude/station-plugin/build/t18'
+[PASS] SETUP4 dot-source gate-legacy-advance.ps1 後 $T18AdvDir 亦指向本檔目錄（與 $T18Dir 不同變數名，互不覆蓋） T18AdvDir='/home/claude/station-plugin/build/t18'
+[PASS] SETUP5 兩檔各自的 $T18Dir 與 $T18AdvDir 皆未殘留 t08／t10/t13 的路徑 
+[PASS] A1 legacy-project-a findings 載入成功，8 筆 
+[PASS] A2 legacy-project-b findings 載入成功，8 筆 
+[PASS] A3 legacy-project-a findings 通過品質守門（皆有 Mark，✗項皆有證據與合法缺件分類） 
+[PASS] A4 legacy-project-b findings 通過品質守門 
+[PASS] A5 optimistic findings 結構仍合格（結構守門管不到『內容誠實與否』，那是 cap 這道防呆的職責，見群組C） 
+[PASS] A6 手工構造『✗項缺證據』⇒ WellFormed=false ✗ 項缺證據指向（不得空泛，§7.2）：1.glossary
+[PASS] B1 legacy-project-a 候選站別＝1（1.glossary 為第一個未滿足項） 從站 1 往上核對 §6 同一份 checklist（§7.3），第一個未滿足＝『sc:station-1』；未滿足項：1.glossary、1.adr、1.confirm
+[PASS] B1b legacy-project-a UnmetItems 恰含站1三項（1.glossary/1.adr/1.confirm 皆 fail） 
+[PASS] B2 legacy-project-b 候選站別＝3（站1/2全過，3.fields 未過） 從站 1 往上核對 §6 同一份 checklist（§7.3），第一個未滿足＝『sc:station-3』；未滿足項：3.fields
+[PASS] B2b legacy-project-b UnmetItems 恰 1 項（僅 3.fields；3.vertical=na 不計入） 
+[PASS] B3 optimistic findings 候選站別＝4（站1-3全報pass，用於群組C紅燈情境） 站 1-3 checklist 全數滿足；候選站別以 4 表示『至少通過站 3』（本判定不細分站 4/5 子項，屬 T-14/T-15a 範圍，比照 ../t10/gate-check.ps1 既有 deferred 界線，見 auditor-prompt.md）
+[PASS] B4 auditor 漏回報 1.confirm ⇒ fail-closed 視為未滿足，候選站別＝1（非略過該項直接判過） 從站 1 往上核對 §6 同一份 checklist（§7.3），第一個未滿足＝『sc:station-1』；未滿足項：1.confirm
+[RED-CONFIRMED] Test-LegacyStationCap -BypassCapForRedTest 讓『定站不得高於站3』斷言真的失敗：DeterminedStation=4
+[PASS] C-GREEN 關閉 -BypassCapForRedTest 後，候選站別4（optimistic情境，未收編）⇒ DeterminedStation=3 CapApplied=true 候選站別=4 高於 legacy 定站上限站 3（Spec §7.3），且票尚未收編完成（§7.3 兩條路徑皆未滿足，見 Test-LegacyRemediationComplete），封頂為站 3
+[PASS] C1 legacy-project-a（候選=1）⇒ DeterminedStation=1 CapApplied=false（cap 不過度介入） 候選站別=1：未超過站 3 上限，或票已收編完成（cap 不介入）
+[PASS] C2 legacy-project-b（候選=3，legacy收編最典型情境）⇒ DeterminedStation=3 CapApplied=false（3=上限本身，非'超過'，cap不介入） 候選站別=3：未超過站 3 上限，或票已收編完成（cap 不介入）
+[PASS] C3 候選=4 且已收編完成（TicketsRemediated）⇒ DeterminedStation=4 CapApplied=false（cap解除） 候選站別=4：未超過站 3 上限，或票已收編完成（cap 不介入）
+[PASS] C4 候選=5（未收編）⇒ 同樣封頂為3 候選站別=5 高於 legacy 定站上限站 3（Spec §7.3），且票尚未收編完成（§7.3 兩條路徑皆未滿足，見 Test-LegacyRemediationComplete），封頂為站 3
+[PASS] D-setup1 ticket-201.md 確實含全八項欄位標記（獨立於被測函式的人工核對） 
+[PASS] D-setup2 ticket-202.md 確實含全八項欄位標記 
+[PASS] D-setup3 原始 DECISIONS.md 確實不含『不收編、僅供查閱』字樣（避免誤判假陽性） 
+[PASS] D-setup4 DECISIONS-path2-not-adopted.md 確實含『不收編、僅供查閱』字樣 
+[PASS] D1a Get-RemediatedTicketsFromDir 讀到 2 張票 
+[PASS] D1 路徑①：8欄位齊全的native票集 ⇒ Remediated=true Path=path1-8fields 路徑①：2 張 native 票通過 §3.5 八欄位深度檢查（重用 T-13 Test-Station3TicketSetDeep，不重寫）：共 2 張票，§3.5 八欄位深度檢查（含註B seam／註C獨立預期值來源具名、缺 executor／basis 判 INVALID）全數通過
+[PASS] D2 路徑②：DECISIONS.md 具名『不收編、僅供查閱』 ⇒ Remediated=true Path=path2-not-adopted DECISIONS.md 具名記載「不收編、僅供查閱」（Spec §7.3 路徑②），舊票原樣保留、未被改寫
+[PASS] D3 無native票集、DECISIONS.md 亦無不收編記載 ⇒ Remediated=false 兩條路徑皆未滿足：無通過 §3.5 八欄位深度檢查之 native 票集，DECISIONS.md 亦無「不收編、僅供查閱」具名記載
+[PASS] D4 舊格式票（無§3.5欄位）不滿足路徑① ⇒ Remediated=false（非只要有票就算數） 兩條路徑皆未滿足：無通過 §3.5 八欄位深度檢查之 native 票集，DECISIONS.md 亦無「不收編、僅供查閱」具名記載
+[PASS] E1 階段①掛上：初始 label 集合含 sc:legacy 與 sc:station-3 [sc:work, sc:station-3, sc:legacy]
+[PASS] E1b 初始 label 集合恰 3 項（sc:work／sc:station-3／sc:legacy，不多不少） 
+[PASS] E2 階段②存續中：anchor 現有 sc:legacy ⇒ HasLegacyBadge=true anchor 現有 sc:legacy（收編中，尚未通過第一個 native gate）
+[PASS] E3 階段③摘除：推進後 label 集合不含 sc:legacy [sc:work, sc:station-4]
+[PASS] E3b BadgeRemoved=true（本次推進確實摘除了 badge） 
+[PASS] E3c 推進後仍正確含新站別 sc:station-4、不含舊站別 sc:station-3、保留 sc:work 
+[PASS] E4 badge 已消失後再推進：不含 sc:legacy（未被重新加回） 
+[PASS] E4b BadgeRemoved=false（本次推進前本來就沒有 badge，如實回報非本次摘除） 本次推進前 anchor 無 sc:legacy，無需摘除（非 legacy work，或先前已摘除——摘除後不會被重新加回，見檔頭說明）
+[PASS] E5 native work 推進：labels 中從未出現 sc:legacy 
+[PASS] F-setup 保護清單載入 2 筆（#101／#102） 
+[PASS] F1 對受保護舊票 #101 的 set-labels ⇒ Blocked=true 🚫 拒絕產生：目標 acme/legacy-repo#101 屬既有 legacy 舊票保護清單（Spec §7.3 兩條路徑皆不改寫舊票）；action='set-labels' 一律被擋，不寫入佇列，不呼叫 Write-QueueFile
+[PASS] F2 Add-Station18QueueItemIfAbsent 對受保護舊票 ⇒ Added=false Blocked=true 🚫 拒絕產生：目標 acme/legacy-repo#101 屬既有 legacy 舊票保護清單（Spec §7.3 兩條路徑皆不改寫舊票）；action='set-labels' 一律被擋，不寫入佇列，不呼叫 Write-QueueFile
+[PASS] F2b 佇列檔仍不存在（真的沒有寫入，非寫入後又復原） 
+[PASS] F3 對受保護舊票 #102 的 close-issue ⇒ Blocked=true（涵蓋刪除語意） 🚫 拒絕產生：目標 acme/legacy-repo#102 屬既有 legacy 舊票保護清單（Spec §7.3 兩條路徑皆不改寫舊票）；action='close-issue' 一律被擋，不寫入佇列，不呼叫 Write-QueueFile
+[PASS] F4 對非保護清單內的 #201 ⇒ Blocked=false（守門不誤擋合法動作） 目標 acme/legacy-repo#201 不在 legacy 舊票保護清單內，放行
+[PASS] F4b 合法動作確實成功寫入佇列（Added=true） 已加入佇列
+[PASS] F5 create-issue（無 issue 欄位，尚未指向既有票）⇒ Blocked=false（不適用本守門） target 無 issue 欄位（例如 create-issue／create-milestone 型，尚未指向既有 issue），不適用本守門
+[PASS] G1 legacy-project-a 報告：1.glossary 的行含 ✗ 符號 
+[PASS] G1b legacy-project-a 報告：含缺件分類標註 
+[PASS] G2 legacy-project-a 驅動候選站別判定的未滿足項（1.glossary/1.adr/1.confirm）Evidence 皆確實指向真實 fixture 檔名 核對項：1.glossary、1.adr、1.confirm
+[PASS] G2b 其餘（因目錄內檔案根本不存在而未過的）項目，證據仍非空字串（描述『找不到』本身，非空泛留白） 
+[PASS] G3 legacy-project-b 每個 ✗ 項的 Evidence 皆確實指向真實 fixture 檔名 
+[PASS] H1 單筆 findings 陣列 .Count=1（陷阱①：單一物件無 .Count，須先 @() 包裝） 
+[PASS] H2 傳入單筆陣列不拋錯，正常回傳候選站別 
+[PASS] H3 保護清單為空陣列時 @(函式呼叫) 不誤包成 1 筆，Blocked=false 
+[PASS] H4 NativeTickets 為空陣列時不拋錯（不誤觸發 Test-Station3TicketSetDeep 的 0 票分支） 
+[PASS] I1 Call1：anchor 不存在 ⇒ Stage=A-pending Stage=A-pending
+[PASS] I1b 佇列產生 1 筆 create-issue（產生權=intake，與 native 模式同形狀） action=create-issue
+[PASS] I1c create-issue payload.labels 恰含 sc:work（不含任何站別或 sc:legacy——建立當下還不知道定站結果） 
+[PASS] I2 Call2：milestone 不存在 ⇒ Stage=B-pending Stage=B-pending
+[PASS] I2b 佇列產生 1 筆 create-milestone（產生權=intake） action=create-milestone
+[PASS] I3 Call3：Stage=C-pass Stage=C-pass OverallPass=True
+[PASS] I3b 定站結果＝3（legacy-project-b 典型情境，重用 t08 Test-GateInitCriteria 判準①②③④全過） DeterminedStation=3 CapApplied=False
+[PASS] I3c CapApplied=false（候選=3 本身未超過上限，cap 未介入，符合群組C『典型情境不需cap出手』的設計預期） 
+[PASS] I3d 佇列產生 1 筆 set-labels（產生權=gate，與native共用同一份原子性不變式） 
+[PASS] I3e 最終 label 集合含 sc:work／sc:station-3／sc:legacy 三者（badge 隨定站同時掛上） [sc:work, sc:station-3, sc:legacy]
+[PASS] I3f 最終 label 集合恰 3 項（不多不少） 
+[PASS] I4 Invoke-LegacyGateAdvanceProduce 整體判定 OverallPass=true（重用 T-10 Invoke-GateCheck） 推進通過；sc:legacy 已摘除（本次推進即『通過第一個 native gate』，Spec §7.4）；已加入佇列
+[PASS] I4b 推進前 badge 狀態確實為『有』（BadgeBefore.HasLegacyBadge=true） 
+[PASS] I4c 推進後產生的佇列項 payload.labels 不含 sc:legacy（首個native gate通過後摘除） [sc:work, sc:station-2]
+[PASS] I4d 佇列檔內容與函式回傳一致（真的寫入了，不是只有記憶體內物件） 
+
+共 73 項，FAIL=0

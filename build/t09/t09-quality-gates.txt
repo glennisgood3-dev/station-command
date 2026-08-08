@@ -1,0 +1,129 @@
+T-09 三道品質關卡通過證據 — 2026-08-08 06:03:09 +0000
+（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+
+====================================================================
+關卡① UTF-8 BOM（.ps1 檔案）
+====================================================================
+render-board.ps1: BOM-OK
+t09-offline-test.ps1: BOM-OK
+t09-test.ps1: BOM-OK
+build-sample-board.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+render-board.ps1: PARSE-OK
+t09-offline-test.ps1: PARSE-OK
+t09-test.ps1: PARSE-OK
+build-sample-board.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（t09-offline-test.ps1，70 項斷言，涵蓋七個群組 A-G）
+====================================================================
+==================== T-09 離線 mock 測試開始 ====================
+
+--- 群組 A：§4.4 四種錯誤狀態 ---
+
+--- 群組 A 完成 ---
+
+--- 群組 B：§4.1 字卡逐欄位 ---
+
+--- 群組 B 完成 ---
+
+--- 群組 C：待寫佇列揭露 ---
+
+--- 群組 C 完成 ---
+
+--- 群組 D：刷新時機 ---
+
+--- 群組 D 完成 ---
+
+--- 群組 E：StrictMode 陷阱回歸測試 ---
+
+--- 群組 E 完成 ---
+
+--- 群組 F：Save／Read／整合 ---
+
+--- 群組 F 完成 ---
+
+--- 群組 G：SkipErrorStateHandling 旁路旗標 ---
+
+--- 群組 G 完成 ---
+
+==================== 總結 ====================
+[PASS] A1 查詢失敗 ⇒ ErrorStates 含 query-failed
+[PASS] A1 banner 具名失敗對象
+[PASS] A1 banner 標題為「數據過期」
+[PASS] A1 不得把失敗顯示為「無工作」
+[PASS] A1 受影響字卡打灰標「未更新」
+[PASS] A1 卡片套用 card--stale 灰化樣式
+[PASS] A2 觸頂 ⇒ ErrorStates 含 incomplete
+[PASS] A2 banner 標題為「資料可能不完整」
+[PASS] A2 具名徵狀含總筆數與已取得筆數
+[PASS] A3 面板寫入失敗 ⇒ Save 回傳 Ok=false
+[PASS] A3 面板寫入失敗具名原因
+[PASS] A4 空狀態 ⇒ ErrorStates 含 empty
+[PASS] A4 顯示「目前無 active work」明示卡
+[PASS] A4 附查詢條件
+[PASS] A4 有基線時不觸發 no-baseline
+[PASS] A4 有基線時 html 不含消失偵測不可用橫幅
+[PASS] A5 零筆+無基線 ⇒ ErrorStates 含 empty
+[PASS] A5 零筆+無基線 ⇒ ErrorStates 含 no-baseline
+[PASS] A5 html 同時含「目前無 active work」
+[PASS] A5 html 同時含「消失偵測不可用（無基線）」
+[PASS] B1 工作名＋work ID
+[PASS] B2 primary repo＋參與 repo
+[PASS] B3 五段 stepper：目前站 4
+[PASS] B3 stepper：站 1-3 已完成（step--done）
+[PASS] B4 逐 repo 進度：acme/plugin 80%
+[PASS] B4 逐 repo 進度：acme/app 50%（不合成單一數字，兩者分開列）
+[PASS] B5 當前 executor 讀票 body（不讀 assignee），機讀鍵值行格式
+[PASS] B5 當前 executor 讀票 body，人讀慣例格式（**executor**：）
+[PASS] B5 closed 票（T-12, tester）不算在跑，不出現在 executor 清單
+[PASS] B6 狀態燈：綠（無 blocked/gate-fail/awaiting-user/髒label）
+[PASS] B7 在跑數量＝2（兩張 open+assignee 票，closed 那張不算）
+[PASS] B8 停滯票數＝1（T-11 距今 30h > 24h）
+[PASS] B9 legacy badge 出現
+[PASS] B10 狀態燈紅（sc:blocked）
+[PASS] B10 燈號理由具名 anchor 帶 sc:blocked
+[PASS] B11 狀態燈黃（sc:awaiting-user）
+[PASS] B12 髒 label（雙站別）⇒ 紅燈
+[PASS] B12 stepper 顯示「站別不明」
+[PASS] B13 票帶站別 label ⇒ 紅燈具名（不合法載體）
+[PASS] C1 佇列不存在 ⇒「待寫佇列不存在」
+[PASS] C1 不得誤顯示為「待寫 0 筆」
+[PASS] C2「待寫 3 筆」
+[PASS] C2 badge 亦顯示「待寫 3 筆」
+[PASS] C2 在跑數量加註「寫入斷點期間不可信」
+[PASS] C2 停滯票數加註「寫入斷點期間不可信」
+[PASS] C2 卡片內出現顯著警語
+[PASS] C3 佇列讀取失敗具名
+[PASS] D1 無對帳模式：「本次未對帳，沿用 <時間> 結果」
+[PASS] D2 完整模式：對帳欄位保留位置（T-17 未實作，誠實聲明非偽造已對帳）
+[PASS] D2 完整模式不得偽稱已完成對帳
+[PASS] E1 anchor 查詢失敗＋0 筆 tickets 不拋例外（陣列解卷回歸測試）
+[PASS] E2 空陣列可繫結進陣列型別參數
+[PASS] E3 CacheBaseline=$null 不拋例外
+[PASS] E4a 空陣列佇列檔 ⇒ Count=0（不是 $null 判定不存在）
+[PASS] E4a Exists=$true（檔案確實存在，只是 0 筆）
+[PASS] E4b 壞 JSON ⇒ ParseError 非空（不得靜默當 0）
+[PASS] E4c 檔案不存在 ⇒ Exists=$false
+[PASS] E4c 檔案不存在 ⇒ Count=$null（非 0）
+[PASS] E4d 單一元素佇列 ⇒ Count=1（不被解卷成純量）
+[PASS] F1 首次 render 無既有 artifact ⇒ 讀回 $null（合法降級，非錯誤）
+[PASS] F2 整合呼叫寫檔成功
+[PASS] F2 輸出檔確實存在
+[PASS] F3 二輪讀回快取非 $null（第一輪已成功寫入基線）
+[PASS] F3 快取 workId round-trip 正確
+[PASS] F4 寫入失敗仍輸出完整字卡摘要文字（工作：W-integ）
+[PASS] F4 寫入失敗告警含「面板未更新」與「已過期」
+[PASS] G1 正常模式：查詢失敗正確顯示為 query-failed（不是 empty）
+[PASS] G1 正常模式：查詢失敗不得被歸類為 empty
+[PASS] G2 旁路模式（僅供紅燈驗證）：查詢失敗被錯誤地當成 empty 顯示
+[PASS] G2 旁路模式：html 錯誤地顯示「目前無 active work」（示範失敗顯示成空狀態的 bug）
+
+通過：70　失敗：0　總計：70
+
+離線測試：PASS（全數 70 項斷言通過）
+
+exit code: 0

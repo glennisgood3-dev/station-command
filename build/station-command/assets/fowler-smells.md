@@ -1,0 +1,62 @@
+# 12 條 Fowler Smell 基線 v1
+
+**來源（一級來源，逐字轉錄）**：`https://raw.githubusercontent.com/mattpocock/skills/main/skills/engineering/code-review/SKILL.md`（`main` 分支之 "Code Review Skill" § The 12 Code Smells (Baseline) 與 § Key Binding Rules）。
+**版本說明**：本檔於 2026-08-05 由 `main` 分支抓取；此工具環境無法取得該次抓取對應的 commit SHA（GitHub API 存取未開通），故以抓取日期＋分支名標記，非以 commit 鎖定。**本檔隨 plugin 出貨，版本與 plugin 綁定**——各 repo 不各存一份（依 Spec §5.2「兩份基線的正典位置」）；plugin 版本更新時應重新抓取並比對來源是否變動。
+
+以下 12 條為原文逐字轉錄（英文為原文，每條後附一句繁中對照，不改寫原文語意）。
+
+## The 12 Code Smells (Baseline)
+
+1. **Mysterious Name** — Unclear function, variable, or type names that obscure intent → rename for clarity; if no honest name exists, the design needs rethinking.
+   （中：名稱模糊、掩蓋意圖 → 重新命名以求清楚；若找不到誠實的名字，代表設計本身需要重新思考。）
+
+2. **Duplicated Code** — Identical logic appearing across multiple hunks or files → extract shared logic into a single call site.
+   （中：相同邏輯出現在多處 hunk 或檔案 → 抽出共用邏輯到單一呼叫點。）
+
+3. **Feature Envy** — Methods accessing another object's data more than their own → relocate the method to where the data lives.
+   （中：方法存取別的物件資料多於自身資料 → 把方法搬到資料所在之處。）
+
+4. **Data Clumps** — The same fields or parameters repeatedly travel together → bundle into a dedicated type.
+   （中：相同一組欄位或參數反覆一起出現 → 打包成專屬型別。）
+
+5. **Primitive Obsession** — Primitives/strings masquerading as domain concepts → introduce a small, purpose-built type.
+   （中：原始型別／字串偽裝成領域概念 → 引入小型、目的明確的型別。）
+
+6. **Repeated Switches** — Identical switch/if-cascades on the same type across multiple locations → use polymorphism or a shared map.
+   （中：同一型別在多處出現相同的 switch／if 級聯 → 改用多型或共用對照表。）
+
+7. **Shotgun Surgery** — A single logical change scattered across many files → consolidate changes into one coherent module.
+   （中：一個邏輯上的改動散落在許多檔案 → 把改動整併進一個一致的模組。）
+
+8. **Divergent Change** — One file edited for multiple unrelated reasons → restructure so each module changes for exactly one reason.
+   （中：同一檔案因多個不相關理由而被修改 → 重構成每個模組只因單一理由而變動。）
+
+9. **Speculative Generality** — Abstraction or parameters for needs the spec doesn't require → delete; inline until real needs emerge.
+   （中：為 spec 未要求的需求預留抽象或參數 → 刪除；內聯直到真正需求出現。）
+
+10. **Message Chains** — Long navigation sequences like "a.b().c().d()" hiding internal structure → encapsulate behind a single method.
+    （中：像 "a.b().c().d()" 這種長導航鏈，暴露內部結構 → 封裝到單一方法背後。）
+
+11. **Middle Man** — Classes/functions that primarily delegate elsewhere → eliminate; call the real target directly.
+    （中：主要工作是把呼叫轉發出去的類別／函式 → 消除，直接呼叫真正的目標。）
+
+12. **Refused Bequest** — Subclasses ignoring or overriding inherited functionality → replace inheritance with composition.
+    （中：子類別忽略或覆寫繼承來的功能 → 以組合取代繼承。）
+
+## Key Binding Rules
+
+- **The repo overrides**: Documented standards always supersede the baseline smell heuristics.
+  （中：repo 內已落檔的規範，永遠優先於本基線的 smell 啟發式判準。）
+- **Always a judgement call**: Each smell is a labeled heuristic, never a hard rule; skip anything tooling already enforces.
+  （中：每條 smell 都只是標註用的啟發式，不是硬性規則；工具已強制的項目可略過。）
+
+---
+
+## 站 5 報告義務（依 Spec §5.2）
+
+站 5 軸 A 規範審報告，**必須具名本輪所用之 repo 規範檔案與版本**：
+- 若該 repo **有**落檔規範文件，報告需具名列出所採用的檔案路徑與版本（commit／tag／修訂日期）。
+- 若該 repo **無**落檔規範文件，報告需具名記載「該 repo 無落檔規範，本輪僅以基線審」——不得留白、不得以沉默代替具名。
+- **repo 規範與本基線衝突時，repo 規範優先**；本基線 12 條永遠是判斷題（judgement call），非硬性違規（見上「Key Binding Rules」）。
+
+（依據：`Spec_station-command_v1.5.md` §5.2「兩份基線的正典位置」段。）

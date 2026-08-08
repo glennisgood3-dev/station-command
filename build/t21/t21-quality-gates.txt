@@ -1,0 +1,78 @@
+T-21 rework 3（補 close-issue 實跑）三道品質關卡通過證據 — 2026-08-05 22:31:40 +0000
+（沙盒執行環境：/opt/pwsh/pwsh，PowerShell 7.4.6；使用者實際環境為 Windows PowerShell 5.1）
+本輪只改 t21-dynamic-test.ps1（queue-common.ps1 close-issue 比對分支未變動，§K.3 surgical）
+
+====================================================================
+關卡① UTF-8 BOM
+====================================================================
+apply-queue.ps1: BOM-OK
+queue-common.ps1: BOM-OK
+reconcile-queue.ps1: BOM-OK
+t21-dynamic-test.ps1: BOM-OK
+t21-offline-test.ps1: BOM-OK
+
+====================================================================
+關卡② ParseFile 語法通過
+====================================================================
+apply-queue.ps1: PARSE-OK
+queue-common.ps1: PARSE-OK
+reconcile-queue.ps1: PARSE-OK
+t21-dynamic-test.ps1: PARSE-OK
+t21-offline-test.ps1: PARSE-OK
+
+====================================================================
+關卡③ 離線 mock 測試（queue-common.ps1 未變動，沿用既有 15 項斷言全綠，作為未破壞既有邏輯的回歸證據）
+====================================================================
+[PASS] F1 Read-QueueFile(檔內恰 1 筆) 回傳值型別 預期陣列且 Count=1；實際：陣列，Count=1
+[PASS] F2 Read-QueueFile(檔內 0 筆) 回傳值型別 預期陣列且 Count=0；實際：陣列，Count=0
+[PASS] F3 Read-QueueFile(檔案不存在) 回傳 $null（哨兵值，非空陣列） 
+
+====================================================================
+總結：共 15 項，FAIL=0
+====================================================================
+報告已寫入：/home/claude/station-plugin/build/t21/t21-offline-test-report.txt
+
+====================================================================
+新增段落靜態摘要（D-1b、孤兒清理——這兩段是連 GitHub 的動態測試，本沙盒無法執行，
+下方僅列出新增的關鍵斷言點，供人工核對邏輯；實際 PASS/FAIL 待使用者本機執行）
+====================================================================
+18:    set-labels 型見 D-1、**close-issue 型見 D-1b，用獨立拋棄式 issue 實跑並驗冪等**）
+23:    Setup 之前另有「孤兒清理」段：關閉 repo 內殘留的舊版動態測試 issue（標題「T-21 動態測試
+105:Section "孤兒清理：關閉殘留的舊版動態測試 issue（若有），順帶累積 close-issue 實跑證據"
+107:$orphanScanUrl = "https://api.github.com/repos/$Owner/$Repo/issues?state=open&per_page=100"
+108:$openIssuesRaw = Invoke-RestMethod -Uri $orphanScanUrl -Headers $Headers -Method Get
+112:$orphans = @($openIssues | Where-Object { $_.title -like 'T-21 動態測試（自動建立*' })
+114:if ($orphans.Count -eq 0) {
+115:    Log "未發現殘留的舊版動態測試 issue（沒有孤兒要清）。"
+117:    foreach ($orphan in $orphans) {
+119:        $orphanCloseItem = @(
+122:                target  = [pscustomobject]@{ repo = $RepoFull; issue = $orphan.number }
+124:                source  = 'T-21-dynamic-orphan-cleanup'
+127:        Write-QueueJson -Path $workQueuePath -Items $orphanCloseItem
+128:        $orphanResult = Invoke-ChildScript -ScriptPath $applyScript -ScriptArgs @('-PatPath', $PatPath, '-QueuePath', $workQueuePath)
+130:        Log $orphanResult.Output
+131:        $orphanAfter = Get-CurrentIssue -Owner $Owner -Repo $Repo -IssueNumber $orphan.number -Headers $Headers
+132:        if ($null -ne $orphanAfter -and $orphanAfter.state -eq 'closed') {
+240:    Log "[FAIL] 斷言在正常模式下仍失敗：實測留言數=$greenCount（預期 1）。冪等機制可能有 bug，需人工複查上方兩次執行輸出。"
+293:    Log "[PASS] CRLF 留言冪等：兩次套用後仍只有 1 則（正規化 fallback 生效）。"
+295:    Log "[FAIL] CRLF 留言冪等失敗：實測 $crlfCountAfter 則（預期 1）。需再檢查 ConvertTo-NormalizedText 邏輯。"
+324:    Log "[PASS] 繁中字元逐字往返相符（送出與讀回完全一致）。"
+327:    Log "[FAIL] 繁中字元往返不相符——送出內容與讀回內容不相等，需人工比對逐字元差異（可能是 PowerShell 5.1 主控台編碼或 Invoke-RestMethod 回應解析問題）。"
+334:Section "D-1. 驗收① 三型套用後 payload 相符（set-labels 段；close-issue 段見 D-1b 獨立拋棄式 issue；comment 型已於 A/B/C 段實跑）"
+353:    Log "[PASS] set-labels 套用後 label 集合含 sc:awaiting-user（獨立 GET 驗證）。"
+355:    Log "[FAIL] set-labels 套用後未在獨立 GET 中看到 sc:awaiting-user，實際：[$($labelNames -join ', ')]"
+359:Section "D-1b. 驗收① close-issue 型實跑（獨立拋棄式 issue，避免影響主測試 issue 的狀態流程）"
+362:    title = "T-21 動態測試 D-1b close-issue 子測試（拋棄式）- $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+363:    body  = "本 issue 由 t21-dynamic-test.ps1 的 D-1b 段自動建立，專門驗證 close-issue 型佇列項。測試本身就是把它關閉，關閉即代表通過，不需另外清理。"
+386:    Log "[PASS] D-1b-1：close-issue 套用後輸出含 APPLIED-VERIFIED，且獨立 GET 確認 state=closed。"
+389:    Log "[FAIL] D-1b-1：close-issue 套用未如預期（exit=$($d1b1.ExitCode)；獨立 GET state=$afterState）。"
+399:    Log "[PASS] D-1b-2：已關閉的 issue 重套 close-issue ⇒ SKIPPED-ALREADY-SATISFIED（未重複呼叫寫入 API）。"
+401:    Log "[FAIL] D-1b-2：預期輸出含 SKIPPED-ALREADY-SATISFIED，實際未命中，請人工複查上方輸出。"
+421:    Log "[PASS] 不存在的目標套用失敗後，該筆確實留在佇列（未被誤標為已套用）。"
+423:    Log "[FAIL] 預期該筆應留在佇列，實際佇列筆數：$(@($remainingAfterBad).Count)"
+448:    Log "[PASS] 已落地項目經 reconcile-queue.ps1 對帳後自動出列（佇列變空）。"
+450:    Log "[FAIL] 預期對帳後佇列應為空，實際筆數：$(@($remainingAfterReconcile).Count)"
+462:    Log "[PASS] 兩支腳本在佇列檔不存在時皆具名回報且 exit 0。"
+464:    Log "[FAIL] 遺失降級行為不符預期，請人工複查上方輸出。"
+475:    Log "[PASS] description 逾 100 字元的佇列項被送出前擋下（FAILED-VALIDATION），未嘗試呼叫 GitHub API。"
+477:    Log "[FAIL] 未看到 FAILED-VALIDATION，守門邏輯可能未生效。"

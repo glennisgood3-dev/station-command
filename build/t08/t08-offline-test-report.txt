@@ -1,0 +1,38 @@
+﻿t08-offline-test.ps1 執行報告 — 2026-08-06 09:06:54 +00:00
+PSVersion: 7.4.6
+
+[PASS] A0 Find-AnchorByWorkId(0 筆) 回傳 $null（不拋錯） 
+[PASS] A1 Find-AnchorByWorkId(1 筆裸物件，命中) 不拋錯且找到 
+[PASS] A1b Find-AnchorByWorkId(1 筆裸物件，不命中) 回傳 $null 
+[PASS] AN Find-AnchorByWorkId(多筆，命中第 2 筆) 
+[PASS] B0 Find-MilestoneByTitle(0 筆) 回傳 $null 
+[PASS] B1 Find-MilestoneByTitle(1 筆裸物件，命中) 不拋錯且找到 
+[PASS] BN Find-MilestoneByTitle(多筆，命中第 2 筆) 
+[PASS] C1 Get-AnchorDeclaration(單一參與 repo) work-id 正確 
+[PASS] C1b Get-AnchorDeclaration(單一參與 repo) participating 陣列 Count=1 
+[PASS] CN Get-AnchorDeclaration(多筆參與 repo) Count=3 
+[PASS] CNb Get-AnchorDeclaration(多筆參與 repo) 內容依序正確 
+[PASS] C0 Get-AnchorDeclaration(body=$null) 不拋錯且回傳空 participating 
+[PASS] D0 Test-WorkIdUniqueness(0 筆) Satisfied=true 掃描 1 個 fleet repo（o/rd0），無同 work-id 衝突
+[PASS] D1 Test-WorkIdUniqueness(1 筆裸物件衝突) Satisfied=false 發現 1 筆同 work-id 衝突：o/rd1#42
+[PASS] D1b Test-WorkIdUniqueness(1 筆裸物件衝突) Hits.Count=1 
+[PASS] D1c Test-WorkIdUniqueness(排除自身) Satisfied=true 掃描 1 個 fleet repo（o/rd1），無同 work-id 衝突
+[PASS] DN Test-WorkIdUniqueness(跨多 repo 多筆衝突) Satisfied=false 且 Hits.Count=2 發現 2 筆同 work-id 衝突：o/rdna#1、o/rdnb#7
+[PASS] E0 Test-NoExistingStationLabel(labels=$null) 不拋錯且 Satisfied=true anchor 無既有站別 label（現有：[]）
+[PASS] E1 Test-NoExistingStationLabel(1 個裸物件 label，非站別) Satisfied=true anchor 無既有站別 label（現有：[sc:work]）
+[PASS] E1b Test-NoExistingStationLabel(1 個裸物件 label，是站別) Satisfied=false anchor 已有站別 label：sc:station-3，須轉復位模式（Spec §3.4，T-10 範圍），本次初始化到此停止
+[PASS] EN Test-NoExistingStationLabel(多筆 label，含站別) Satisfied=false anchor 已有站別 label：sc:station-2，須轉復位模式（Spec §3.4，T-10 範圍），本次初始化到此停止
+[PASS] F1 Get-GateIdentityReport(正常讀值) Satisfied=true（依 ADR-NP-009 不作 fail 條件） gate 執行身分實查：actor login='glennisgood3-dev'。手動階段：無機器歸因，依 ADR-NP-009
+[PASS] F1b Get-GateIdentityReport 報告含固定字串「手動階段：無機器歸因，依 ADR-NP-009」 
+[PASS] G1 Test-GateInitCriteria(全過情境) OverallPass=true o/g1：首行='work-id: W-g1 | primary-anchor: o/g1#100'；期望='work-id: W-g1 | primary-anchor: o/g1#100' | sc:work=True；body work-id='W-g1'（期望='W-g1'）；primary-repo='o/g1'（期望='o/g1'）；participating=[o/g1]（期望=[o/g1]） | 掃描 1 個 fleet repo（o/g1），無同 work-id 衝突 | anchor 無既有站別 label（現有：[sc:work]）
+[PASS] G2 Test-GateInitCriteria(判準④不過：既有站別 label) OverallPass=false anchor 已有站別 label：sc:station-3，須轉復位模式（Spec §3.4，T-10 範圍），本次初始化到此停止
+[PASS] G2b 判準①②③仍應各自獨立通過（不因④失敗而連帶誤判） 
+[PASS] G3 Test-GateInitCriteria(判準⑤讀取異常) OverallPass 仍為 true（⑤不作 fail 條件，依 ADR-NP-009） gate 執行身分實查失敗（讀取 /user 發生錯誤：MOCK-MISS：t08-offline-test.ps1 未替這個 URL 設定假回應，無法繼續（也證明沒有真的連網）：Get https://api.github.com/user）。手動階段：無機器歸因，依 ADR-NP-009（讀取異常不作 fail 條件，僅具名回報此異常）
+[PASS] H1 Add-QueueItemIfAbsent(檔案不存在，首次加入) Added=true 已加入佇列
+[PASS] H1b 首次加入後檔內恰 1 筆 
+[PASS] H2 Add-QueueItemIfAbsent(重複相同動作) Added=false（去重） 佇列中已有相同動作待落地，未重複加入
+[PASS] H2b 去重後檔內仍恰 1 筆（未重複寫入） 
+[PASS] H3 Add-QueueItemIfAbsent(不同 target，新動作) Added=true 已加入佇列
+[PASS] H3b 附加後檔內恰 2 筆 
+
+共 33 項，FAIL=0

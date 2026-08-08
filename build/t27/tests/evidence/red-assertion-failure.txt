@@ -1,0 +1,13 @@
+asset   = tests/fixtures/vendor-registry-broken.md
+fixture = /home/claude/station-plugin/build/t27/fixtures/endpoints-2026-08-08.txt
+[OK] fixture (provider, 端點) 筆數 = 12，provider 皆唯一
+[OK] asset 資料列數 = 12
+[OK] provider 集合與 fixture 相符、asset 內無重複 provider
+[FAIL] 以下 provider 的端點與 fixture 逐列配對不符（provider, 預期端點, 實得端點）:
+  'DeepSeek': 預期 'api.deepseek.com'，實得 'api.deepseek.co'
+[OK] 格式家族皆屬四值之一
+[OK] 狀態欄位符合 Gemini available（首發）／其餘 registered-no-key 規則
+[OK] 兩句具名警語存在（登錄≠啟用；金額／配額兩語意計費警語）
+
+=== RED（斷言失敗，共 1 條）===
+exit_code=1

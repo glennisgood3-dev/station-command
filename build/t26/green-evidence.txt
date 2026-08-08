@@ -1,0 +1,10 @@
+COMMAND=./build/t26/check_completeness.py
+EXIT_CODE=0
+SOURCE_FIXTURE_ROWS=34
+SOURCE_COUNT=29
+SECTION_COUNT=29
+COVERED_COUNT=29
+[PASS] 來源對照表每一條皆有且只有一個對應章節
+RESULT=GREEN
+
+證據性質：本次 T-26 窄範圍 rework 重跑；檢查器逐筆回查獨立來源 fixture 的路徑、行號與片段，雙向比對 v1.8 字面標記，核對 21 個指定 build 目錄的 README 狀態／分類計數，並確認 29 個 DTC 各有且只有一個含五項必要欄位的 spec 章節。

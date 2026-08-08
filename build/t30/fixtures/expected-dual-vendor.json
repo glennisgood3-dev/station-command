@@ -1,0 +1,13 @@
+{
+  "claudeFindingIdsInOrder": ["C-A1", "C-A2", "C-A3"],
+  "geminiFindingIdsInOrder": ["G-A1", "G-A2"],
+  "overlapKeys": ["shared-null-check"],
+  "disagreementsInOrder": [
+    "Claude|C-A2|claude-only-name",
+    "Claude|C-A3|claude-only-chain",
+    "Gemini|G-A1|gemini-only-duplication"
+  ],
+  "claudeWorstId": "C-A2",
+  "geminiWorstId": "G-A2",
+  "axisBWorstId": "C-B1"
+}

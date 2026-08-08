@@ -1,0 +1,62 @@
+{
+  "fixtureKind": "獨立預期值：官方文件化請求 schema 的必要子集",
+  "frozenAt": "2026-08-08",
+  "families": [
+    {
+      "family": "OpenAI-compatible",
+      "provider": "Schema OpenAI",
+      "endpoint": "api.openai.com/v1",
+      "model": "fixture-openai-model",
+      "method": "POST",
+      "endpointSuffix": "/chat/completions",
+      "authHeader": "Authorization",
+      "authPrefix": "Bearer ",
+      "requiredHeaders": ["Content-Type", "Authorization"],
+      "bodyPaths": ["model", "messages.0.role", "messages.0.content"],
+      "responsePath": "choices.0.message.content",
+      "source": "https://platform.openai.com/docs/api-reference/chat/create"
+    },
+    {
+      "family": "Gemini",
+      "provider": "Schema Gemini",
+      "endpoint": "generativelanguage.googleapis.com/v1beta",
+      "model": "fixture-gemini-model",
+      "method": "POST",
+      "endpointSuffix": "/models/fixture-gemini-model:generateContent",
+      "authHeader": "x-goog-api-key",
+      "authPrefix": "",
+      "requiredHeaders": ["Content-Type", "x-goog-api-key"],
+      "bodyPaths": ["contents.0.role", "contents.0.parts.0.text"],
+      "responsePath": "candidates.0.content.parts.0.text",
+      "source": "https://ai.google.dev/api/generate-content"
+    },
+    {
+      "family": "Anthropic",
+      "provider": "Schema Anthropic",
+      "endpoint": "api.anthropic.com",
+      "model": "fixture-anthropic-model",
+      "method": "POST",
+      "endpointSuffix": "/v1/messages",
+      "authHeader": "x-api-key",
+      "authPrefix": "",
+      "requiredHeaders": ["Content-Type", "x-api-key", "anthropic-version"],
+      "bodyPaths": ["model", "max_tokens", "messages.0.role", "messages.0.content"],
+      "responsePath": "content.0.text",
+      "source": "https://docs.anthropic.com/en/api/messages"
+    },
+    {
+      "family": "Cohere",
+      "provider": "Schema Cohere",
+      "endpoint": "api.cohere.com/v1",
+      "model": "fixture-cohere-model",
+      "method": "POST",
+      "endpointSuffix": "/chat",
+      "authHeader": "Authorization",
+      "authPrefix": "Bearer ",
+      "requiredHeaders": ["Content-Type", "Authorization"],
+      "bodyPaths": ["model", "message"],
+      "responsePath": "text",
+      "source": "https://docs.cohere.com/reference/chat"
+    }
+  ]
+}

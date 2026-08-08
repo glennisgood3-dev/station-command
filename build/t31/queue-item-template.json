@@ -1,0 +1,13 @@
+[
+  {
+    "action": "comment",
+    "target": {
+      "repo": "owner/repo",
+      "issue": 31
+    },
+    "payload": {
+      "body": "T-31 Commander 實跑結論待填：請引用 conclusion-template.md；不得在真實呼叫前標示端到端通過。"
+    },
+    "source": "T-31"
+  }
+]

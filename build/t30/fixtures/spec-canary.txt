@@ -1,0 +1,3 @@
+### 人造規格片段
+T30-SPEC-CANARY-DO-NOT-SEND-TO-AXIS-A
+逐項要求：差異結果須以 ✓／✗ 回報。
