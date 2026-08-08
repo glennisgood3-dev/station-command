@@ -9,3 +9,21 @@ RESULT=RED
 證據性質：來源表與檢查腳本皆已存在且成功載入；失敗原因是 29 條來源斷言皆找不到對應 `### DTC-NNN` 章節，屬完備性斷言失敗，不是檔案不存在／載入失敗。
 
 版本演化註記：本證據由 rework 前、尚未輸出 `SOURCE_FIXTURE_ROWS` 診斷行的 `check_completeness.py` 產生，因此格式與現行腳本不同。該版已成功載入來源表並以 29 個來源 ID 為分母，因 29 個對應章節全缺而以 exit code 1／`RESULT=RED` 失敗；後續新增的 `SOURCE_FIXTURE_ROWS` 只補強來源 occurrence 計數揭露，不改變這次紅燈所證明的「來源存在但章節覆蓋為零」，故原始紅證據仍有效且不重造。
+
+---------------------------------------------------------------
+第二段（第三方缺口審 FAIL 後的 rework 紅燈；上段原始證據未改動）
+
+COMMAND=./check_completeness.py
+EXIT_CODE=1
+SOURCE_FIXTURE_ROWS=36
+SOURCE_COUNT=30
+SECTION_COUNT=29
+COVERED_COUNT=29
+[FAIL] 來源對照表漏 fixture ID（1）：DTC-030
+[FAIL] 缺對應章節（1）：DTC-030
+[FAIL] README 掃描表計數不符：t29 expected=(0, 0) actual=None
+[FAIL] README 掃描表計數不符：t30 expected=(0, 0) actual=None
+[FAIL] README 掃描表計數不符：t31 expected=(0, 0) actual=None
+RESULT=RED
+
+證據性質：本段由**現行版** `check_completeness.py`（輸出 `SOURCE_FIXTURE_ROWS` 的版本，腳本本身未改動）於本輪 rework 中取得。取得狀態：fixture 先行——`deferred-sources.tsv` 已加 SRC-030（DTC-030）／SRC-031、`readme-scan.tsv` 已擴至 24 目錄，但 `ci-stage-spec.md` 尚未加 DTC-030 表列／章節與 t29–t31 掃描列。此紅燈證明檢查器確實會抓到「fixture 有、spec 沒有」與掃描分母漂移，不是偽造或重演舊紅燈。隨後補齊 spec 端即得下方 green-evidence.txt 的綠燈。

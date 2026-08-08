@@ -235,6 +235,43 @@ function New-T30ProviderReport {
     }
 }
 
+function Test-T30ContainsForbiddenDecisionLanguage {
+    <#
+    .SYNOPSIS
+        遞迴掃描物件底下所有字串欄位，比對票面禁止的兩種裁決措辭。
+
+    .DESCRIPTION
+        M-1 修復：舊寫法先 ConvertTo-Json 再對序列化字串跑 regex；Windows PowerShell 5.1
+        的 ConvertTo-Json（底層 JavaScriptSerializer）會把非 ASCII 字元逸出成 \uXXXX，
+        逸出後的字串永遠比對不到中文字樣，等同守門靜默失效。本函式改為直接對記憶體中
+        物件的原生字串欄位值比對，完全不經序列化，字元本身從未被逸出，不受此問題影響。
+        遞迴走訪陣列與物件屬性，涵蓋範圍與舊版掃描整個序列化 JSON 等價。
+    #>
+    [CmdletBinding()]
+    param([AllowNull()]$InputObject)
+
+    $forbiddenPattern = '多數決|以\s*Claude\s*為準'
+
+    if ($null -eq $InputObject) { return $false }
+
+    if ($InputObject -is [string]) {
+        return [bool]($InputObject -match $forbiddenPattern)
+    }
+
+    if ($InputObject -is [System.Collections.IEnumerable]) {
+        foreach ($item in $InputObject) {
+            if (Test-T30ContainsForbiddenDecisionLanguage -InputObject $item) { return $true }
+        }
+        return $false
+    }
+
+    $properties = $InputObject.PSObject.Properties
+    foreach ($prop in $properties) {
+        if (Test-T30ContainsForbiddenDecisionLanguage -InputObject $prop.Value) { return $true }
+    }
+    return $false
+}
+
 function New-T30GateResult {
     [CmdletBinding()]
     param(
@@ -265,14 +302,15 @@ function New-T30GateResult {
     $overlaps = New-Object System.Collections.Generic.List[object]
     $disagreements = New-Object System.Collections.Generic.List[object]
     foreach ($left in $claudeFindings) {
-        $matches = @($externalFindings | Where-Object { $_.matchKey -eq $left.matchKey })
-        if ($matches.Count -gt 0) {
+        # S-1：不可命名為 $matches，那是 PowerShell 的自動變數（見上方第 43 行同一守則）。
+        $matchedExternal = @($externalFindings | Where-Object { $_.matchKey -eq $left.matchKey })
+        if ($matchedExternal.Count -gt 0) {
             $overlaps.Add([pscustomobject][ordered]@{
                 matchKey = $left.matchKey
                 signal = 'strongest-overlap'
                 references = @(
                     [pscustomobject][ordered]@{ provider = $ClaudeAxisAReport.provider; findingId = $left.id }
-                    [pscustomobject][ordered]@{ provider = $ExternalAxisAReport.provider; findingId = $matches[0].id }
+                    [pscustomobject][ordered]@{ provider = $ExternalAxisAReport.provider; findingId = $matchedExternal[0].id }
                 )
             })
         }
@@ -281,8 +319,8 @@ function New-T30GateResult {
         }
     }
     foreach ($right in $externalFindings) {
-        $matches = @($claudeFindings | Where-Object { $_.matchKey -eq $right.matchKey })
-        if ($matches.Count -eq 0) {
+        $matchedClaude = @($claudeFindings | Where-Object { $_.matchKey -eq $right.matchKey })
+        if ($matchedClaude.Count -eq 0) {
             $disagreements.Add([pscustomobject][ordered]@{ provider = $ExternalAxisAReport.provider; findingId = $right.id; matchKey = $right.matchKey })
         }
     }
@@ -309,8 +347,9 @@ function New-T30GateResult {
         closingSummary = ($summaryParts -join '｜')
     }
     if (-not $SkipDisputeLanguageGuard) {
-        $serialized = $result | ConvertTo-Json -Depth 30 -Compress
-        if ($serialized -match '多數決|以\s*Claude\s*為準') {
+        # M-1：不再序列化成 JSON 字串才比對，直接對物件底下每個字串欄位原生比對，
+        # 避免 PowerShell 5.1 的 ConvertTo-Json 逸出非 ASCII 字元導致守門靜默失效。
+        if (Test-T30ContainsForbiddenDecisionLanguage -InputObject $result) {
             throw '分歧輸出命中禁止的裁決措辭，已拒絕產出。'
         }
     }

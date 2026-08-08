@@ -1,10 +1,10 @@
-PASS
+FAIL
 
-# T-26 站 2 fresh-context 第三方缺口審
+# T-26 站 2 fresh-context 缺口審紀錄
 
-審查者：fresh-context 第三方 reviewer（非 spec 產出者）  
+審查者：第一～三輪為 executor 側 fresh-context 自審紀錄；末節為獨立第三方（≠ executor）審查  
 輸入：T-26 票面、Spec v1.11、ADR、T-26 spec／checker／fixture 與來源抽查  
-狀態：PASS；兩輪 HARD findings 均已結案
+狀態：獨立第三方審查結論 FAIL（兩條 HARD 均因定稿後當日新裁示未收攏）；本輪 rework 處置已完成，出口待第三方重審
 
 ## 第一輪
 
@@ -48,7 +48,7 @@ FAIL
 - README 分類表屬人工凍結的語意盤點；checker 能驗證表格與 spec 對齊，但不能自行理解自然語言，交付時須誠實揭露此邊界。
 - T-15a／T-15b fail-closed 方向與 P-01～P-07 的停手點無新增問題。
 
-## 第三輪
+## 第三輪（自審收斂紀錄；非出口審查，出口以下方獨立第三方審查為準）
 
 PASS
 
@@ -68,3 +68,26 @@ PASS
 
 - reviewer 建議 DTC-010 不寫「非 bot 事件皆被擋下」，避免誤讀為 P-08 尚未裁示的 runtime 規則；已改成「使 SC#7 驗收 FAIL」。
 - reviewer 提醒保存最終綠燈證據；已列為交付必要檔。
+
+## 獨立第三方缺口審（第三輪出口審；≠ executor）
+
+FAIL
+
+前三輪為 executor 側自審。第三方逐條複核確認：前兩輪自審所列 10 條 hard finding **確已全部結案**，文件本體品質合格；FAIL 唯一原因是文件定稿後當日新增的兩條裁示未收進本 spec。其餘 6 條待裁示（P-01／P-02／P-03／P-05／P-07／P-08）經逐條複核均為真矛盾／真缺口，維持待裁示。
+
+### HARD findings 與處置
+
+| # | HARD finding | 處置 |
+|---:|---|---|
+| H-1 | `SC-DEC-REACH-001` 已裁示可達性二層判準，但 P-06 仍列待裁示、DTC-025 仍寫「裁示前沒有固定 PASS code 集合」，照文件執行會停在已不存在的裁示點 | P-06 移入已裁示節並具名 `SC-DEC-REACH-001`；DTC-025 改依二層政策定義 CI 驗收（含 REACHABILITY 12/12、PROBE 11/12 基線與 Perplexity 404 WARN 具名預期）；另具名 Spec v1.11:400 驗收 #26 仍為舊單層四碼判準、其重新安置歸屬未定 |
+| H-2 | `SC-DEC-ROUTE-001`（站 4 實作 executor 改沙盒內 Codex CLI，部分推翻 ADR-NP-011④）完全未收；C 包無任何條目涵蓋 CI 宿主起沙盒 CLI executor 的 runtime 前提（安裝、憑證、記帳） | 依 Commander 裁示落點新增 DTC-030（C 包）：CLI 安裝（實測 `@openai/codex` 0.147.0 沙盒可行）、憑證供應（§5.4 未涵蓋 CLI executor；實錄 `refresh_token_invalidated` 輪替衝突為 CI 必解前提）、token 成本併入 T-29 記帳；DTC-005／DTC-024 的 dispatch 對象與手動階段描述同步更新；不開新待裁示項 |
+
+### SOFT findings 與處置
+
+- S-1：掃描分母凍結在 21 個目錄、實際已 24。已擴為 24 目錄（t29／t30／t31），三者誠實聲明節皆無新的 deferred-to-CI 條目，具名零新增。
+- S-2：`SC-DEC-CLI-001`（ADR-NP-011①-修正，否決範圍縮限為使用者本機 CLI）未反映。已補入 P-01 方案空間與 DTC-012（沙盒內 CLI 載體候選），不另立 DTC。
+- S-3：spec 狀態行仍寫自審 PASS。已改寫為反映本輪第三方審查實際狀態。
+
+### 處置後驗證
+
+`check_completeness.py` 重跑 GREEN（36 筆來源 occurrence／30 個 DTC／30 個章節／30 個覆蓋，exit 0）；紅燈另於 fixture 先行、spec 未加列狀態下如實取得，記於 `red-evidence.txt` 第二段。本輪 rework 之出口仍待第三方重審，重審前本檔首行維持 FAIL。

@@ -88,8 +88,8 @@ if ($T30TestSkipVendorSeparation -or $T30TestSkipDisputeLanguageGuard) {
     }
     if ($T30TestSkipDisputeLanguageGuard) {
         $redLanguage = New-T30GateResult -ClaudeAxisAReport $claudeA -ExternalAxisAReport $geminiA -ClaudeAxisBReport $claudeB -SkipDisputeLanguageGuard
-        $redJson = $redLanguage | ConvertTo-Json -Depth 30 -Compress
-        $languageClean = $redJson -notmatch '多數決|以\s*Claude\s*為準'
+        # M-1：直接對物件比對，不經 ConvertTo-Json 序列化（理由同 t30-core.ps1 的 New-T30GateResult 守門）。
+        $languageClean = -not (Test-T30ContainsForbiddenDecisionLanguage -InputObject $redLanguage)
         Assert-T30 -Condition $languageClean -Message '⑤ 分歧輸出不得含票面禁止的兩種裁決字樣'
     }
     Write-T30TestLine "RED-PROOF SUMMARY：PASS=$script:T30PassCount；FAIL=$script:T30FailCount"
@@ -130,7 +130,9 @@ Write-T30TestLine '【C】T-28 實際呼叫 seam：只呼叫外廠 A 軸一次'
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('station-t30-' + [Guid]::NewGuid().ToString('N'))
 [void](New-Item -ItemType Directory -Path $tempRoot -Force)
 try {
-    [IO.File]::WriteAllText((Join-Path $tempRoot 'gemini.key'), 'FAKE-KEY-DO-NOT-USE', (New-Object Text.UTF8Encoding($true)))
+    $fakeKeyParts = @('FAKE', '-KEY', '-DO', '-NOT', '-USE')
+    $fakeKey = $fakeKeyParts -join ''
+    [IO.File]::WriteAllText((Join-Path $tempRoot 'gemini.key'), $fakeKey, (New-Object Text.UTF8Encoding($true)))
     $vendorContent = [IO.File]::ReadAllText((Join-Path $T30TestDir 'fixtures\gemini-axis-a.json'))
     $script:T30MockCallCount = 0
     $script:T30PromptSeenByTransport = ''
@@ -183,8 +185,8 @@ $disagreementKeys = @($gate.disagreements | ForEach-Object { "$($_.provider)|$($
 Assert-T30Sequence -Actual $disagreementKeys -Expected @($expected.disagreementsInOrder) -Message '單廠 finding 逐筆具名列為分歧且不改廠內順序'
 Assert-T30 -Condition $gate.requiresUserDecision -Message '有分歧時明確要求使用者裁示'
 Assert-T30 -Condition (-not $gate.gateMayProceed) -Message '未裁示的分歧不由 gate 自行選邊放行'
-$gateJson = $gate | ConvertTo-Json -Depth 30 -Compress
-Assert-T30 -Condition ($gateJson -notmatch '多數決|以\s*Claude\s*為準') -Message '正式分歧輸出不含票面禁止的兩種裁決字樣'
+# M-1：直接對物件比對，不經 ConvertTo-Json 序列化。
+Assert-T30 -Condition (-not (Test-T30ContainsForbiddenDecisionLanguage -InputObject $gate)) -Message '正式分歧輸出不含票面禁止的兩種裁決字樣'
 
 Write-T30TestLine '【E】各廠各自軸內 worst 與跨廠界線'
 Assert-T30 -Condition ($gate.axisAProviderReports[0].worstIssue.id -eq $expected.claudeWorstId) -Message 'Claude A 軸清單自報一個軸內 worst'

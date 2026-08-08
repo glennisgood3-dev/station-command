@@ -1,0 +1,20 @@
+﻿=== M-1 自證：PowerShell 5.1 逸出形態下，序列化 regex 比對 vs 物件直接比對 ===
+
+【樣本物件（記憶體中原生字串，未逸出）】
+decisionMethod = 以 Claude 為準
+note           = 本輪合議機制採多數決
+
+【本機 pwsh 7.4.6 ConvertTo-Json 原始輸出（中文未逸出，非本次自證重點）】
+{"decisionMethod":"以 Claude 為準","note":"本輪合議機制採多數決"}
+  舊寫法（序列化字串 -match）在『未逸出』JSON 上命中：True （符合預期，這正是現況在 pwsh7 上全綠、掩蓋問題的原因）
+
+【模擬 Windows PowerShell 5.1 JavaScriptSerializer 逸出後的 JSON】
+{"decisionMethod":"\u4ee5 Claude \u70ba\u6e96","note":"\u672c\u8f2a\u5408\u8b70\u6a5f\u5236\u63a1\u591a\u6578\u6c7a"}
+
+【修法之前：$simulated51Json -match '多數決|以\s*Claude\s*為準'】
+  命中結果：False （預期 False = 守門在 5.1 逸出形態下靜默失效）
+
+【修法之後：Test-T30ContainsForbiddenDecisionLanguage -InputObject $sample（不經序列化）】
+  命中結果：True （預期 True = 守門在同一組逸出風險下依然有效，因為比對對象根本不是逸出後的字串）
+
+=== 自證結論：修前不命中=True；修後命中=True；自證整體成立 ===

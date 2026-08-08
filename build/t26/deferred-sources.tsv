@@ -28,6 +28,8 @@ SRC-026	DTC-026	build/t16/README.md	183	尚未接入 `station-board/SKILL.md`	pr
 SRC-027	DTC-027	build/t17/README.md	290	尚未接入 `../t09/station-board/SKILL.md`	pre-ci-debt
 SRC-028	DTC-028	build/t17/README.md	295	`project-manager` sub-agent 的實際 dispatch 未在本票實作	pre-ci-debt
 SRC-029	DTC-029	build/t13/README.md	158	CLI 整合層	pre-ci-debt
+SRC-030	DTC-030	ADR.md	172	SC-DEC-ROUTE-001	resolved-conflict
+SRC-031	DTC-025	CHANGELOG.md	31	SC-DEC-REACH-001	resolved-conflict
 V18-001	DTC-005	Spec_station-command_v1.8.md	197	deferred-to-CI	v1.8-literal
 V18-002	DTC-006	Spec_station-command_v1.8.md	241	deferred-to-CI	v1.8-literal
 V18-003	DTC-007	Spec_station-command_v1.8.md	276	deferred-to-CI	v1.8-literal

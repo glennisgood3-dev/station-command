@@ -1,10 +1,10 @@
 # station-command CI 階段執行規格（T-26）
 
-狀態：本票完成；站 2 fresh-context 第三方缺口審 PASS（待裁示項仍依本文件停手）
+狀態：站 2 出口缺口審第三輪由獨立第三方（≠ executor）執行，結論 **FAIL**——前兩輪為自審，其 10 條 hard finding 經第三方複核確已結案，FAIL 原因是定稿後當日新增的兩條裁示（`SC-DEC-REACH-001`／`SC-DEC-ROUTE-001`）未收攏；本輪 rework 已依裁示收攏（見已裁示節與 DTC-030），待重審。待裁示項仍依本文件停手。
 
 本文件只收攏既有 deferred-to-CI／CI 接線債，不新增產品規則。每個來源項目以固定 `DTC-NNN` 識別；下表同時是 `check_completeness.py` 的凍結 fixture。
 
-機器可讀的獨立 fixture 位於 `deferred-sources.tsv`；本文件表格只是人讀投影。檢查器以獨立 fixture 為分母，逐筆回查來源檔案、行號與預期片段，再核對本表與對應章節；因此同時刪掉本表一列與章節不會假綠。21 個 build 目錄的 README 存在性與分類分母另凍結於 `readme-scan.tsv`。
+機器可讀的獨立 fixture 位於 `deferred-sources.tsv`；本文件表格只是人讀投影。檢查器以獨立 fixture 為分母，逐筆回查來源檔案、行號與預期片段，再核對本表與對應章節；因此同時刪掉本表一列與章節不會假綠。24 個 build 目錄的 README 存在性與分類分母另凍結於 `readme-scan.tsv`。
 
 ## 來源對照表（凍結 fixture）
 
@@ -39,6 +39,7 @@
 | DTC-027 | T-17 對帳尚未接入 `/station-board` 完整模式 | `build/t17/README.md:263-301` | skill 接線、真實 plans 格式前提與完整模式動態驗證 | E |
 | DTC-028 | T-17 `project-manager` 實際 dispatch 尚未接入 | `build/t17/README.md:290-301` | 完整模式能 dispatch 並消費既有對帳函式結果 | E |
 | DTC-029 | T-13 CLI 整合層尚缺真實 PAT 的全過／未過票集動態驗證 | `build/t13/README.md:156-168` | CI 測試 repo 跑兩種票集並核對報告、override、queue/direct-write 結果 | E |
+| DTC-030 | 站 4 實作 executor 依 `SC-DEC-ROUTE-001` 改由沙盒內 Codex CLI 承接；CI 宿主須解決 CLI 安裝、憑證供應與 T-29 記帳三項 runtime 前提 | `ADR.md:172-180`；`CHANGELOG.md:32` | CI 宿主的 CLI 自動化安裝、不與他處共用 refresh token 的憑證供應方案、T-29 ledger 接線 | C |
 
 ### v1.8 `deferred-to-CI` 字面位置 fixture
 
@@ -76,8 +77,11 @@
 | t24 | 已逐行讀 | 1 | 0 | 真實 provider 明指未來 CI 自動化 |
 | t25 | 已逐行讀 | 1 | 0 | §7.5 排程 |
 | t27 | 已逐行讀 | 0 | 0 | 無 deferred／CI 誠實聲明 |
-| t28 | 已逐行讀 | 1 | 0 | 外廠動態可達性承接 §9a，但判準衝突待裁示 |
-| **合計** | **19 份 README＋t05 的 3 份 Markdown；t11 缺目錄** | **10** | **6** | 另有 DTC-023 跨票已裁示分歧，不重複計數 |
+| t28 | 已逐行讀 | 1 | 0 | 外廠動態可達性承接 §9a；判準已依 `SC-DEC-REACH-001` 裁定二層政策（見已裁示節） |
+| t29 | 已逐行讀 | 0 | 0 | 誠實聲明無新的 deferred-to-CI；未實證項（真實 provider 呼叫、GitHub 寫入等）錨定於未關票 T-31 與既有 DTC-024／003，零新增 |
+| t30 | 已逐行讀 | 0 | 0 | 誠實聲明無新的 deferred-to-CI；錯誤體語意與 usage 記帳殘留具名交 T-31／T-29，零新增 |
+| t31 | 已逐行讀 | 0 | 0 | 誠實聲明無新的 deferred-to-CI；端到端驗收未過屬未關票 T-31 本身的殘留，非新 CI 延後項 |
+| **合計** | **22 份 README＋t05 的 3 份 Markdown；t11 缺目錄** | **10** | **6** | t29／t30／t31 為本輪擴充的分母（原凍結 21 目錄已過期），三者皆零新增；另有 DTC-023 跨票已裁示分歧，不重複計數 |
 
 ## CI 階段執行包
 
@@ -208,7 +212,7 @@
 #### DTC-005 只在站 4／5續派
 
 - **CI 階段要做**：排程每次開全新 session，只讀 GitHub 現況建 frontier；站 4／5可進既有 loop，站 1／2／3須停在人類 gate。選件與六停止條件完全共用 §5.3a，不建立狀態檔。
-- **啟用條件**：DTC-003 已讓 assignee、`sc:gate-fail`、留言三訊號可由 CI 當輪寫入並回驗；DTC-024 真實 provider 已接上；P-05 的 assignee 生命週期與 rework 次數真相源已裁示。未裁示前不得宣稱跨 session 可端到端啟用。
+- **啟用條件**：DTC-003 已讓 assignee、`sc:gate-fail`、留言三訊號可由 CI 當輪寫入並回驗；DTC-024 真實 provider 已接上；站 4 續派的 dispatch 對象依 `SC-DEC-ROUTE-001` 為沙盒內 Codex CLI executor，其 runtime 前提（安裝、憑證、記帳）依 DTC-030 先結清；P-05 的 assignee 生命週期與 rework 次數真相源已裁示。未裁示前不得宣稱跨 session 可端到端啟用。
 - **啟用後驗收**：連續兩個隔離 session 對同一 work 執行；第二個 session只依 GitHub 看見第一個已落地訊號，不重派同票。另須涵蓋站 4 成功收件→站 5 handoff、成功收件後下一輪可重新入選、以及兩個 session 累積到第二次 fail 時觸發停因②；把 work 設於站 3 時不得代行人類 gate。
 - **與手動階段差異**：手動階段只靠 Commander session 內記憶續跑；CI 可跨 session 重建。
 - **差什麼才能驗完**：可啟動無記憶 session 的宿主、真實 dispatch callback、跨 session 測試 fixture。
@@ -247,11 +251,19 @@
 
 #### DTC-024 T-24 真實 provider
 
-- **CI 階段要做**：由 CI 宿主提供 T-24 既有 `GateResultProvider` seam 的真實等價實作，串起 dispatch → 收件 → 判 gate → 續派；不得把離線 mock 當端到端完成。
-- **啟用條件**：宿主具備既有路由表所需 dispatch 能力，且各輪 metadata 能依 DTC-003 直接寫入。
+- **CI 階段要做**：由 CI 宿主提供 T-24 既有 `GateResultProvider` seam 的真實等價實作，串起 dispatch → 收件 → 判 gate → 續派；不得把離線 mock 當端到端完成。dispatch 對象依 `SC-DEC-ROUTE-001`：站 4 實作 executor 為沙盒內 Codex CLI（runtime 前提見 DTC-030），Plan 與 Review 維持 Claude（fable）。
+- **啟用條件**：宿主具備既有路由表所需 dispatch 能力（站 4 實作路由含 DTC-030 的 CLI executor），且各輪 metadata 能依 DTC-003 直接寫入。
 - **啟用後驗收**：真實多輪 work 至少完成一次 PASS 續派與一次 rework；輸出不含站 4／5 確認提問，六停因之外的值仍拒絕。
-- **與手動階段差異**：手動由 Commander 在對話層逐輪扮演 provider；CI 由無記憶宿主 callback 承接。
-- **差什麼才能驗完**：真實 sub-agent dispatch／回件接口；本 spec 不定義新接口 schema。
+- **與手動階段差異**：手動階段站 4 實作本體已依 `SC-DEC-ROUTE-001` 由沙盒內 Codex CLI 承接，但 provider seam 的收件／判 gate 仍由 Commander 在對話層逐輪人工轉送；CI 由無記憶宿主 callback 承接，不再有人在中間傳遞。
+- **差什麼才能驗完**：真實 executor dispatch／回件接口（站 4 為沙盒 CLI，前提見 DTC-030）；本 spec 不定義新接口 schema。
+
+#### DTC-030 沙盒 CLI executor 的 CI runtime 前提（依 `SC-DEC-ROUTE-001`）
+
+- **CI 階段要做**：讓 CI 宿主能在沙盒內起 OpenAI Codex CLI（gpt-5.6-sol）作站 4 實作 executor；Plan 與 Review 維持 Claude（fable）。此為已裁示的 CI 階段實作債，不是待裁示項。須結清三項 runtime 前提：① **CLI 安裝**——手動階段已實測 `npm install -g @openai/codex`（0.147.0）於沙盒內可行，CI 宿主須重現等價安裝並具名版本；② **憑證供應**——§5.4「連接資料夾讀 key」規則是寫給 API adapter 的，未涵蓋 CLI executor；手動階段實錄：以 ChatGPT 登入憑證（`auth.json` 快照）供應會發生 refresh token 輪替衝突，同一把 refresh token 在兩處使用會互相踢掉，實際遇 `refresh_token_invalidated` 導致 CLI 中途失效——CI 必須採不與他處共用同一把 refresh token 的憑證供應方式，並沿用 key 不進對話／repo／log／queue 的既有邊界；具體方案（API key 或獨立憑證）由既有 key 管理權責決定，本 spec 不發明新機制；③ **成本記帳**——該 executor 的 token 成本（手動階段實測每張票約 180k tokens，計於 OpenAI 帳）須併入 T-29 的 ledger 記帳與既有邊界告警。
+- **啟用條件**：DTC-024 的真實 dispatch 接口能把站 4 實作票路由到 CLI executor；憑證供應方案已解決輪替衝突並經實測；T-29 ledger 可登錄該 executor 用量。
+- **啟用後驗收**：CI job 內完成至少一張真實站 4 實作票：CLI 安裝成功並具名版本；全程無 `refresh_token_invalidated` 等憑證失效中斷；憑證不落 repo／log／對話／queue；該票 token 用量寫入 T-29 ledger 並可觸發既有 50%／80%／100% 邊界；verifier 仍為 Claude，verifier ≠ executor 的異廠交叉檢視成立。
+- **與手動階段差異**：手動階段由使用者手動在沙盒安裝 CLI、以登入憑證代供並人工承受輪替衝突；CI 須由宿主自動化安裝與憑證供應，且不得與使用者本機共用同一把 refresh token。
+- **差什麼才能驗完**：CI 宿主的沙盒與 CLI 安裝能力、不衝突的憑證供應方案、T-29 ledger 接線與一張真實站 4 票的端到端證據。
 
 ### D. 站 5 mutation manifest 重放
 
@@ -322,14 +334,14 @@
 - **CI 階段要做**：在裁示前只盤點並驗證既有 T-27/T-28 adapter；不得自行決定是否新增 `sc:dual-vendor`、不得把 DECISIONS.md 逃生口換回 label、不得宣稱外廠接入仍不存在或已常設化。
 - **啟用條件**：待裁示 P-01 解決「§1/§3.3/風險5 延後」與「§5.1/§5.4/ADR-NP-011 已有 API 實體」矛盾，並決定 `sc:dual-vendor` 載體去留。
 - **啟用後驗收**：依裁示選定的既有路徑執行；共同不變的驗收只有：外廠不可用時具名降級、不阻塞、finding 不合併不投票、key 不進對話/repo/log/queue。任何 label 驗收須等 P-01 明確採 label 才存在。
-- **與手動階段差異**：手動現況以 DECISIONS.md 單票裁示與既有 adapter 為載體；CI 是否改載體尚未定。
+- **與手動階段差異**：手動現況以 DECISIONS.md 單票裁示與既有 adapter 為載體；CI 是否改載體尚未定。另依 `SC-DEC-CLI-001`（ADR-NP-011①-修正），外廠接入的技術載體候選除 API adapter 外新增「沙盒內 CLI」（否決範圍已縮限為使用者本機的 CLI）；採何載體仍屬 P-01 待裁示，本項不選邊。
 - **差什麼才能驗完**：P-01 裁示、外廠可達環境與既有後續票所要求的語意驗證；本票不碰 key。
 
-#### DTC-025 T-28 動態可達性
+#### DTC-025 T-28 動態可達性（判準已依 `SC-DEC-REACH-001` 裁定）
 
-- **CI 階段要做**：在允許連外、但不帶 key 的 CI job 跑既有 12 家最小可達性檢查；只驗網路可達，不冒充模型語意或真 key 驗證。可達性答案須等 P-06 裁示，不能在本文件靜默選 Spec #26 或 T-28 rework 任一邊。
-- **啟用條件**：P-01 至少裁示外廠 adapter 繼續作為 CI 階段候選路徑、P-06 裁定可達性政策，且執行環境允許外網。
-- **啟用後驗收**：固定逐家一次，共 12 次，結果與 T-27 registry 逐列配對。若 P-06 採 T-28 rework，報告必分 `Reachability` 與 `ProbeQuality`，400／404／405 是可達但 probe WARN、421 proxy 才是可達性 FAIL；若採 Spec #26，則依裁示後同步過的正典執行。裁示前沒有固定 PASS code 集合。
+- **CI 階段要做**：在允許連外、但不帶 key 的 CI job 跑既有 12 家最小可達性檢查，依已裁示的 `SC-DEC-REACH-001` 二層判準執行：第一層 `Reachability`＝有無收到 provider 的任何 HTTP 回應（只有網路層失敗與 421 proxy 攔截判不可達 FAIL）；第二層 `ProbeQuality`＝狀態碼落 200／401／403／429 為 PASS，落區間外判 **WARN 而非 FAIL**。只驗網路可達，不冒充模型語意或真 key 驗證。
+- **啟用條件**：P-01 至少裁示外廠 adapter 繼續作為 CI 階段候選路徑，且執行環境允許外網。可達性政策不再是啟用前提（原 P-06 已裁示結案，見已裁示節）。
+- **啟用後驗收**：固定逐家一次，共 12 次，結果與 T-27 registry 逐列配對；報告必分 `Reachability` 與 `ProbeQuality` 兩層。比對基線＝手動階段實測 REACHABILITY 12/12、PROBE 11/12：Perplexity `GET /models` 回 404 判 WARN，該家無此端點，屬具名預期而非缺陷、亦非迴歸。任一家 `Reachability` FAIL 才使本項 FAIL；`ProbeQuality` 落區間外只 WARN 並具名，不得改判 FAIL。另具名落差：**Spec v1.11:400 的驗收 #26 字面仍是舊的單層四碼判準（200／401／403／429＝連得到），與 `SC-DEC-REACH-001` 不一致；Spec 已定稿、不在 T-26 修改權內，該條文的重新安置歸屬未定**——CI 報告依本裁示執行，不得引用舊判準改判，也不得宣稱 Spec #26 已同步。
 - **與手動階段差異**：本票環境禁網，只完成 fixture／offline；CI 補動態網路觀察，不讀任何 key。
 - **差什麼才能驗完**：可連外 CI runner；真 key 呼叫與業務語意仍屬既有 T-31 等後續範圍，不能在此偷加。
 
@@ -340,8 +352,9 @@
 - `Spec_station-command_v1.11.md:27,84,413` 說外廠接入路徑不存在／延至 CI，`sc:dual-vendor` 也延至 CI。
 - 同檔 `:197-218,240,264-276` 與 `ADR.md:131-181` 已登錄 12 家、定義四家族 API、key 路徑、降級與分歧規則，並明說 DECISIONS.md 逃生口「自 ADR-NP-011 起有實體」。T-27/T-28 又已有 asset 與 adapter。
 - `ADR.md:50-59` 只說升 CI 後再議「常設化」，不等於已裁定要恢復 `sc:dual-vendor` label。
+- `SC-DEC-CLI-001`（`ADR.md:149-155`，ADR-NP-011①-修正）已把「否決本機 CLI 路線」的範圍縮限為**使用者本機的 CLI**，沙盒內 CLI 解禁；因此本項的外廠路徑方案空間除既有 API adapter 外，另有「沙盒內 CLI 載體」候選。此裁示只擴充候選集，不決定 P-01 的選邊。
 
-**需裁示**：CI 階段究竟是（a）保留 DECISIONS.md 單票載體，只把既有 adapter 接入 CI；（b）新增 `sc:dual-vendor` 並定義合法載體／唯一寫入者／生命週期；或（c）其他已具名方案。在裁示前，本 spec 不選邊，DTC-012 只允許離線與無 key 可達性驗證。
+**需裁示**：CI 階段究竟是（a）保留 DECISIONS.md 單票載體，只把既有 adapter 接入 CI；（b）新增 `sc:dual-vendor` 並定義合法載體／唯一寫入者／生命週期；或（c）其他已具名方案（含 `SC-DEC-CLI-001` 解禁後的沙盒內 CLI 載體）。在裁示前，本 spec 不選邊，DTC-012 只允許離線與無 key 可達性驗證。
 
 ### P-02 §4.6 整節廢止後，站 4 code patch 的 CI 留存路徑未定
 
@@ -363,13 +376,6 @@
 
 **需裁示**：① assignee 的完整生命週期；② rework 次數從哪個既有 GitHub 原生資料推導。未裁示前 DTC-005／009／024 不得宣稱端到端可啟用；不得自行加計數 label、留言協定或狀態檔。
 
-### P-06 T-28 可達性二層政策與 Spec #26 舊四碼判準衝突
-
-- `Spec_station-command_v1.11.md:400` 仍以 200／401／403／429 作「連得到」區間。
-- 現行 `build/t28/README.md:70-73` 與 `reachability-policy.ps1:5-50` 經 rework 後把「網路可達」與「probe 品質」拆開：任一 provider HTTP 回應皆可達，400／404／405 為 WARN，421 proxy 才 FAIL。
-
-**需裁示**：更新 Spec #26 採 T-28 二層政策，或退回舊四碼白名單。裁示前 DTC-025 只可收集原始狀態碼，不得宣告最終 PASS/FAIL。
-
 ### P-07 跨 repo `github-actions[bot]` 的 workflow／權限／actor 拓撲未定
 
 DTC-019 要跨 2+ repo 關 milestone，DTC-001／002 又要求最終寫入 actor 為 `github-actions[bot]`；現有來源沒有指定 workflow 放置位置、跨 repo 觸發方式或權限來源，也沒有證據顯示跨 repo 寫入後 actor 仍符合 gate 身分。這不是一句「有寫權」即可略過的部署細節。
@@ -387,6 +393,12 @@ DTC-019 要跨 2+ repo 關 milestone，DTC-001／002 又要求最終寫入 actor
 ### P-04 票面「9 處」的分母
 
 Commander 已裁示：`tickets-loop-draft.md:63` 的 What-it-delivers 本身恰好枚舉 9 條語意條目，因此「9 處」指該枚舉，不是 v1.8 中 `deferred-to-CI` 的字面字串計數。這 9 條均已涵蓋：§3.4 → DTC-002；§5.3b → DTC-005；§7.5 → DTC-006（另有 build 接線來源 DTC-022）；驗收 #7 → DTC-007；#17 → DTC-008；#25 → DTC-009；風險 2 → DTC-010；風險 9 → DTC-011；§9a → DTC-001、DTC-012。故字面 fixture 維持實檔 5/5，語意枚舉則為 9/9；兩者分母不同，不再構成矛盾。P-04 結案，不屬待裁示。
+
+### P-06 可達性二層政策（已裁示 `SC-DEC-REACH-001`）
+
+Commander 已裁示（`CHANGELOG.md:31`、`build/t28/README.md:70-73`、`reachability-policy.ps1`）：可達性採**兩層判準**。第一層「可達性」＝有無收到 provider 的任何 HTTP 回應——只有網路層失敗（DNS、連線被拒、逾時）與 421 proxy 攔截判不可達；第二層「探測品質」＝狀態碼是否落在 200／401／403／429，落區間外判 **WARN 而非 FAIL**。實測結果 REACHABILITY 12/12、PROBE 11/12：Perplexity `GET /models` 回 404 判 WARN，該家無此端點，屬具名預期非缺陷。原「Spec #26 四碼 vs T-28 rework 二層」的判準衝突以此結案；CI 階段驗收依 DTC-025 執行。
+
+**具名遺留（歸屬未定，非本票修改權）**：`Spec_station-command_v1.11.md:400` 的驗收 #26 字面仍是舊的單層四碼判準，與本裁示不一致。Spec v1.11 已定稿、不在 T-26 修改權內；該條文由誰、在哪一版重新安置**目前無主**。此落差在此具名以免重演 ADR-NP-010「需求無人重新安置」的成因；在被安置前，執行端一律以 `SC-DEC-REACH-001` 為準。
 
 ### T-15a／T-15b 空身分集合（不得重開）
 

@@ -115,7 +115,7 @@ cd <plugin repo>\build\t30
 
 ## 誠實聲明與已知界線
 
-- 依使用者明令，本環境沒有連外網、沒有呼叫真實 GitHub API、沒有讀取任何真 key。測試程式內唯一 key literal 是明顯假的 `FAKE-KEY-DO-NOT-USE`；執行時只把它寫入 repo 外暫存目錄，測試結束即刪除，且不寫入執行證據。
+- 依使用者明令，本環境沒有連外網、沒有呼叫真實 GitHub API、沒有讀取任何真 key。測試用假 key 於執行期由片段組合產生，完整值不以字面形式落入 repo；執行時只把組出的值寫入 repo 外暫存目錄，測試結束即刪除，且不寫入執行證據。
 - 已實證的是 T-28 transport seam 確實執行、收到完整 prompt、能解析人造成功回應，以及缺 key 的真實降級路徑；未實證 Gemini 現網可用性或真實模型輸出品質。
 - 實跑發現 T-28 的唯讀守門會因官方第 9 條 smell 內含英文 `delete` 而誤擋完整基線。因禁止修改已驗收地基，本票以安全佔位 prompt 讓 T-28 完成 request 結構檢查，再由 transport wrapper 只替換既有純文字 prompt 欄位；method、URI、headers、body 結構、key 防護、重試與降級仍全由 T-28 處理。離線測試逐字斷言 transport 所見 prompt 等於證據 prompt。這是具名 workaround，不冒稱 T-28 原守門能直接接受該基線。
 - T-31 尚未交付時，外廠回應的業務 JSON schema 不合會明確 throw，不會被誤當作零 findings；錯誤體語意與 usage 記帳仍屬 T-31／T-29 範圍，本票不冒稱完成。

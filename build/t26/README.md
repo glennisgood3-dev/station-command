@@ -5,8 +5,8 @@
 交付檔：
 
 - `ci-stage-spec.md`：CI 階段可執行規格、來源對照、目錄掃描表與待／已裁示。
-- `deferred-sources.tsv`：34 筆獨立來源 occurrence，去重對應 29 個 DTC。
-- `readme-scan.tsv`：21 個指定 build 目錄的 README 存在狀態與人工分類計數。
+- `deferred-sources.tsv`：36 筆獨立來源 occurrence，去重對應 30 個 DTC。
+- `readme-scan.tsv`：24 個指定 build 目錄的 README 存在狀態與人工分類計數。
 - `check_completeness.py`：可執行的完備性檢查器。
 - `red-evidence.txt`／`green-evidence.txt`：同一檢查器的紅、綠實跑證據。
 - `station2-gap-review.md`：fresh-context 第三方缺口審及兩輪 rework 處置。
