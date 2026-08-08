@@ -2,6 +2,26 @@
 
 Keep a Changelog 形式；spec 與 ADR 不寫沿革，一律外移到此（依 Spec §8）。
 
+## [0.1.2] - 2026-08-08
+
+### Added
+- DECISIONS Part F 七條：`SC-DEC-RO-002`（Drive 三層全鎖＋全副本都鎖，清單改為執行時窮舉）、`SC-DEC-ENUM-001`（未窮舉即宣稱數量之更正＋分頁 API 集合宣稱紀律）、`SC-DEC-SCOPE-001`（`fleet-ci` 在範圍內，做法＝archive）、`SC-DEC-SALVAGE-001`（取回由使用者具名觸發，形態為新 work 從站 1 起跑）、`SC-DEC-VER-001`（版本正典以 `v0.30.0` 為準）、`SC-DEC-REACH-002`（T-20a executor 改 `general-purpose`，實測定案）、`SC-DEC-ENC-001`（腳本編碼缺陷登記）
+
+### Changed
+- T-20b（#38）兩項未定項全數解除，票面未定項段改寫為已裁示範圍與做法；⚠️ 第八欄仍為「有 ⇒ 開權限」，依 §5.3a 停止條件① 仍須人工放行
+- T-20a（#37）executor 由 `code-reviewer` 改為 `general-purpose`，basis 具名為工具可達性實測結果（`SC-DEC-REACH-002`）
+
+### Fixed
+- 交付腳本改為 UTF-8 **帶 BOM** 產出，修復 Windows PowerShell 5.1 以 ANSI 碼頁誤讀導致的 parser 失敗（`SC-DEC-ENC-001`）
+
+### Known Issues
+- **Drive 副本總數未窮舉**：`protocol-sync` 資料夾至少 4 個、`protocol-amendments.md` 至少 5 筆，兩次查詢皆回傳 `nextPageToken`；真實數量為下限而非確數，須由 T-20b 執行時窮舉並附證據（`SC-DEC-ENUM-001`）
+- **已安裝 plugin 的實際版本號未實測**：正典版本已裁示為 `v0.30.0`，但停用對象是使用者機器上實際安裝的那一份，其版本須 T-20b 執行時實測具名，不得反推（`SC-DEC-VER-001`）
+- `SC-DEC-REACH-002` 的通則（票面指派 executor 前須確認工具集涵蓋所需一級來源管道）、`SC-DEC-ENC-001` 的 BOM 檢查紀律、`SC-DEC-NOOP-002`、`SC-DEC-LOG-001` 四項條文**待安置**——v1.11 已定稿，不在本次修改權內
+- `Spec_station-command_v1.11.md:400` 驗收 #26 仍寫舊的單層四碼可達性判準，與 `SC-DEC-REACH-001` 不一致；歸屬無主，未開票
+- `build/t21/queue-common.ps1:83` 相對路徑寫回缺陷未修（T-21 已關票），需另開票
+- `build/t26/ci-stage-spec.md:3` 狀態行仍停在第三輪，未隨第六輪 PASS 更新
+
 ## [0.1.1] - 2026-08-08
 
 ### Added
