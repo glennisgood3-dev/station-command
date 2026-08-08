@@ -2,6 +2,23 @@
 
 Keep a Changelog 形式；spec 與 ADR 不寫沿革，一律外移到此（依 Spec §8）。
 
+## [0.1.1] - 2026-08-08
+
+### Added
+- `tickets-t20-split.md`：T-20 拆票結果（T-20a／T-20b 兩張完整八欄位票 ＋ 14 項承接對照表），依 `SC-DEC-SPLIT-001`
+- DECISIONS Part E 四條：`SC-DEC-CARRIER-001`（正典載體更正：protocol 正典在 Drive，非 GitHub repo）、`SC-DEC-RO-001`（停用＝唯讀化保留，禁刪除）、`SC-DEC-SPLIT-001`（T-20 依不可逆動作邊界拆票）、`SC-DEC-LOG-001`（log 落檔流程缺陷登記）
+
+### Changed
+- 站 3 票集：原 T-20 單票由 T-20a／T-20b 取代；原 issue #21 以 `not_planned` 關閉並留拆票說明。T-20a 第八欄「無」⇒ 解除 §5.3a 停止條件①之阻擋，可由 loop 自動派工；T-20b 第八欄「有（開權限）」⇒ 仍停在使用者裁示
+- T-20a executor 由 `git-manager` 覆寫為 `code-reviewer`，理由具名於票面 basis 欄（依 SC-DEC-005 無 basis 即 `[INVALID]`）
+
+### Known Issues
+- **T-20b 有兩項未定項未釐清，缺一不得 dispatch**：①Drive 正典的具體唯讀化做法（權限轉唯讀 vs 移入 archive 資料夾）與目標檔案清單 ②`glennisgood3-dev/fleet-ci` 是否在停用範圍內
+- `Spec_station-command_v1.11.md:400` 驗收 #26 仍寫舊的單層四碼可達性判準，與 `SC-DEC-REACH-001` 不一致；歸屬無主，未開票
+- `SC-DEC-NOOP-002`（靜默 no-op 升為 Spec 常設檢查項）與 `SC-DEC-LOG-001` 兩項改法之具體條文**待安置**——v1.11 已定稿，不在本次修改權內
+- `build/t21/queue-common.ps1:83` 相對路徑寫回缺陷未修（T-21 已關票；GitHub 側 33 筆佇列全數套用成功，僅本機寫回空佇列檔失敗），需另開票
+- `build/t26/ci-stage-spec.md:3` 狀態行仍停在第三輪，未隨第六輪 PASS 更新
+
 ## [0.1.0] - 2026-08-08
 
 ### Added
